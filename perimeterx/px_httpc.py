@@ -2,8 +2,6 @@ import httplib
 import json
 import time
 
-import sys
-
 http_client = None
 
 

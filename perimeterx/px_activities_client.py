@@ -1,6 +1,7 @@
 import time
 import px_httpc
 import threading
+import traceback, sys
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -23,34 +24,43 @@ t1.start()
 
 def send_to_perimeterx(activity_type, ctx, config, detail):
     global CONFIG
-    if activity_type == 'page_requested' and not config.get('send_page_activities', False):
+    try:
+        print activity_type
+        if not config.get('server_calls_enabled', True):
+            return
+
+        if activity_type == 'page_requested' and not config.get('send_page_activities', False):
+            print 'no page activities'
+            return
+
+        if len(CONFIG.keys()) == 0:
+            CONFIG = config
+
+        _details = {
+            'http_method': ctx.get('http_method', ''),
+            'http_version': ctx.get('http_version', ''),
+            'module_version': config.get('module_version', ''),
+            'risk_mode': config.get('module_mode', '')
+        }
+
+        if len(detail.keys()) > 0:
+            _details = dict(_details.items() + detail.items())
+
+        data = {
+            'type': activity_type,
+            'headers': ctx.get('headers'),
+            'timestamp': int(round(time.time() * 1000)),
+            'socket_ip': ctx.get('socket_ip'),
+            'px_app_id': config.get('app_id'),
+            'url': ctx.get('full_url'),
+            'detail': _details,
+            'vid': ctx.get('vid', '')
+        }
+        print 'appending'
+        ACTIVITIES_BUFFER.append(data)
+    except:
+        print traceback.format_exception(*sys.exc_info())
         return
-
-    if len(CONFIG.keys()) == 0:
-        CONFIG = config
-
-    _details = {
-        'http_method': ctx.get('http_method', ''),
-        'http_version': ctx.get('http_version', ''),
-        'module_version': config.get('module_version', ''),
-        'risk_mode': config.get('module_mode', '')
-    }
-
-    if len(detail.keys()) > 0:
-        _details = dict(_details.items() + detail.items())
-
-    data = {
-        'type': activity_type,
-        'headers': ctx.get('headers'),
-        'timestamp': int(round(time.time() * 1000)),
-        'socket_ip': ctx.get('socket_ip'),
-        'px_app_id': config.get('app_id'),
-        'url': ctx.get('full_url'),
-        'detail': _details,
-        'vid': ctx.get('vid', '')
-    }
-
-    ACTIVITIES_BUFFER.append(data)
 
 
 def send_block_activity(ctx, config):

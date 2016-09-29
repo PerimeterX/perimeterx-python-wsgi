@@ -133,7 +133,7 @@ def decrypt_cookie(cookie_key, cookie):
         unpad = lambda s: s[0:-ord(s[-1])]
         plaintext = unpad(cipher.decrypt(data))
         return plaintext
-    except Exception as e:
+    except:
         print traceback.format_exception(*sys.exc_info())
         return False
 

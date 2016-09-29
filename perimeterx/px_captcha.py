@@ -14,7 +14,7 @@ def verify(ctx, config):
         return False
 
     response = send_captcha_request(vid, captcha_value, ctx, config)
-    return response.get('status', 1) == 0
+    return response and response.get('status', 1) == 0
 
 
 def send_captcha_request(vid, captcha_value, ctx, config):
@@ -38,26 +38,4 @@ def format_headers(headers):
     for key in headers.keys():
         ret_val.append({'name': key, 'value': headers[key]})
     return ret_val
-    # private
-    # function
-    # sendCaptchaRequest($vid, $captcha)
-    # {
-    # $requestBody = [
-    #     'request' = > [
-    #     'ip' = > $this->pxCtx->getIp(),
-    #                            'headers' = > $this->formatHeaders(),
-    #                                                 'uri' = > $this->pxCtx->getUri()
-    # ],
-    # 'pxCaptcha' = > $captcha,
-    #                  'vid' = > $vid,
-    #                             'hostname' = > $this->pxCtx->getHostname()
-    # ];
-    # $headers = [
-    #     'Authorization' = > 'Bearer '. $this->pxConfig['auth_token'],
-    #                                           'Content-Type' = > 'application/json'
-    # ];
-    # $response = $this->httpClient->send('/api/v1/risk/captcha', 'POST', $requestBody, $headers, $this->pxConfig[
-    #                                                                                                        'api_timeout'], $this->
-    # pxConfig['api_connect_timeout']);
-    # return $response;
-    # }
+

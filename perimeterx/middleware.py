@@ -18,6 +18,7 @@ class PerimeterX(object):
             'module_mode': 'active_monitoring',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
+            'server_calls_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
             'send_page_activities': False,
             'api_timeout': 1
@@ -51,18 +52,21 @@ class PerimeterX(object):
             logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
             return self.app(environ, start_response)
 
-        if ctx['px_captcha'] and self.config['captcha_enabled'] and px_captcha.verify(ctx, self.config):
-            logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip') )
+        # reCaptcha value validation
+        if ctx.get('px_captcha') and self.config.get('captcha_enabled') and px_captcha.verify(ctx, self.config):
+            logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
             return self.app(environ, start_response)
 
-        if not px_cookie.verify(ctx, self.config):
+        # PX Cookie verification
+        if not px_cookie.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):
+            # Server-to-Server verification fallback
             if not px_api.verify(ctx, self.config):
                 return self.app(environ, start_response)
 
         return self.handle_verification(ctx, self.config, environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
-        score = ctx.get('risk_score', 0)
+        score = ctx.get('risk_score', -1)
 
         if score < config['blocking_score']:
             return self.pass_traffic(environ, start_response, ctx)

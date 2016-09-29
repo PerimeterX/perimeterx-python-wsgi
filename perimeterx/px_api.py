@@ -21,8 +21,7 @@ def verify(ctx, config):
         else:
             return False
     except:
-        print sys.exc_info()[0]
-        logger.error('couldnt complete server to server verification ')
+        logger.error('couldnt complete server to server verification')
         return False
 
 
