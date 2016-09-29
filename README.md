@@ -115,7 +115,7 @@ def custom_block_handler(ctx, start_response):
 
     html = '<div>Access to ' + full_url + ' has been blocked.</div> ' \
                   '<div>Block reference - ' + uuid + ' </div> ' \
-                  '<div>Block score - ' + $block_score + '</div>'
+                  '<div>Block score - ' + block_score + '</div>'
 
 	start_response('403 Forbidden', [('Content-Type', 'text/html')])
 	return [html]
