@@ -14,6 +14,7 @@ Table of Contents
 -   [Configuration](#configuration)
   *   [Blocking Score](#blocking-score)
   *   [Custom Block Action](#custom-block)
+  *   [Enable/Disable Server Calls](#server-calls)
   *   [Enable/Disable Captcha](#captcha-support)
   *   [Extracting Real IP Address](#real-ip)
   *   [Filter Sensitive Headers](#sensitive-headers)
@@ -150,6 +151,12 @@ def custom_block_handler(ctx, start_response):
 	return [html]
 };
 
+px_config = {
+	..
+	'custom_block_handler': custom_block_handler,
+	..
+}
+
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
 ```
@@ -168,16 +175,30 @@ px_config = {
 }
 ```
 
-#### <a name="captcha-support"></a>Enable/disable captcha in the block page
+#### <a name="server-calls"></a> Enable/Disable Server Calls
+ 
+By disabling server calls, the module with only evaluate users by cookie, users with no cookie will not cause for a server call to be called.
 
-By enabling captcha support, a captcha will be served as part of the block page giving real users the ability to answer, get score clean up and passed to the requested page.
-
-**default: true**
+**default:** `True`
 
 ```python
 px_config = {
 	..
-    'captcha_enabled': true
+    'server_calls_enabled': False
+    ..
+}
+```
+
+#### <a name="captcha-support"></a>Enable/disable captcha in the block page
+
+By enabling captcha support, a captcha will be served as part of the block page giving real users the ability to answer, get score clean up and passed to the requested page.
+
+**default: True**
+
+```python
+px_config = {
+	..
+    'captcha_enabled': True
     ..
 }
 ```
@@ -253,7 +274,7 @@ amount requests blocked and API usage statistics.
 ```python
 px_config = {
 	..
-    'send_page_activities': true
+    'send_page_activities': True
     ..
 }
 ```
@@ -267,7 +288,7 @@ Enables debug logging
 ```python
 px_config = {
 	..
-    'debug_mode': true
+    'debug_mode': True
     ..
 }
 ```

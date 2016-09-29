@@ -14,7 +14,7 @@ class PerimeterX(object):
         self.config = {
             'blocking_score': 60,
             'debug_mode': False,
-            'module_version': 'Python SDK v1.0.2',
+            'module_version': 'Python SDK v1.0.3',
             'module_mode': 'active_monitoring',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,

@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='perimeterx-python-wsgi',
-      version='v1.0.2',
+      version='v1.0.3',
       description='PerimeterX WSGI middleware',
       author='Ben Diamant',
       author_email='ben@perimeterx.com',
