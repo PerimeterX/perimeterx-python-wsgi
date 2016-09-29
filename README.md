@@ -1,4 +1,4 @@
-![image](https://843a2be0f3083c485676508ff87beaf088a889c0-www.googledrive.com/host/0B_r_WoIa581oY01QMWNVUElyM2M)
+![image](http://media.marketwire.com/attachments/201604/34215_PerimeterX_logo.jpg)
 
 [PerimeterX](http://www.perimeterx.com) Python WSGI Middleware
 =============================================================
@@ -29,9 +29,9 @@ Table of Contents
 ----------------------------------------
 
 -  [Python v2.7](https://www.python.org/download/releases/2.7/)
+-  [pycrypto v2.6](https://pypi.python.org/pypi/pycrypto)
+ - Note: pycrypto is a python core module, this need to be manually added to dependencies when using GAE
  
-
-
 
 <a name="installation"></a> Installation
 ----------------------------------------
@@ -143,12 +143,12 @@ px_config = {
 
 By enabling captcha support, a captcha will be served as part of the block page giving real users the ability to answer, get score clean up and passed to the requested page.
 
-**default: True**
+**default: true**
 
 ```python
 px_config = {
 	..
-    'captcha_enabled': True
+    'captcha_enabled': true
     ..
 }
 ```
@@ -219,12 +219,12 @@ PerimeterX on each page request. Enabling this feature will provide data
 that populates the PerimeterX portal with valuable information such as
 amount requests blocked and API usage statistics.
 
-**default:** False
+**default:** false
 
 ```python
 px_config = {
 	..
-    'send_page_activities': True
+    'send_page_activities': true
     ..
 }
 ```
@@ -233,12 +233,12 @@ px_config = {
 
 Enables debug logging
 
-**default:** False
+**default:** false
 
 ```python
 px_config = {
 	..
-    'debug_mode': True
+    'debug_mode': true
     ..
 }
 ```
