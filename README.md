@@ -43,6 +43,8 @@ $ pip install perimeterx-python-wsgi
 ```
 
 ### <a name="basic-usage"></a> Basic Usage Example
+##### Django:
+
 ```python
 from perimeterx.middleware import PerimeterX
 
@@ -56,6 +58,33 @@ px_config = {
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
 ```
+##### Google App Engine:
+app.yaml:
+
+```yaml
+libraries:
+- name: pycrypto
+  version: 2.6
+```
+
+```python
+import webapp2
+from perimeterx.middleware import PerimeterX
+
+app = webapp2.WSGIApplication([
+    ('/', MainPage),
+], debug=True)
+
+px_config = {
+   'app_id': 'APP_ID',
+   'cookie_key': 'COOKIE_KEY',
+   'auth_token': 'AUTH_TOKEN',
+	'blocking_score': 70
+}
+
+app = PerimeterX(app, px_config)
+```
+
 ### <a name="configuration"></a> Configuration Options
 
 #### Configuring Required Parameters
