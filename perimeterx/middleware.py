@@ -14,7 +14,7 @@ class PerimeterX(object):
         self.config = {
             'blocking_score': 60,
             'debug_mode': False,
-            'module_version': 'Python SDK v1.0.0',
+            'module_version': 'Python SDK v1.0.2',
             'module_mode': 'active_monitoring',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
@@ -101,7 +101,7 @@ class PerimeterX(object):
 
             px_activities_client.send_block_activity(ctx, config)
             start_response("403 Forbidden", [('Content-Type', 'text/html')])
-            return str(body)
+            return [str(body)]
         else:
             return self.pass_traffic(environ, start_response, ctx)
 
