@@ -39,7 +39,7 @@ Table of Contents
 Installation can be done using composer
 
 ```sh
-$ pip install perimeterx
+$ pip install perimeterx-python-wsgi
 ```
 
 ### <a name="basic-usage"></a> Basic Usage Example
