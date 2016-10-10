@@ -205,9 +205,9 @@ px_config = {
 
 #### <a name="real-ip"></a>Extracting the Real User IP Address
 
-In order to evaluate user's score properly, the PerimeterX module
-requires the real socket ip (client IP address that created the HTTP
-request). The user ip can be returned to the PerimeterX module using a custom user function defined on `px_config`.
+> Note: IP extraction according to your network setup is important. It is common to have a load balancer/proxy on top of your applications, in this case the PerimeterX module will send an internal IP as the user's. In order to perform processing and detection for server-to-server calls, PerimeterX module need the real user ip.
+
+The user ip can be returned to the PerimeterX module using a custom user function defined on `px_config`.
 
 **default value:** `environ.get('REMOTE_ADDR')`
 
