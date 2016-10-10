@@ -22,7 +22,7 @@ def send(uri, body, config):
         r = http_client.getresponse()
 
         if r.status != 200:
-            logger.error('error posting server to server call ' + r.msg)
+            logger.error('error posting server to server call ' + r.reason)
             return False
 
         logger.debug('Server call took ' + str(time.time() - start) + 'ms')

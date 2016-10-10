@@ -9,15 +9,16 @@ def verify(ctx, config):
     split_captcha = captcha.split(':')
     captcha_value = split_captcha[0]
     vid = split_captcha[1]
+    uuid = split_captcha[2]
 
     if not vid or not captcha_value:
         return False
 
-    response = send_captcha_request(vid, captcha_value, ctx, config)
+    response = send_captcha_request(vid, uuid, captcha_value, ctx, config)
     return response and response.get('status', 1) == 0
 
 
-def send_captcha_request(vid, captcha_value, ctx, config):
+def send_captcha_request(vid, uuid, captcha_value, ctx, config):
     body = {
         'request': {
             'ip': ctx.get('socket_ip'),
@@ -26,6 +27,7 @@ def send_captcha_request(vid, captcha_value, ctx, config):
         },
         'pxCaptcha': captcha_value,
         'vid': vid,
+        'uuid': uuid,
         'hostname': ctx.get('hostname')
     }
     response = px_httpc.send('/api/v1/risk/captcha', body=body, config=config)

@@ -28,9 +28,9 @@ def custom_block_handler(ctx, start_response):
     captcha = True
     html_head = '<html lang="en"><head><script src="https://www.google.com/recaptcha/api.js"></script>'
     captcha_code = '<script> function handleCaptcha(response) {' \
-                   ' var name = \'_pxCaptcha\'; var expiryUtc = new Date(Date.now() + 1000 * 10).toUTCString(); ' \
-                   'var cookieParts = [name, \'=\', response + \':\' + ' + vid + ':' + uuid + '; expires=\', expiryUtc, \'; path=/\'];' \
-                                                                                              ' document.cookie = cookieParts.join(\'\'); location.reload(); } </script>'
+                   'var name = \'_pxCaptcha\'; var expiryUtc = new Date(Date.now() + 1000 * 10).toUTCString(); ' \
+                   'var cookieParts = [name, \'=\', response + \':\' + \'' + vid + ':' + uuid + ';\', \'expires=\', expiryUtc, \'; path=/\'];' \
+                                                                                                ' document.cookie = cookieParts.join(\'\'); location.reload(); } </script>'
 
     body_start = '<body> You have been blocked!'
     body_captcha = '<br/><div class="g-recaptcha" data-sitekey="6Lcj-R8TAAAAABs3FrRPuQhLMbp5QrHsHufzLf7b" data-callback="handleCaptcha" data-theme="dark"></div> <br><span style="font-size: 20px;">'
@@ -43,8 +43,8 @@ def custom_block_handler(ctx, start_response):
     else:
         custom_block_page = html_head + body_start + px_snippet + body_end
 
-    start_response('403 Forbidden', [('Content-Type', 'text/html')])
-    return [custom_block_page]
+    start_response("403 Forbidden", [('Content-Type', 'text/html')])
+    return [str(custom_block_page)]
 
 
 px_config = {
