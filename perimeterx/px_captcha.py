@@ -7,16 +7,15 @@ def verify(ctx, config):
         return False
 
     split_captcha = captcha.split(':')
+    if not len(split_captcha) == 3:
+        return False
+
     captcha_value = split_captcha[0]
     vid = split_captcha[1]
     uuid = split_captcha[2]
 
-    if not vid or not captcha_value:
-        return False
-
     response = send_captcha_request(vid, uuid, captcha_value, ctx, config)
     return response and response.get('status', 1) == 0
-
 
 def send_captcha_request(vid, uuid, captcha_value, ctx, config):
     body = {
