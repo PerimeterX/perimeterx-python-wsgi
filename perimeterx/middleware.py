@@ -84,14 +84,13 @@ class PerimeterX(object):
                         ' a:hover { color: #2b60c6; } </style> <script src="https://www.google.com/recaptcha/api.js"></script>'
             captcha = '<script> window.px_vid = "' + vid + '" ; function handleCaptcha(response) {' \
                                                            ' var name = \'_pxCaptcha\'; var expiryUtc = new Date(Date.now() + 1000 * 10).toUTCString(); ' \
-                                                           'var cookieParts = [name, \'=\', response + \':\' + window.px_vid, \'; expires=\', expiryUtc, \'; path=/\'];' \
+                                                           'var cookieParts = [name, \'=\', response + \':\' + \'' + vid + ':' + uuid + ';\', \'expires=\', expiryUtc, \'; path=/\'];' \
                                                            ' document.cookie = cookieParts.join(\'\'); location.reload(); } </script>'
-
             body_start = '<body cz-shortcut-listen="true"> <div><img src="http://storage.googleapis.com/instapage-thumbnails/035ca0ab/e94de863/1460594818-1523851-467x110-perimeterx.png"> ' \
                          '</div> <span style="color: white; font-size: 34px;">Access to This Page Has Been Blocked</span> <div style="font-size: 24px;color: #000042;">' \
                          '<br> Access is blocked according to the site security policy.<br> Your browsing behaviour fingerprinting made us think you may be a bot. <br>' \
                          '<br> This may happen as a result ofthe following: <ul> <li>JavaScript is disabled or not running properly.</li> ' \
-                         '<li>Your browsing behaviour fingerprinting are not likely to be a regular user.</li> </ul> To read more about the bot defender solution: ' \
+                         '<li>Your browsing behaviour fingerprinting are not likely to be that of a regular user.</li> </ul> To read more about the bot defender solution: ' \
                          '<a href="https://www.perimeterx.com/bot-defender">https://www.perimeterx.com/bot-defender</a><br> If you think the blocking was done by mistake, ' \
                          'contact the site administrator. <br/>'
             body_captcha = '<br/><div class="g-recaptcha" data-sitekey="6Lcj-R8TAAAAABs3FrRPuQhLMbp5QrHsHufzLf7b" data-callback="handleCaptcha" data-theme="dark"></div> <br><span style="font-size: 20px;">'
