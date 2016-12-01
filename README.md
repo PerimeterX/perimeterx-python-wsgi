@@ -2,7 +2,7 @@
 
 [PerimeterX](http://www.perimeterx.com) Python WSGI Middleware
 =============================================================
-> The PerimeterX Python Middleware is supported by all [WSGI based frameworks](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface#WSGI-compatible_applications_and_frameworks)
+> The PerimeterX Python Middleware is supported by all [WSGI based frameworks](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface#WSGI-compatible_applications_and_frameworks).
 
 Table of Contents
 -----------------
@@ -37,7 +37,7 @@ Table of Contents
 <a name="installation"></a> Installation
 ----------------------------------------
 
-Installation can be done using composer
+Installation can be done using Composer.
 
 ```sh
 $ pip install perimeterx-python-wsgi
@@ -90,7 +90,7 @@ app = PerimeterX(app, px_config)
 
 #### Configuring Required Parameters
 
-Configuration options are set in `px_config`
+Configuration options are set in `px_config`.
 
 #### Required parameters:
 
@@ -111,11 +111,11 @@ px_config = {
 ```
 
 #### <a name="custom-block"></a> Custom Blocking Actions
-Setting a custom block handler customizes is done by setting `custom_block_handler` with a user function named on the `px_config`.
+Setting a custom block handler is done by setting `custom_block_handler` with a user function named on the `px_config`.
 
-Custom handler should contain the action that is taken when a user visits with a high score. Common customizations are to present a reCAPTHA or custom branded block page.
+The custom handler should contain the action that is taken when a user visits with a high score. Common customizations are to present a reCAPTHA or custom branded block page.
 
-**default:** return HTTP status code 403 and serve the Perimeterx block page.
+**default:** return HTTP status code 403 and serve the PerimeterX block page.
 
 ```python
 def custom_block_handler(ctx, start_response):
@@ -177,7 +177,7 @@ px_config = {
 
 #### <a name="server-calls"></a> Enable/Disable Server Calls
  
-By disabling server calls, the module with only evaluate users by cookie, users with no cookie will not cause for a server call to be called.
+By disabling server calls, the module will only evaluate users by cookie. Users with no cookie will not cause for a server call to be called.
 
 **default:** `True`
 
@@ -246,7 +246,7 @@ px_config = {
 
 #### <a name="api-timeout"></a>API Timeouts
 
-Control the timeouts for PerimeterX requests. The API is called when the risk cookie does not exist, or is expired or invalid.
+Controls the timeouts for PerimeterX requests. This API is called when the risk cookie does not exist, or is expired or invalid.
 
 API Timeout in seconds (float) to wait for the PerimeterX server API response.
 
@@ -264,7 +264,7 @@ px_config = {
 
 #### <a name="send-page-activities"></a> Send Page Activities
 
-Boolean flag to enable or disable sending activities and metrics to
+A boolean flag to enable or disable sending activities and metrics to
 PerimeterX on each page request. Enabling this feature will provide data
 that populates the PerimeterX portal with valuable information such as
 amount requests blocked and API usage statistics.
@@ -281,7 +281,7 @@ px_config = {
 
 #### <a name="debug-mode"></a> Debug Mode
 
-Enables debug logging
+Enables debug logging.
 
 **default:** false
 
