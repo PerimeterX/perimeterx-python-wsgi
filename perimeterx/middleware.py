@@ -123,7 +123,7 @@ class PerimeterX(object):
             return self.pass_traffic(environ, start_response, ctx)
 
     def pass_traffic(self, environ, start_response, ctx):
-        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, {})
+        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, { "px_cookie": ctx['decoded_cookie'] })
         return self.app(environ, start_response)
 
 
