@@ -90,7 +90,7 @@ app = PerimeterX(app, px_config)
 
 #### Configuring Required Parameters
 
-Configuration options are set in `px_config`.
+Configuration options are set in the `px_config` variable.
 
 #### Required parameters:
 
@@ -98,7 +98,7 @@ Configuration options are set in `px_config`.
 - cookie_key
 - auth_token
 
-#### <a name="blocking-score"></a> Changing the Minimum Score for Blocking
+#### <a name="blocking-score"></a> Changing the Minimum Score for Blocking Requests
 
 **default:** 70
 
@@ -111,9 +111,9 @@ px_config = {
 ```
 
 #### <a name="custom-block"></a> Custom Blocking Actions
-Setting a custom block handler is done by setting `custom_block_handler` with a user function named on the `px_config`.
+Defining a custom block handler is done by setting the value of `custom_block_handler` to a user-defined function, on the `px_config` variable.
 
-The custom handler should contain the action that is taken when a user visits with a high score. Common customizations are to present a reCAPTHA or a custom branded Block Page.
+The custom block handler should contain the action to take when a visitng user is given a high score. Common customizations are to present a reCAPTHA or a custom branded Block Page.
 
 **default:** return HTTP status code 403 and serve the PerimeterX block page.
 
@@ -165,7 +165,7 @@ application = PerimeterX(application, px_config)
 
 **default:** `active_monitoring`
 
-**Possible Values:** - `['active_monitoring', 'active_blocking', 'inactive']`
+**Applicable Values:** - `['active_monitoring', 'active_blocking', 'inactive']`
 
 ```python
 px_config = {
@@ -263,11 +263,6 @@ px_config = {
 
 
 #### <a name="send-page-activities"></a> Send Page Activities
-
-A boolean flag to enable or disable sending activities and metrics to
-PerimeterX on each page request. Enabling this feature will provide data
-that populates the PerimeterX portal with valuable information such as
-amount requests blocked and API usage statistics.
 
 A boolean flag to determine whether or not to send activities and metrics to
 PerimeterX, on each page request. Enabling this feature will provide PerimeterX with data
