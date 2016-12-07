@@ -5,6 +5,8 @@ import px_cookie
 import px_httpc
 import px_captcha
 import px_api
+import Cookie
+
 
 
 class PerimeterX(object):
@@ -42,7 +44,17 @@ class PerimeterX(object):
         px_httpc.init(self.config)
 
     def __call__(self, environ, start_response):
-        return self._verify(environ, start_response)
+        def custom_start_response(status, headers, exc_info=None):
+            cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
+            if cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
+                cookie = Cookie.SimpleCookie()
+                cookie['_pxCaptcha'] = '';
+                cookie['_pxCaptcha']['expires'] = 'Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                headers.append(('Set-Cookie', cookie['_pxCaptcha'].OutputString()))
+                self.config['logger'].debug('Cleared Cookie');
+            return start_response(status, headers, exc_info)
+
+        return self._verify(environ, custom_start_response)
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
@@ -52,10 +64,12 @@ class PerimeterX(object):
             logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
             return self.app(environ, start_response)
 
-        # reCaptcha value validation
-        if ctx.get('px_captcha') and self.config.get('captcha_enabled') and px_captcha.verify(ctx, self.config):
-            logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
-            return self.app(environ, start_response)
+        cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
+        if self.config.get('captcha_enabled') and cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
+            pxCaptcha = cookies.get('_pxCaptcha').value
+            if px_captcha.verify(ctx, self.config, pxCaptcha):
+                logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
+                return self.app(environ, start_response)
 
         # PX Cookie verification
         if not px_cookie.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):

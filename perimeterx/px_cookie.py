@@ -149,7 +149,7 @@ def verify(ctx, config):
     :rtype: Bool
     """
     logger = config['logger']
-    px_cookie = ctx['px_cookie']
+    px_cookie = ctx['_px']
     try:
         if not px_cookie:
             logger.debug('No risk cookie on the request')
