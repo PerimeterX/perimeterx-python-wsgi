@@ -28,11 +28,13 @@ class PerimeterX(object):
 
         self.config = dict(self.config.items() + config.items())
         self.config['logger'] = logger = Logger(self.config['debug_mode'])
-
         if not config['app_id']:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
 
+        # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
+        self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.glb1.perimeterx.net'
+        
         if not config['auth_token']:
             logger.error('PX Auth Token is missing')
             raise ValueError('PX Auth Token is missing')
@@ -123,7 +125,10 @@ class PerimeterX(object):
             return self.pass_traffic(environ, start_response, ctx)
 
     def pass_traffic(self, environ, start_response, ctx):
-        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, { "px_cookie": ctx['decoded_cookie'] })
+        details = {}
+        if(ctx['decoded_cookie']):
+            details = {"px_cookie": ctx['decoded_cookie']}
+        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, details)
         return self.app(environ, start_response)
 
 
