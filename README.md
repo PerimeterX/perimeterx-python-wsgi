@@ -265,16 +265,16 @@ px_config = {
 #### <a name="send-page-activities"></a> Send Page Activities
 
 A boolean flag to determine whether or not to send activities and metrics to
-PerimeterX, on each page request. Enabling this feature will provide PerimeterX with data
-that populates the PerimeterX portal, containing valuable information such as
+PerimeterX, on each page request. Disabling this feature will prevent PerimeterX from receiving data
+populating the PerimeterX portal, containing valuable information such as
 the amount of requests blocked and other API usage statistics.
 
-**default:** false
+**default:** True
 
 ```python
 px_config = {
 	..
-    'send_page_activities': True
+    'send_page_activities': False
     ..
 }
 ```
