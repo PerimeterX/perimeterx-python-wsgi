@@ -22,7 +22,7 @@ class PerimeterX(object):
             'captcha_enabled': True,
             'server_calls_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
-            'send_page_activities': False,
+            'send_page_activities': True,
             'api_timeout': 1
         }
 
