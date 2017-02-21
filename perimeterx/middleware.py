@@ -102,7 +102,7 @@ class PerimeterX(object):
                                                            ' var name = \'_pxCaptcha\'; var expiryUtc = new Date(Date.now() + 1000 * 10).toUTCString(); ' \
                                                            'var cookieParts = [name, \'=\', response + \':\' + \'' + vid + ':' + uuid + ';\', \'expires=\', expiryUtc, \'; path=/\'];' \
                                                            ' document.cookie = cookieParts.join(\'\'); location.reload(); } </script>'
-            body_start = '<body cz-shortcut-listen="true"> <div><img src="http://storage.googleapis.com/instapage-thumbnails/035ca0ab/e94de863/1460594818-1523851-467x110-perimeterx.png"> ' \
+            body_start = '<body cz-shortcut-listen="true"> <div><img src="https://s.perimeterx.net/logo.png"> ' \
                          '</div> <span style="color: white; font-size: 34px;">Access to This Page Has Been Blocked</span> <div style="font-size: 24px;color: #000042;">' \
                          '<br> Access is blocked according to the site security policy.<br> Your browsing behaviour fingerprinting made us think you may be a bot. <br>' \
                          '<br> This may happen as a result ofthe following: <ul> <li>JavaScript is disabled or not running properly.</li> ' \
