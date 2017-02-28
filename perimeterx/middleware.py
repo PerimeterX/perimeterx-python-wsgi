@@ -6,6 +6,7 @@ import px_httpc
 import px_captcha
 import px_api
 import Cookie
+import sys
 
 
 
@@ -59,7 +60,6 @@ class PerimeterX(object):
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
-        logger.debug(self.config['perimeterx_server_host'])
 
         ctx = px_context.build_context(environ, self.config)
 
