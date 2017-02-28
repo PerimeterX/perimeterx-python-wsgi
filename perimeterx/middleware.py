@@ -6,7 +6,6 @@ import px_httpc
 import px_captcha
 import px_api
 import Cookie
-import sys
 
 
 
@@ -60,7 +59,6 @@ class PerimeterX(object):
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
-
         ctx = px_context.build_context(environ, self.config)
 
         if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
