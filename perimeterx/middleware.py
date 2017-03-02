@@ -33,8 +33,7 @@ class PerimeterX(object):
             raise ValueError('PX App ID is missing')
 
         # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
-        self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.glb1.perimeterx.net'
-        
+        self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.perimeterx.net'
         if not config['auth_token']:
             logger.error('PX Auth Token is missing')
             raise ValueError('PX Auth Token is missing')
