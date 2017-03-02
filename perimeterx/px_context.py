@@ -9,7 +9,7 @@ def build_context(environ, config):
     http_version = '1.1'
     http_protocol = 'http://'
     px_cookie = ''
-    px_captcha = ''
+    uuid = ''
 
     # IP Extraction
     if config.get('ip_handler'):
@@ -36,9 +36,6 @@ def build_context(environ, config):
     if cookies.get('_px') and cookies.get('_px').value:
         px_cookie = cookies.get('_px').value
 
-    if cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
-        px_captcha = cookies.get('_pxCaptcha').value
-
     user_agent = headers.get('user-agent')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
@@ -51,8 +48,7 @@ def build_context(environ, config):
         'socket_ip': socket_ip,
         'full_url': full_url,
         'uri': uri,
-        'px_cookie': px_cookie,
-        'px_captcha': px_captcha,
-        'hostname': hostname
+        'hostname': hostname,
+        '_px': px_cookie
     }
     return ctx
