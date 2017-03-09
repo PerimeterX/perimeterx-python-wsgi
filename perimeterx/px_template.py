@@ -11,7 +11,8 @@ def get_path():
     return os.path.dirname(os.path.abspath(__file__))
 
 def get_content(template):
-    file = open("%s/templates/%s.mustache" % (get_path(),template), "r")
+    templatePath = "%s/templates/%s.mustache" % (get_path(),template)
+    file = open(templatePath, "r")
     content = file.read()
     return content
 
