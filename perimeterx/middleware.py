@@ -100,7 +100,7 @@ class PerimeterX(object):
             if config.get('captcha_enabled', False):
                 template = 'captcha'
 
-            body = px_templates.get_template(self.config, uuid, vid)
+            body = px_template.get_template(template, self.config, uuid, vid)
 
             px_activities_client.send_block_activity(ctx, config)
             start_response("403 Forbidden", [('Content-Type', 'text/html')])
