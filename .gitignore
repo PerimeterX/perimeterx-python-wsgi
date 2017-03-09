@@ -3,7 +3,6 @@
 db.sqlite3
 manage.py
 myapp/
-templates/
 untitled1/
 perimeterx_python_wsgi.egg-info/
 dist
