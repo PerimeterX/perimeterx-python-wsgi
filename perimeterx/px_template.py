@@ -1,23 +1,24 @@
-px_config = None
-uuid = None
-vid = None
+import pystache
 
-def init(config, uuid, vid):
-    global px_config
-    global uuid
-    global vid
-
-def get_template(template):
+def get_template(template, config, uuid, vid):
     template_content = get_content(template)
-    template_props = get_props()
+    props = get_props()
+    generatedHtml = pystache.render(template_content, props)
+    return generatedHtml
 
-def get_content():
+def get_content(template):
     file = open("./templates/%s.mustache" % template, "r")
     content = file.read()
     return conetnt
 
-def get_props():
+def get_props(config, uuid, vid):
     return {
         'refId': uuid,
-        'vid': vid
+        'appId': px_config.app_id,
+        'vid': vid,
+        'uuid': uuid,
+        'customLogo': px_config.custom_logo,
+        'cssRef': px_config.css_ref,
+        'jsRef': px_config.js_ref,
+        'logoVisibility': 'visible' if px_config.custom_logo else 'hidden'
     }

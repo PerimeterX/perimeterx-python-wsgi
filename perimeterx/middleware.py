@@ -5,6 +5,7 @@ import px_cookie
 import px_httpc
 import px_captcha
 import px_api
+import px_template
 import Cookie
 
 
@@ -23,7 +24,10 @@ class PerimeterX(object):
             'server_calls_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
             'send_page_activities': True,
-            'api_timeout': 1
+            'api_timeout': 1,
+            'custom_logo': None,
+            'css_ref': None,
+            'js_ref': None
         }
 
         self.config = dict(self.config.items() + config.items())
@@ -92,30 +96,11 @@ class PerimeterX(object):
         elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
             vid = ctx.get('vid', '')
             uuid = ctx.get('uuid', '')
-            app_id = config.get('app_id', '')
-
-            html_head = '<html lang="en"> <head> <link type="text/css" rel="stylesheet" media="screen, print" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"> <meta charset="UTF-8"> <title>Access to This Page Has Been Blocked</title> <style> p { width: 60%; margin: 0 auto; font-size: 35px; } ' \
-                        'body { background-color: #a2a2a2; font-family: "Open Sans"; margin: 5%; } img { width: 180px; } a { color: #2020B1; text-decoration: blink; }' \
-                        ' a:hover { color: #2b60c6; } </style> <script src="https://www.google.com/recaptcha/api.js"></script>'
-            captcha = '<script> window.px_vid = "' + vid + '" ; function handleCaptcha(response) {' \
-                                                           ' var name = \'_pxCaptcha\'; var expiryUtc = new Date(Date.now() + 1000 * 10).toUTCString(); ' \
-                                                           'var cookieParts = [name, \'=\', response + \':\' + \'' + vid + ':' + uuid + ';\', \'expires=\', expiryUtc, \'; path=/\'];' \
-                                                           ' document.cookie = cookieParts.join(\'\'); location.reload(); } </script>'
-            body_start = '<body cz-shortcut-listen="true"> <div><img src="https://s.perimeterx.net/logo.png"> ' \
-                         '</div> <span style="color: white; font-size: 34px;">Access to This Page Has Been Blocked</span> <div style="font-size: 24px;color: #000042;">' \
-                         '<br> Access is blocked according to the site security policy.<br> Your browsing behaviour fingerprinting made us think you may be a bot. <br>' \
-                         '<br> This may happen as a result ofthe following: <ul> <li>JavaScript is disabled or not running properly.</li> ' \
-                         '<li>Your browsing behaviour fingerprinting are not likely to be that of a regular user.</li> </ul> To read more about the bot defender solution: ' \
-                         '<a href="https://www.perimeterx.com/bot-defender">https://www.perimeterx.com/bot-defender</a><br> If you think the blocking was done by mistake, ' \
-                         'contact the site administrator. <br/>'
-            body_captcha = '<br/><div class="g-recaptcha" data-sitekey="6Lcj-R8TAAAAABs3FrRPuQhLMbp5QrHsHufzLf7b" data-callback="handleCaptcha" data-theme="dark"></div> <br><span style="font-size: 20px;">'
-            px_snippet = '<script type="text/javascript"> (function(){ window._pxAppId="' + app_id + '"; var p=document.getElementsByTagName("script")[0], s=document.createElement("script"); s.async=1; s.src="//client.perimeterx.net/' + app_id + '/main.min.js"; p.parentNode.insertBefore(s,p); }()); </script>'
-            body_end = '<br/>Block Reference: <span style="color: #525151;">#' + uuid + '</span></span> </div> </body> </html>'
-
+            template = 'block'
             if config.get('captcha_enabled', False):
-                body = html_head + px_snippet + captcha + body_start + body_captcha + body_end
-            else:
-                body = html_head + px_snippet + body_start + body_end
+                template = 'captcha'
+
+            body = px_templates.get_template(self.config, uuid, vid)
 
             px_activities_client.send_block_activity(ctx, config)
             start_response("403 Forbidden", [('Content-Type', 'text/html')])
