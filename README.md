@@ -126,7 +126,7 @@ px_config = {
 }
 ```
 
-####Custom JS/CSS
+#### Custom JS/CSS
 
 The block page can be modified with a custom CSS by adding to the pxConfig the key ```css_ref``` and providing a valid URL to the css In addition there is also the option to add a custom JS file by adding ```js_ref``` key to the pxConfig and providing the JS file that will be loaded with the block page, this key also expects a valid URL
 
