@@ -13,6 +13,7 @@ Table of Contents
   *   [Basic Usage Example](#basic-usage)
 -   [Configuration](#configuration)
   *   [Blocking Score](#blocking-score)
+  *   [Customizing Block page](#custom-block-page)
   *   [Custom Block Action](#custom-block)
   *   [Enable/Disable Server Calls](#server-calls)
   *   [Enable/Disable Captcha](#captcha-support)
@@ -32,7 +33,7 @@ Table of Contents
 -  [Python v2.7](https://www.python.org/download/releases/2.7/)
 -  [pycrypto v2.6](https://pypi.python.org/pypi/pycrypto)
  - Note: pycrypto is a python core module, this need to be manually added to dependencies when using GAE
- 
+
 
 <a name="installation"></a> Installation
 ----------------------------------------
@@ -110,6 +111,38 @@ px_config = {
 }
 ```
 
+### <a name="custom-block-page"></a> Customizing Block Page
+#### Customizing logo
+Adding a custom logo to the blocking page is by providing the pxConfig a key ```custom_logo``` , the logo will be displayed at the top div of the the block page The logo's ```max-heigh``` property would be 150px and width would be set to ``auto``
+
+The key customLogo expects a valid URL address such as https://s.perimeterx.net/logo.png
+
+Example below:
+```python
+px_config = {
+	..
+    'custom_logo': 'https://s.perimeterx.net/logo.png'
+    ..
+}
+```
+
+#### Custom JS/CSS
+
+The block page can be modified with a custom CSS by adding to the pxConfig the key ```css_ref``` and providing a valid URL to the css In addition there is also the option to add a custom JS file by adding ```js_ref``` key to the pxConfig and providing the JS file that will be loaded with the block page, this key also expects a valid URL
+
+On both cases if the URL is not a valid format an exception will be thrown
+Example below:
+
+Example below:
+```python
+px_config = {
+	..
+    'js_ref': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'
+    'css_ref': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
+    ..
+}
+```
+
 #### <a name="custom-block"></a> Custom Blocking Actions
 Defining a custom block handler is done by setting the value of `custom_block_handler` to a user-defined function, on the `px_config` variable.
 
@@ -176,7 +209,7 @@ px_config = {
 ```
 
 #### <a name="server-calls"></a> Enable/Disable Server Calls
- 
+
 By disabling server calls, the module will only evaluate users by their cookie. Users without a cookie will not generate a request to the PerimeterX servers.
 
 **default:** `True`
@@ -218,14 +251,14 @@ def ip_handler(environ):
             xff = environ[key].split(' ')[1]
             return xff
     return '1.2.3.4'
-    
+
 px_config = {
 	..
    'ip_handler': ip_handler,
 	..
 }
 
-    
+
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
 ```
