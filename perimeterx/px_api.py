@@ -26,6 +26,7 @@ def verify(ctx, config):
 
 
 def prepare_risk_body(ctx, config):
+    logger = config['logger']
     body = {
         'request': {
             'ip': ctx.get('socket_ip'),
@@ -43,7 +44,13 @@ def prepare_risk_body(ctx, config):
             'risk_mode': config.get('module_mode', '')
         }
     }
-    if ctx.get('s2s_call_reason', '') in ['cookie_expired', 'cookie_validation_failed']:
+
+    if ctx['s2s_call_reason'] == 'cookie_decryption_failed':
+        logger.debug('attaching orig_cookie to request')
+        body['additional']['px_cookie_orig'] = ctx.get('px_orig_cookie')
+
+    if ctx['s2s_call_reason'] in ['cookie_expired', 'cookie_validation_failed']:
+        logger.debug('attaching px_cookie to request')
         body['additional']['px_cookie'] = ctx.get('decoded_cookie')
 
     return body
