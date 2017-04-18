@@ -149,7 +149,7 @@ def verify(ctx, config):
     :rtype: Bool
     """
     logger = config['logger']
-    px_cookie = ctx['px_cookie']
+    px_cookie = ctx['_px']
     try:
         if not px_cookie:
             logger.debug('No risk cookie on the request')
@@ -160,6 +160,7 @@ def verify(ctx, config):
 
         if not decrypted_cookie:
             logger.error('Cookie decryption failed')
+            ctx['px_orig_cookie'] = px_cookie
             ctx['s2s_call_reason'] = 'cookie_decryption_failed'
             return False
 
@@ -168,6 +169,7 @@ def verify(ctx, config):
             decoded_cookie['s'], decoded_cookie['s']['b'], decoded_cookie['u'], decoded_cookie['t'], decoded_cookie['v']
         except:
             logger.error('Cookie decryption failed')
+            ctx['px_orig_cookie'] = px_cookie
             ctx['s2s_call_reason'] = 'cookie_decryption_failed'
             return False
 

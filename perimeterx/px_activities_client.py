@@ -30,7 +30,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             return
 
         if activity_type == 'page_requested' and not config.get('send_page_activities', False):
-            print 'no page activities'
+            print 'Page activities disabled in config - skipping.'
             return
 
         if len(CONFIG.keys()) == 0:
@@ -53,8 +53,9 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'socket_ip': ctx.get('socket_ip'),
             'px_app_id': config.get('app_id'),
             'url': ctx.get('full_url'),
-            'detail': _details,
-            'vid': ctx.get('vid', '')
+            'details': _details,
+            'vid': ctx.get('vid', ''),
+            'uuid': ctx.get('uuid', '')
         }
         print 'appending'
         ACTIVITIES_BUFFER.append(data)
@@ -66,6 +67,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx('block', ctx, config, {
         'block_score': ctx.get('risk_score'),
-        'block_uuid': ctx.get('uuid'),
+        'client_uuid': ctx.get('uuid'),
         'block_reason': ctx.get('block_reason')
     })

@@ -1,18 +1,22 @@
 import px_httpc
 
-
-def verify(ctx, config):
-    captcha = ctx.get('px_captcha')
+def verify(ctx, config, captcha):
     if not captcha:
         return False
 
     split_captcha = captcha.split(':')
+
     if not len(split_captcha) == 3:
         return False
 
     captcha_value = split_captcha[0]
     vid = split_captcha[1]
     uuid = split_captcha[2]
+
+    if not vid or not captcha_value or not uuid:       
+        return False
+
+    ctx['uuid'] = uuid;
 
     response = send_captcha_request(vid, uuid, captcha_value, ctx, config)
     return response and response.get('status', 1) == 0

@@ -5,6 +5,9 @@ import px_cookie
 import px_httpc
 import px_captcha
 import px_api
+import px_template
+import Cookie
+
 
 
 class PerimeterX(object):
@@ -20,17 +23,21 @@ class PerimeterX(object):
             'captcha_enabled': True,
             'server_calls_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
-            'send_page_activities': False,
-            'api_timeout': 1
+            'send_page_activities': True,
+            'api_timeout': 1,
+            'custom_logo': None,
+            'css_ref': None,
+            'js_ref': None
         }
 
         self.config = dict(self.config.items() + config.items())
         self.config['logger'] = logger = Logger(self.config['debug_mode'])
-
         if not config['app_id']:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
 
+        # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
+        self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.perimeterx.net'
         if not config['auth_token']:
             logger.error('PX Auth Token is missing')
             raise ValueError('PX Auth Token is missing')
@@ -42,7 +49,17 @@ class PerimeterX(object):
         px_httpc.init(self.config)
 
     def __call__(self, environ, start_response):
-        return self._verify(environ, start_response)
+        def custom_start_response(status, headers, exc_info=None):
+            cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
+            if cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
+                cookie = Cookie.SimpleCookie()
+                cookie['_pxCaptcha'] = '';
+                cookie['_pxCaptcha']['expires'] = 'Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                headers.append(('Set-Cookie', cookie['_pxCaptcha'].OutputString()))
+                self.config['logger'].debug('Cleared Cookie');
+            return start_response(status, headers, exc_info)
+
+        return self._verify(environ, custom_start_response)
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
@@ -52,10 +69,12 @@ class PerimeterX(object):
             logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
             return self.app(environ, start_response)
 
-        # reCaptcha value validation
-        if ctx.get('px_captcha') and self.config.get('captcha_enabled') and px_captcha.verify(ctx, self.config):
-            logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
-            return self.app(environ, start_response)
+        cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
+        if self.config.get('captcha_enabled') and cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
+            pxCaptcha = cookies.get('_pxCaptcha').value
+            if px_captcha.verify(ctx, self.config, pxCaptcha):
+                logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
+                return self.app(environ, start_response)
 
         # PX Cookie verification
         if not px_cookie.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):
@@ -77,30 +96,11 @@ class PerimeterX(object):
         elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
             vid = ctx.get('vid', '')
             uuid = ctx.get('uuid', '')
-            app_id = config.get('app_id', '')
-
-            html_head = '<html lang="en"> <head> <link type="text/css" rel="stylesheet" media="screen, print" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"> <meta charset="UTF-8"> <title>Access to This Page Has Been Blocked</title> <style> p { width: 60%; margin: 0 auto; font-size: 35px; } ' \
-                        'body { background-color: #a2a2a2; font-family: "Open Sans"; margin: 5%; } img { width: 180px; } a { color: #2020B1; text-decoration: blink; }' \
-                        ' a:hover { color: #2b60c6; } </style> <script src="https://www.google.com/recaptcha/api.js"></script>'
-            captcha = '<script> window.px_vid = "' + vid + '" ; function handleCaptcha(response) {' \
-                                                           ' var name = \'_pxCaptcha\'; var expiryUtc = new Date(Date.now() + 1000 * 10).toUTCString(); ' \
-                                                           'var cookieParts = [name, \'=\', response + \':\' + \'' + vid + ':' + uuid + ';\', \'expires=\', expiryUtc, \'; path=/\'];' \
-                                                           ' document.cookie = cookieParts.join(\'\'); location.reload(); } </script>'
-            body_start = '<body cz-shortcut-listen="true"> <div><img src="http://storage.googleapis.com/instapage-thumbnails/035ca0ab/e94de863/1460594818-1523851-467x110-perimeterx.png"> ' \
-                         '</div> <span style="color: white; font-size: 34px;">Access to This Page Has Been Blocked</span> <div style="font-size: 24px;color: #000042;">' \
-                         '<br> Access is blocked according to the site security policy.<br> Your browsing behaviour fingerprinting made us think you may be a bot. <br>' \
-                         '<br> This may happen as a result ofthe following: <ul> <li>JavaScript is disabled or not running properly.</li> ' \
-                         '<li>Your browsing behaviour fingerprinting are not likely to be that of a regular user.</li> </ul> To read more about the bot defender solution: ' \
-                         '<a href="https://www.perimeterx.com/bot-defender">https://www.perimeterx.com/bot-defender</a><br> If you think the blocking was done by mistake, ' \
-                         'contact the site administrator. <br/>'
-            body_captcha = '<br/><div class="g-recaptcha" data-sitekey="6Lcj-R8TAAAAABs3FrRPuQhLMbp5QrHsHufzLf7b" data-callback="handleCaptcha" data-theme="dark"></div> <br><span style="font-size: 20px;">'
-            px_snippet = '<script type="text/javascript"> (function(){ window._pxAppId="' + app_id + '"; var p=document.getElementsByTagName("script")[0], s=document.createElement("script"); s.async=1; s.src="//client.perimeterx.net/' + app_id + '/main.min.js"; p.parentNode.insertBefore(s,p); }()); </script>'
-            body_end = '<br/>Block Reference: <span style="color: #525151;">#' + uuid + '</span></span> </div> </body> </html>'
-
+            template = 'block'
             if config.get('captcha_enabled', False):
-                body = html_head + px_snippet + captcha + body_start + body_captcha + body_end
-            else:
-                body = html_head + px_snippet + body_start + body_end
+                template = 'captcha'
+
+            body = px_template.get_template(template, self.config, uuid, vid)
 
             px_activities_client.send_block_activity(ctx, config)
             start_response("403 Forbidden", [('Content-Type', 'text/html')])
@@ -109,7 +109,10 @@ class PerimeterX(object):
             return self.pass_traffic(environ, start_response, ctx)
 
     def pass_traffic(self, environ, start_response, ctx):
-        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, {})
+        details = {}
+        if(ctx.get('decoded_cookie','')):
+            details = {"px_cookie": ctx['decoded_cookie']}
+        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, details)
         return self.app(environ, start_response)
 
 
