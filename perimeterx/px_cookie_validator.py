@@ -23,7 +23,7 @@ def verify(ctx, config):
 
         if not px_cookie.deserialize():
             logger.error('Cookie decryption failed')
-            ctx['px_orig_cookie'] = px_cookie
+            ctx['px_orig_cookie'] = px_cookie.raw_cookie
             ctx['s2s_call_reason'] = 'cookie_decryption_failed'
             return False
 
@@ -44,7 +44,7 @@ def verify(ctx, config):
             logger.debug('Cookie expired')
             return False
 
-        if not px_cookie.is_secured():
+        if px_cookie.is_secured():
             logger.debug('Cookie validation failed')
             ctx['s2s_call_reason'] = 'cookie_validation_failed'
             return False
@@ -54,5 +54,6 @@ def verify(ctx, config):
     except Exception, e:
         traceback.print_exc()
         logger.debug('Could not decrypt cookie, exception was thrown, decryption failed ' + e.message)
+        ctx['px_orig_cookie'] = px_cookie.raw_cookie
         ctx['s2s_call_reason'] = 'cookie_decryption_failed'
         return False
