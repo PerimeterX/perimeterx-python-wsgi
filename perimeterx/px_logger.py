@@ -6,5 +6,9 @@ class Logger(object):
         if self.debug_mode:
             print '[PerimeterX DEBUG]: ' + message
 
+    def info(self, message):
+        if self.debug_mode:
+            print '[PerimeterX INFO]: ' + message
+
     def error(self, message):
         print '[PerimeterX ERROR]: ' + message

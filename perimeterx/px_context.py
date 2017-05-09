@@ -1,15 +1,16 @@
 import Cookie
+from px_constants import *
 
 
 def build_context(environ, config):
+    logger = config['logger']
     headers = {}
 
     # Default values
     http_method = 'GET'
     http_version = '1.1'
     http_protocol = 'http://'
-    px_cookie = ''
-    uuid = ''
+    px_cookies = {}
 
     # IP Extraction
     if config.get('ip_handler'):
@@ -33,8 +34,12 @@ def build_context(environ, config):
                 http_version = protocol_split[1]
 
     cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
-    if cookies.get('_px') and cookies.get('_px').value:
-        px_cookie = cookies.get('_px').value
+    cookie_keys = cookies.keys()
+
+    for key in cookie_keys:
+        if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
+            logger.debug('Found cookie prefix:' + key)
+            px_cookies[key] = cookies.get(key).value
 
     user_agent = headers.get('user-agent')
     uri = environ.get('PATH_INFO') or ''
@@ -49,6 +54,6 @@ def build_context(environ, config):
         'full_url': full_url,
         'uri': uri,
         'hostname': hostname,
-        '_px': px_cookie
+        'px_cookies': px_cookies
     }
     return ctx
