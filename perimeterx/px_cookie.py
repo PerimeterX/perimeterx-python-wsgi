@@ -20,12 +20,12 @@ class PxCookie:
     def build_px_cookie(ctx, config):
         config["logger"].debug("PxCookie[build_px_cookie]")
         px_cookies = ctx['px_cookies'].keys()
-        px_cookies.sort(reverse=True)
 
         # Check that its not empty
         if not px_cookies:
             return None
-
+        
+        px_cookies.sort(reverse=True)
         prefix = px_cookies[0]
         if prefix == PREFIX_PX_COOKIE_V1:
             config["logger"].debug("PxCookie[build_px_cookie] using cookie v1")
