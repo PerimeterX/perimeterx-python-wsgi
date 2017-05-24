@@ -23,6 +23,7 @@ class PerimeterX(object):
             'server_calls_enabled': True,
             'encryption_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
+            'sensitive_routes': [],
             'send_page_activities': True,
             'api_timeout': 1,
             'custom_logo': None,

@@ -1,5 +1,5 @@
 .idea
-.iml
+*.iml
 *.pyc
 db.sqlite3
 manage.py
