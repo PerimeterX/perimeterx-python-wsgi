@@ -25,7 +25,6 @@ t1.start()
 def send_to_perimeterx(activity_type, ctx, config, detail):
     global CONFIG
     try:
-        print activity_type
         if not config.get('server_calls_enabled', True):
             return
 
@@ -57,7 +56,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'vid': ctx.get('vid', ''),
             'uuid': ctx.get('uuid', '')
         }
-        print 'appending'
         ACTIVITIES_BUFFER.append(data)
     except:
         print traceback.format_exception(*sys.exc_info())

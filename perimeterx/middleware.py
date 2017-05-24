@@ -1,13 +1,12 @@
 from px_logger import Logger
 import px_context
 import px_activities_client
-import px_cookie
+import px_cookie_validator
 import px_httpc
 import px_captcha
 import px_api
 import px_template
 import Cookie
-
 
 
 class PerimeterX(object):
@@ -22,6 +21,7 @@ class PerimeterX(object):
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
             'server_calls_enabled': True,
+            'encryption_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
             'send_page_activities': True,
             'api_timeout': 1,
@@ -63,26 +63,30 @@ class PerimeterX(object):
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
-        ctx = px_context.build_context(environ, self.config)
+        try:
+            ctx = px_context.build_context(environ, self.config)
 
-        if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
-            logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
-            return self.app(environ, start_response)
-
-        cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
-        if self.config.get('captcha_enabled') and cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
-            pxCaptcha = cookies.get('_pxCaptcha').value
-            if px_captcha.verify(ctx, self.config, pxCaptcha):
-                logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
+            if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
+                logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
                 return self.app(environ, start_response)
 
-        # PX Cookie verification
-        if not px_cookie.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):
-            # Server-to-Server verification fallback
-            if not px_api.verify(ctx, self.config):
-                return self.app(environ, start_response)
+            cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
+            if self.config.get('captcha_enabled') and cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
+                pxCaptcha = cookies.get('_pxCaptcha').value
+                if px_captcha.verify(ctx, self.config, pxCaptcha):
+                    logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
+                    return self.app(environ, start_response)
 
-        return self.handle_verification(ctx, self.config, environ, start_response)
+            # PX Cookie verification
+            if not px_cookie_validator.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):
+                # Server-to-Server verification fallback
+                if not px_api.verify(ctx, self.config):
+                    return self.app(environ, start_response)
+
+            return self.handle_verification(ctx, self.config, environ, start_response)
+        except:
+            logger.error("Cought exception, passing request")
+            self.pass_traffic(environ, start_response, ctx)
 
     def handle_verification(self, ctx, config, environ, start_response):
         score = ctx.get('risk_score', -1)
