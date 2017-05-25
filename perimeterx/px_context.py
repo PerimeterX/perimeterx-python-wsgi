@@ -61,6 +61,7 @@ def build_context(environ, config):
         'uri': uri,
         'hostname': hostname,
         'px_cookies': px_cookies,
-        'is_sensitive_route': is_sensitive_route
+        'is_sensitive_route': is_sensitive_route,
+        'risk_rtt': 0
     }
     return ctx

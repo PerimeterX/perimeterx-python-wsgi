@@ -1,5 +1,7 @@
 import traceback
 
+from perimeterx import px_constants
+
 
 def verify(ctx, config):
     """
@@ -54,6 +56,7 @@ def verify(ctx, config):
             ctx['s2s_call_reason'] = 'sensitive_route'
             return False
 
+        ctx['pass_reason'] = px_constants.PASS_REASON_COOKIE
         logger.debug('Cookie validation passed with good score: ' + str(ctx['risk_score']))
         return True
     except Exception, e:
