@@ -2,33 +2,34 @@ import httplib
 import json
 import time
 
-http_client = None
 
+class PxHttpClient(object):
+    def __init__(self, config={}):
+        self.config = config
+        self.http_client = httplib.HTTPConnection(config.get('perimeterx_server_host'), timeout=config.get('api_timeout', 1))
+        self.config['logger'].debug("PxHttpClient init completed")
 
-def init(config):
-    global http_client
-    http_client = httplib.HTTPConnection(config.get('perimeterx_server_host'), timeout=config.get('api_timeout', 1))
+    def send(self, uri, body, ctx):
+        logger = self.config['logger']
+        headers = {
+            'Authorization': 'Bearer ' + self.config.get('auth_token', ''),
+            'Content-Type': 'application/json'
+        }
+        start = int(round(time.time() * 1000))
+        try:
 
+            self.http_client.request('POST', uri, body=json.dumps(body), headers=headers)
+            r = self.http_client.getresponse()
 
-def send(uri, body, config):
-    logger = config['logger']
-    headers = {
-        'Authorization': 'Bearer ' + config.get('auth_token', ''),
-        'Content-Type': 'application/json'
-    }
-    try:
-        start = time.time()
-        http_client.request('POST', uri, body=json.dumps(body), headers=headers)
-        r = http_client.getresponse()
+            if r.status != 200:
+                logger.error('error posting server to server call ' + r.reason)
+                return False
 
-        if r.status != 200:
-            logger.error('error posting server to server call ' + r.reason)
-            return False
+            ctx['risk_rtt'] = int(round(time.time() * 1000)) - start
+            response_body = r.read()
 
-        logger.debug('Server call took ' + str(time.time() - start) + 'ms')
-        response_body = r.read()
-
-        return json.loads(response_body)
-    except httplib.HTTPException:
-        init(config)
-        return False
+            return json.loads(response_body)
+        except:
+            ctx['risk_rtt'] = int(round(time.time() * 1000)) - start
+            logger.error('error, could not post request to server, request was not completed')
+            raise

@@ -11,6 +11,7 @@ def build_context(environ, config):
     http_version = '1.1'
     http_protocol = 'http://'
     px_cookies = {}
+    is_sensitive_route = False
 
     # IP Extraction
     if config.get('ip_handler'):
@@ -45,6 +46,11 @@ def build_context(environ, config):
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
     hostname = headers.get('host')
+
+    for sensitive_route in config.get("sensitive_routes"):
+        if not is_sensitive_route and uri.startswith(sensitive_route):
+            is_sensitive_route = True
+
     ctx = {
         'headers': headers,
         'http_method': http_method,
@@ -54,6 +60,8 @@ def build_context(environ, config):
         'full_url': full_url,
         'uri': uri,
         'hostname': hostname,
-        'px_cookies': px_cookies
+        'px_cookies': px_cookies,
+        'is_sensitive_route': is_sensitive_route,
+        'risk_rtt': 0
     }
     return ctx

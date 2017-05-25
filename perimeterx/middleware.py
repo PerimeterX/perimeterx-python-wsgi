@@ -1,12 +1,13 @@
+import px_constants
 from px_logger import Logger
 import px_context
-import px_activities_client
+from px_activities_client import PxActivitiesClient
 import px_cookie_validator
-import px_httpc
-import px_captcha
-import px_api
+from px_captcha import PxCaptcha
+from px_api import PxApi
 import px_template
 import Cookie
+import traceback
 
 
 class PerimeterX(object):
@@ -23,6 +24,7 @@ class PerimeterX(object):
             'server_calls_enabled': True,
             'encryption_enabled': True,
             'sensitive_headers': ['cookie', 'cookies'],
+            'sensitive_routes': [],
             'send_page_activities': True,
             'api_timeout': 1,
             'custom_logo': None,
@@ -31,6 +33,7 @@ class PerimeterX(object):
         }
 
         self.config = dict(self.config.items() + config.items())
+
         self.config['logger'] = logger = Logger(self.config['debug_mode'])
         if not config['app_id']:
             logger.error('PX App ID is missing')
@@ -46,7 +49,9 @@ class PerimeterX(object):
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
 
-        px_httpc.init(self.config)
+        self.px_api = PxApi(self.config)
+        self.px_captcha = PxCaptcha(self.config)
+        self.px_activities_client = PxActivitiesClient(self.config)
 
     def __call__(self, environ, start_response):
         def custom_start_response(status, headers, exc_info=None):
@@ -73,19 +78,22 @@ class PerimeterX(object):
             cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
             if self.config.get('captcha_enabled') and cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
                 pxCaptcha = cookies.get('_pxCaptcha').value
-                if px_captcha.verify(ctx, self.config, pxCaptcha):
+                if self.px_captcha.verify(ctx, pxCaptcha):
                     logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
-                    return self.app(environ, start_response)
+                    return self.handle_verification(ctx, self.config, environ, start_response)
 
             # PX Cookie verification
             if not px_cookie_validator.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):
                 # Server-to-Server verification fallback
-                if not px_api.verify(ctx, self.config):
-                    return self.app(environ, start_response)
+                if not self.px_api.verify(ctx):
+                    return self.handle_verification(ctx, self.config, environ, start_response)
 
             return self.handle_verification(ctx, self.config, environ, start_response)
         except:
-            logger.error("Cought exception, passing request")
+            ctx['pass_reason'] = px_constants.PASS_REASON_ERROR
+            logger.error("Main exception, passing request")
+            traceback.print_exc()
+
             self.pass_traffic(environ, start_response, ctx)
 
     def handle_verification(self, ctx, config, environ, start_response):
@@ -95,7 +103,7 @@ class PerimeterX(object):
             return self.pass_traffic(environ, start_response, ctx)
 
         if config.get('custom_block_handler', False):
-            px_activities_client.send_block_activity(ctx, config)
+            self.px_activities_client.send_block_activity(ctx)
             return config['custom_block_handler'](ctx, start_response)
         elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
             vid = ctx.get('vid', '')
@@ -106,7 +114,7 @@ class PerimeterX(object):
 
             body = px_template.get_template(template, self.config, uuid, vid)
 
-            px_activities_client.send_block_activity(ctx, config)
+            self.px_activities_client.send_block_activity(ctx)
             start_response("403 Forbidden", [('Content-Type', 'text/html')])
             return [str(body)]
         else:
@@ -114,9 +122,12 @@ class PerimeterX(object):
 
     def pass_traffic(self, environ, start_response, ctx):
         details = {}
-        if(ctx.get('decoded_cookie','')):
-            details = {"px_cookie": ctx['decoded_cookie']}
-        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, details)
+        details = {
+            "px_cookie": ctx.get('decoded_cookie', None),
+            "pass_reason": ctx.get('pass_reason', None),
+            'risk_rtt': ctx.get('risk_rtt', 0)
+        }
+        self.px_activities_client.send_to_perimeterx('page_requested', ctx, details)
         return self.app(environ, start_response)
 
 

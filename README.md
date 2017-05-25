@@ -19,6 +19,7 @@ Table of Contents
   *   [Enable/Disable Captcha](#captcha-support)
   *   [Extracting Real IP Address](#real-ip)
   *   [Filter Sensitive Headers](#sensitive-headers)
+  *   [Sensitive Routes](#sensitive-routes)
   *   [API Timeouts](#api-timeout)
   *   [Send Page Activities](#send-page-activities)
   *   [Debug Mode](#debug-mode)
@@ -273,6 +274,20 @@ A user can define a list of sensitive headers that will be excluded from any mes
 px_config = {
 	..
     'sensitive_headers': ['cookie', 'cookies', 'secret-header']
+	..
+}
+```
+
+#### <a name="sensitive-routes"></a> Sensitive Routes
+
+List of routes prefix. The Perimeterx module will always match request uri by this prefix list and if match was found will create a server-to-server call for, even if the cookie score is low and valid.
+
+**default value:** `None`
+
+```python
+px_config = {
+	..
+    'sensitive_routes': ['/login', '/profile', '/home/user/secret']
 	..
 }
 ```
