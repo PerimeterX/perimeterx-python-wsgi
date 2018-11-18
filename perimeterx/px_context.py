@@ -11,6 +11,7 @@ def build_context(environ, config):
     http_version = '1.1'
     http_protocol = 'http://'
     px_cookies = {}
+    requestCookieNames = list()
 
     # IP Extraction
     if config.get('ip_handler'):
@@ -37,6 +38,7 @@ def build_context(environ, config):
     cookie_keys = cookies.keys()
 
     for key in cookie_keys:
+        requestCookieNames.append(key)
         if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
             logger.debug('Found cookie prefix:' + key)
             px_cookies[key] = cookies.get(key).value
@@ -54,6 +56,7 @@ def build_context(environ, config):
         'full_url': full_url,
         'uri': uri,
         'hostname': hostname,
-        'px_cookies': px_cookies
+        'px_cookies': px_cookies,
+        'cookie_names': requestCookieNames
     }
     return ctx

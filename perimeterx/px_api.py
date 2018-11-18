@@ -48,7 +48,8 @@ def prepare_risk_body(ctx, config):
             'http_version': ctx.get('http_version', ''),
             'module_version': config.get('module_version', ''),
             'risk_mode': config.get('module_mode', ''),
-            'px_cookie_hmac': ctx.get('cookie_hmac', '')
+            'px_cookie_hmac': ctx.get('cookie_hmac', ''),
+            'request_cookie_names': ctx.get('cookie_names', '')
         }
     }
 
