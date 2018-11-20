@@ -6,6 +6,7 @@ import px_httpc
 import px_captcha
 import px_api
 import px_template
+from px_proxy import PXProxy
 import Cookie
 
 
@@ -27,7 +28,10 @@ class PerimeterX(object):
             'api_timeout': 1,
             'custom_logo': None,
             'css_ref': None,
-            'js_ref': None
+            'js_ref': None,
+            'client_host' : 'client.perimeterx.net',
+            'first_party': True,
+            'first_party_xhr_enabled': True
         }
 
         self.config = dict(self.config.items() + config.items())
@@ -45,6 +49,7 @@ class PerimeterX(object):
         if not config['cookie_key']:
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
+        self.reverse_prefix = self.config['app_id'][2:].lower()
 
         px_httpc.init(self.config)
 
@@ -53,7 +58,7 @@ class PerimeterX(object):
             cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
             if cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
                 cookie = Cookie.SimpleCookie()
-                cookie['_pxCaptcha'] = '';
+                cookie['_pxCaptcha'] = ''
                 cookie['_pxCaptcha']['expires'] = 'Expires=Thu, 01 Jan 1970 00:00:00 GMT';
                 headers.append(('Set-Cookie', cookie['_pxCaptcha'].OutputString()))
                 self.config['logger'].debug('Cleared Cookie');
@@ -65,9 +70,12 @@ class PerimeterX(object):
         logger = self.config['logger']
         try:
             ctx = px_context.build_context(environ, self.config)
-
+            uri = ctx.get('uri')
+            px_proxy = PXProxy(self.config, ctx)
+            if  px_proxy.should_reverse_request(uri):
+                return px_proxy.handle_reverse_request(environ, self.config, ctx, start_response)
             if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
-                logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
+                logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
 
             cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))

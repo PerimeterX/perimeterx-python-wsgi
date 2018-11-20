@@ -32,3 +32,23 @@ def send(uri, body, config):
     except httplib.HTTPException:
         init(config)
         return False
+
+def sendReverse(url, path, body, headers, config):
+    logger = config['logger']
+    try:
+        start = time.time()
+        http_client = httplib.HTTPSConnection(url, timeout=config.get('api_timeout', 1))
+        http_client.request('GET', path, "", headers=headers)
+        response = http_client.getresponse()
+
+        if response.status != 200:
+            logger.error('error posting server to server call ' + response.reason)
+            return False
+
+        logger.debug('Server call took ' + str(time.time() - start) + 'ms')
+        return response
+
+    except httplib.HTTPException:
+        init(config)
+        return False
+
