@@ -33,12 +33,12 @@ def send(uri, body, config):
         init(config)
         return False
 
-def sendReverse(url, path, body, headers, config):
+def sendReverse(url, path, body, headers, config, method):
     logger = config['logger']
     try:
         start = time.time()
         http_client = httplib.HTTPSConnection(url, timeout=config.get('api_timeout', 1))
-        http_client.request('GET', path, "", headers=headers)
+        http_client.request(method, path, body, headers=headers)
         response = http_client.getresponse()
 
         if response.status != 200:

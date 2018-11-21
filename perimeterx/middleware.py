@@ -8,6 +8,7 @@ import px_api
 import px_template
 from px_proxy import PXProxy
 import Cookie
+import px_constants
 
 
 class PerimeterX(object):
@@ -31,7 +32,7 @@ class PerimeterX(object):
             'js_ref': None,
             'client_host' : 'client.perimeterx.net',
             'first_party': True,
-            'first_party_xhr_enabled': True
+            'first_party_xhr_enabled': True,
         }
 
         self.config = dict(self.config.items() + config.items())
@@ -39,7 +40,9 @@ class PerimeterX(object):
         if not config['app_id']:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
+        url = px_constants.COLLECTOR_URL
 
+        self.config['collector_url'] = url.format(config.get('app_id').lower())
         # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.perimeterx.net'
         if not config['auth_token']:

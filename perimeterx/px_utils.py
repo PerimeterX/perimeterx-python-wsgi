@@ -1,5 +1,7 @@
 
-def filterSensitiveHeaders(headers, config):
+import px_constants
+
+def filter_sensitive_headers(headers, config):
 
     sensitive_keys = config.get('SENSITIVE_HEADERS')
     if not sensitive_keys == None:
@@ -16,3 +18,12 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return z
 
+
+def handle_proxy_headers(headers, config, ip):
+    filtered_headers = filter_sensitive_headers(headers, config)
+    for item in filtered_headers.keys():
+        if item.upper() == px_constants.FIRST_PARTY_FORWARDED_FOR:
+            filtered_headers[item] = ip
+        else:
+            filtered_headers[px_constants.FIRST_PARTY_FORWARDED_FOR] = ip
+    return filtered_headers
