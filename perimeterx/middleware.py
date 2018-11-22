@@ -67,7 +67,7 @@ class PerimeterX(object):
             uri = ctx.get('uri')
             px_proxy = PXProxy(self.config, ctx)
             if  px_proxy.should_reverse_request(uri):
-                return px_proxy.handle_reverse_request(environ, self.config, ctx, start_response)
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response)
             if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)

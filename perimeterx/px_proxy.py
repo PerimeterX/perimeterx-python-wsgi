@@ -11,7 +11,7 @@ hoppish = {'connection', 'keep-alive', 'proxy-authenticate',
 
 
 class PXProxy(object):
-    def __init__(self, px_config, pxCtx):
+    def __init__(self, px_config):
         self.logger = px_config['logger']
 
         reverse_app_id = px_config['app_id'][2:]
@@ -26,7 +26,7 @@ class PXProxy(object):
             return True
         return False
 
-    def handle_reverse_request(self, environ, config, ctx, start_response):
+    def handle_reverse_request(self, config, ctx, start_response):
         uri = ctx.get('uri').lower()
 
         if uri.startswith(self.client_reverse_prefix):
