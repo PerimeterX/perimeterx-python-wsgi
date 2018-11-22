@@ -22,7 +22,7 @@ class PxCookieV3(PxCookie):
         return self.decoded_cookie['a']
 
     def is_cookie_format_valid(self):
-        c = self.decoded_cookie;
+        c = self.decoded_cookie
         return 't' in c and 'v' in c and 'u' in c and 's' in c and 'a' in c
 
     def is_secured(self):
