@@ -63,8 +63,8 @@ def build_context(environ, config):
         'uri': uri,
         'hostname': hostname,
         'px_cookies': px_cookies,
-        'ip': extract_ip(config, environ),
         'cookie_names': request_cookie_names,
+        'ip': extract_ip(config, environ),
         'vid': vid
     }
     return ctx

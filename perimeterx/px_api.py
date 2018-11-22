@@ -9,7 +9,7 @@ def send_risk_request(ctx, config):
 
 def verify(ctx, config):
     logger = config['logger']
-    logger.debug("PxAPI[verify]")
+    logger.debug("PXVerify")
     try:
         response = send_risk_request(ctx, config)
         if response:
@@ -18,8 +18,17 @@ def verify(ctx, config):
             ctx['uuid'] = response['uuid']
             ctx['block_action'] = response['action']
             if score >= config['blocking_score']:
-                logger.debug("PxAPI[verify] block score threshold reached")
+                logger.debug("PXVerify block score threshold reached, will initiate blocking")
                 ctx['block_reason'] = 's2s_high_score'
+            elif response['action'] is 'j' and response.get('action_data') is not None and response.get('action_data').get('body') is not None:
+                logger.debug("PXVerify received javascript challenge action")
+                ctx['block_action_data'] = response.get('action_data').get('body')
+                ctx['block_reason'] = 'challenge'
+            elif response['action'] is 'r':
+                logger.debug("PXVerify received javascript ratelimit action")
+                ctx['block_reason'] = 'exceeded_rate_limit'
+            else:
+                ctx['pass_reason'] = 's2s'
 
             logger.debug("PxAPI[verify] S2S completed")
             return True
@@ -48,7 +57,8 @@ def prepare_risk_body(ctx, config):
             'http_version': ctx.get('http_version', ''),
             'module_version': config.get('module_version', ''),
             'risk_mode': config.get('module_mode', ''),
-            'px_cookie_hmac': ctx.get('cookie_hmac', '')
+            'px_cookie_hmac': ctx.get('cookie_hmac', ''),
+            'request_cookie_names': ctx.get('cookie_names', '')
         }
     }
 
