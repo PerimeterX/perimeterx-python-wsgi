@@ -3,9 +3,8 @@ import px_context
 import px_activities_client
 import px_cookie_validator
 import px_httpc
-import px_captcha
+import px_blocker
 import px_api
-import px_template
 import Cookie
 
 
@@ -27,7 +26,8 @@ class PerimeterX(object):
             'api_timeout': 1,
             'custom_logo': None,
             'css_ref': None,
-            'js_ref': None
+            'js_ref': None,
+            'is_mobile': False
         }
 
         self.config = dict(self.config.items() + config.items())
@@ -45,7 +45,7 @@ class PerimeterX(object):
         if not config['cookie_key']:
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
-
+        self.PXBlocker = px_blocker.PXBlocker()
         px_httpc.init(self.config)
 
     def __call__(self, environ, start_response):
@@ -59,7 +59,7 @@ class PerimeterX(object):
                 self.config['logger'].debug('Cleared Cookie');
             return start_response(status, headers, exc_info)
 
-        return self._verify(environ, custom_start_response)
+        return self._verify(environ, start_response)
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
@@ -71,11 +71,6 @@ class PerimeterX(object):
                 return self.app(environ, start_response)
 
             cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
-            if self.config.get('captcha_enabled') and cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
-                pxCaptcha = cookies.get('_pxCaptcha').value
-                if px_captcha.verify(ctx, self.config, pxCaptcha):
-                    logger.debug('User passed captcha verification. user ip: ' + ctx.get('socket_ip'))
-                    return self.app(environ, start_response)
 
             # PX Cookie verification
             if not px_cookie_validator.verify(ctx, self.config) and self.config.get('server_calls_enabled', True):
@@ -98,17 +93,7 @@ class PerimeterX(object):
             px_activities_client.send_block_activity(ctx, config)
             return config['custom_block_handler'](ctx, start_response)
         elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
-            vid = ctx.get('vid', '')
-            uuid = ctx.get('uuid', '')
-            template = 'block'
-            if config.get('captcha_enabled', False):
-                template = 'captcha'
-
-            body = px_template.get_template(template, self.config, uuid, vid)
-
-            px_activities_client.send_block_activity(ctx, config)
-            start_response("403 Forbidden", [('Content-Type', 'text/html')])
-            return [str(body)]
+            return self.PXBlocker.handle_blocking(ctx=ctx, config=config, start_response=start_response)
         else:
             return self.pass_traffic(environ, start_response, ctx)
 
