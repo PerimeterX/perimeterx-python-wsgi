@@ -1,6 +1,7 @@
 import pystache
 import px_template
 import px_constants
+import json
 
 
 class PXBlocker(object):
@@ -12,22 +13,27 @@ class PXBlocker(object):
     def handle_blocking(self, ctx, config, start_response):
         action = ctx.get('block_action')
         status = '403 Forbidden'
-        if action is 'j':
-            blocking_response = ctx['block_action_data']
-        elif action is 'r':
-            blocking_response = self.ratelimit_rendered_page
-            status = '429 Too Many Requests'
-        else:
-            blocking_props = self.prepare_properties(ctx, config)
-            blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE), blocking_props)
+
         is_json_response = self.is_json_response(ctx)
         if is_json_response:
             content_type = 'application/json'
         else:
             content_type = 'text/html'
-
         headers = [('Content-Type', content_type)]
+
+        if action is 'j':
+            blocking_props = ctx['block_action_data']
+            blocking_response = blocking_props
+        elif action is 'r':
+            blocking_response = self.ratelimit_rendered_page
+            status = '429 Too Many Requests'
+        else:
+            blocking_props = self.prepare_properties(ctx, config)
+            blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE),
+                                                              blocking_props)
         start_response(status, headers)
+        if is_json_response:
+            blocking_response = json.dumps(blocking_props)
         return str(blocking_response)
 
     def prepare_properties(self, ctx, config):
@@ -67,6 +73,9 @@ class PXBlocker(object):
         headers = ctx.get('headers')
         if ctx.get('block_action') is not 'r':
             for item in headers.keys():
-                if (item.lower() is 'accept' or item.lower() is 'content-type') and headers[item] is 'application/json':
-                    return True
+                if (item.lower() == 'accept' or item.lower() == 'content-type'):
+                    item_arr = headers[item].split(',')
+                    for header_item in item_arr:
+                        if header_item.strip() == 'application/json':
+                            return True
         return False

@@ -1,4 +1,3 @@
-import pystache
 import os
 
 
@@ -11,17 +10,6 @@ def get_content(template):
     content = file.read()
     return content
 
-def get_props(config, uuid, vid):
-    return {
-        'refId': uuid,
-        'appId': config.get('app_id'),
-        'vid': vid,
-        'uuid': uuid,
-        'customLogo': config.get('custom_logo'),
-        'cssRef': config.get('css_ref'),
-        'jsRef': config.get('js_ref'),
-        'logoVisibility': 'visible' if config['custom_logo'] else 'hidden'
-    }
 
 
 def get_template(template_name):
