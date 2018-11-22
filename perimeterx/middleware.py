@@ -31,7 +31,7 @@ class PerimeterX(object):
             'css_ref': None,
             'js_ref': None,
             'is_mobile': False,
-            'client_host' : 'client.perimeterx.net',
+            'client_host': 'client.perimeterx.net',
             'first_party': True,
             'first_party_xhr_enabled': True,
         }

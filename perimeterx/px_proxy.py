@@ -14,8 +14,8 @@ class PXProxy(object):
     def __init__(self, px_config, pxCtx):
         reverse_app_id = px_config['app_id'][2:]
         self.client_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.CLIENT_FP_PATH)
-        self.xhr_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.XHR_PATH)
-        self.captcha_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.CAPTCHA_PATH)
+        self.xhr_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.XHR_FP_PATH)
+        self.captcha_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.CAPTCHA_FP_PATH)
 
     def should_reverse_request(self, uri):
         if uri.startswith(self.client_reverse_prefix) or uri.startswith(self.xhr_reverse_prefix) or uri.startswith(
@@ -35,12 +35,9 @@ class PXProxy(object):
 
     def send_reverse_client_request(self, config, context, start_response):
         if not config['first_party']:
-            status = 200
-            headers = {
-                'Content-Type', 'application/javascript'
-            }
-            start_response(status, headers)
-            return ''
+            headers = [('Content-Type', 'application/javascript')]
+            start_response("200 OK", headers)
+            return ""
 
         client_request_uri = '/{}/main.min.js'.format(config['app_id'])
         # px_logger.Logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.get('uri').lower(),pxConfig.CLIENT_HOST,clientRequestUri))
