@@ -31,7 +31,6 @@ class PerimeterX(object):
             'css_ref': None,
             'js_ref': None,
             'is_mobile': False,
-            'client_host': 'client.perimeterx.net',
             'first_party': True,
             'first_party_xhr_enabled': True,
         }
@@ -59,16 +58,6 @@ class PerimeterX(object):
         px_httpc.init(self.config)
 
     def __call__(self, environ, start_response):
-        def custom_start_response(status, headers, exc_info=None):
-            cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
-            if cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
-                cookie = Cookie.SimpleCookie()
-                cookie['_pxCaptcha'] = ''
-                cookie['_pxCaptcha']['expires'] = 'Expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                headers.append(('Set-Cookie', cookie['_pxCaptcha'].OutputString()))
-                self.config['logger'].debug('Cleared Cookie');
-            return start_response(status, headers, exc_info)
-
         return self._verify(environ, start_response)
 
     def _verify(self, environ, start_response):

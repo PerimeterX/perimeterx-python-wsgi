@@ -65,7 +65,8 @@ def build_context(environ, config):
         'px_cookies': px_cookies,
         'cookie_names': request_cookie_names,
         'ip': extract_ip(config, environ),
-        'vid': vid
+        'vid': vid,
+        'query_params': environ['QUERY_STRING']
     }
     return ctx
 
