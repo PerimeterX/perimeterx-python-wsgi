@@ -3,7 +3,7 @@ python:
   - "2.7"
 # command to install dependencies
 install:
-  - ./setup.py install
+  - pip install pylint
 # command to run tests
 script:
   - pylint simple -E perimeterx/
