@@ -11,6 +11,6 @@ setup(name='perimeterx-python-wsgi',
       download_url='https://github.com/PerimeterX/perimeterx-python-wsgi/tarball/v1.0.2',
       package_dir={'perimeterx': 'perimeterx'},
       install_requires=[
-        "pystache", 'Crypto'
+        "pystache", 'Crypto', 'pylint'
       ]
       )
