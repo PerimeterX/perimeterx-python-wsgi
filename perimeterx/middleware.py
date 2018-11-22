@@ -6,7 +6,7 @@ import px_httpc
 import px_blocker
 import px_api
 import Cookie
-
+import px_constants
 
 class PerimeterX(object):
     def __init__(self, app, config=None):
@@ -27,7 +27,8 @@ class PerimeterX(object):
             'custom_logo': None,
             'css_ref': None,
             'js_ref': None,
-            'is_mobile': False
+            'is_mobile': False,
+            'monitor_mode': px_constants.MONITOR_MODE_BLOCKING
         }
 
         self.config = dict(self.config.items() + config.items())
@@ -92,7 +93,7 @@ class PerimeterX(object):
         if config.get('custom_block_handler', False):
             px_activities_client.send_block_activity(ctx, config)
             return config['custom_block_handler'](ctx, start_response)
-        elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
+        elif config.get('module_mode', px_constants.MONITOR_MODE_MONITOR) == px_constants.MONITOR_MODE_BLOCKING:
             return self.PXBlocker.handle_blocking(ctx=ctx, config=config, start_response=start_response)
         else:
             return self.pass_traffic(environ, start_response, ctx)

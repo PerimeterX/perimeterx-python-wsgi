@@ -16,4 +16,6 @@ COLLECTOR_URL = 'https://collector-{}.perimeterx.net'
 CLIENT_FP_PATH = 'init.js'
 CAPTCHA_FP_PATH = 'captcha'
 XHR_FP_PATH = 'xhr'
+MONITOR_MODE_BLOCKING = 'active_blocking'
+MONITOR_MODE_MONITOR = 'monitor'
 
