@@ -52,7 +52,7 @@ class PerimeterX(object):
         if not config['cookie_key']:
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
-        self.reverse_prefix = self.config['app_id'][2:].lower()
+        self.reverse_proxy_prefix = self.config['app_id'][2:].lower()
 
         self.PXBlocker = px_blocker.PXBlocker()
         px_httpc.init(self.config)
@@ -101,7 +101,7 @@ class PerimeterX(object):
 
     def pass_traffic(self, environ, start_response, ctx):
         details = {}
-        if(ctx.get('decoded_cookie','')):
+        if ctx.get('decoded_cookie', ''):
             details = {"px_cookie": ctx['decoded_cookie']}
         px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, details)
         return self.app(environ, start_response)

@@ -21,7 +21,7 @@ def send(uri, body, config):
         http_client.request('POST', uri, body=json.dumps(body), headers=headers)
         r = http_client.getresponse()
 
-        if r.status != 200:
+        if r.status >= 400:
             logger.error('error posting server to server call ' + r.reason)
             return False
 
@@ -33,7 +33,7 @@ def send(uri, body, config):
         init(config)
         return False
 
-def sendReverse(url, path, body, headers, config, method):
+def send_reverse(url, path, body, headers, config, method):
     logger = config['logger']
     try:
         start = time.time()
