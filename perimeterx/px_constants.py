@@ -19,3 +19,5 @@ XHR_FP_PATH = 'xhr'
 MONITOR_MODE_BLOCKING = 'active_blocking'
 MONITOR_MODE_MONITOR = 'monitor'
 
+
+MODULE_VERSION = 'Python WSGI Module'

@@ -57,6 +57,7 @@ def build_context(environ, config):
         'uri': uri,
         'hostname': hostname,
         'px_cookies': px_cookies,
-        'cookie_names': request_cookie_names
+        'cookie_names': request_cookie_names,
+        'risk_rtt': 0
     }
     return ctx

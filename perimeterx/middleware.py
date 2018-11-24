@@ -16,7 +16,7 @@ class PerimeterX(object):
             'blocking_score': 60,
             'debug_mode': False,
             'module_version': 'Python SDK v1.0.3',
-            'module_mode': 'active_monitoring',
+            'module_mode': 'monitor',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
             'server_calls_enabled': True,
@@ -28,15 +28,14 @@ class PerimeterX(object):
             'css_ref': None,
             'js_ref': None,
             'is_mobile': False,
-            'monitor_mode': px_constants.MONITOR_MODE_BLOCKING
-        }
+            'monitor_mode': px_constants.MONITOR_MODE_MONITOR,
+            }
 
         self.config = dict(self.config.items() + config.items())
         self.config['logger'] = logger = Logger(self.config['debug_mode'])
         if not config['app_id']:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
-
         # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.perimeterx.net'
         if not config['auth_token']:
