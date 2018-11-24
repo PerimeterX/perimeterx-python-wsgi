@@ -50,8 +50,8 @@ class PXProxy(object):
                    px_constants.ENFORCER_TRUE_IP_HEADER: context.get('ip')}
         filtered_headers = px_utils.filter_sensitive_headers(context['headers'], config)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
-        response = px_httpc.sendReverse(url=px_constants.CLIENT_HOST, path=client_request_uri, body='',
-                                        headers=filtered_headers, config=config, method='GET')
+        response = px_httpc.send_reverse(url=px_constants.CLIENT_HOST, path=client_request_uri, body='',
+                                         headers=filtered_headers, config=config, method='GET')
 
         
         headers = filter(lambda x: x[0] not in hoppish, response.getheaders())
@@ -80,11 +80,12 @@ class PXProxy(object):
         filtered_headers = px_utils.handle_proxy_headers(context.get('headers'), config, context.get('ip'))
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         self.logger.debug('Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(), host, suffix_uri))
-        response = px_httpc.sendReverse(url=host, path=suffix_uri, body='',
-                                        headers=filtered_headers, config=config, method=context.get('http_method'))
+        response = px_httpc.send_reverse(url=host, path=suffix_uri, body='',
+                                         headers=filtered_headers, config=config, method=context.get('http_method'))
+
         if response.status >= 400:
             body, content_type = self.return_default_response(uri)
-
+            px_logger.Logger.debug('error reversing the http call ' + response.reason)
             start_response('200 OK', [content_type])
             return body
         response_headers = filter(lambda x: x[0] not in hoppish, response.getheaders())
@@ -116,8 +117,8 @@ class PXProxy(object):
         filtered_headers = px_utils.filter_sensitive_headers(context['headers'], config)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         self.logger.debug('Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(), host, uri))
-        response = px_httpc.sendReverse(url=host, path=uri, body='',
-                                        headers=filtered_headers, config=config, method='GET')
+        response = px_httpc.send_reverse(url=host, path=uri, body='',
+                                         headers=filtered_headers, config=config, method='GET')
         headers = filter(lambda x: x[0] not in hoppish, response.getheaders())
         start_response(str(response.status) + ' ' + response.reason, headers)
         return response.read()

@@ -42,7 +42,6 @@ def send_reverse(url, path, body, headers, config, method):
         response = http_client.getresponse()
 
         if response.status != 400:
-            logger.debug('error reversing the http call ' + response.reason)
             return False
 
         logger.debug('Server call took ' + str(time.time() - start) + 'ms')
