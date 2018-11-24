@@ -19,4 +19,4 @@ XHR_FP_PATH = 'xhr'
 MODULE_MODE_BLOCKING = 'active_blocking'
 MODULE_MODE_MONITORING = 'monitor'
 
-MODULE_VERSION = 'Python WSGI Module'
+MODULE_VERSION = 'Python WSGI Module v2.0.0'
