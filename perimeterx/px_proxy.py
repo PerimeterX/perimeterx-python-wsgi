@@ -53,7 +53,6 @@ class PXProxy(object):
         response = px_httpc.send_reverse(url=px_constants.CLIENT_HOST, path=client_request_uri, body='',
                                          headers=filtered_headers, config=config, method='GET')
 
-        
         headers = filter(lambda x: x[0] not in hoppish, response.getheaders())
         start_response(str(response.status) + ' ' + response.reason, headers)
         return response.read()
