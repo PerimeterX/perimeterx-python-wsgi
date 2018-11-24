@@ -6,7 +6,7 @@ import px_httpc
 import px_blocker
 import px_api
 import Cookie
-
+import px_constants
 
 class PerimeterX(object):
     def __init__(self, app, config=None):
@@ -15,8 +15,7 @@ class PerimeterX(object):
         self.config = {
             'blocking_score': 60,
             'debug_mode': False,
-            'module_version': 'Python SDK v1.0.3',
-            'module_mode': 'active_monitoring',
+            'module_mode': 'monitor',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
             'server_calls_enabled': True,
@@ -27,15 +26,15 @@ class PerimeterX(object):
             'custom_logo': None,
             'css_ref': None,
             'js_ref': None,
-            'is_mobile': False
-        }
+            'is_mobile': False,
+            'monitor_mode': px_constants.MODULE_MODE_MONITORING,
+            }
 
         self.config = dict(self.config.items() + config.items())
         self.config['logger'] = logger = Logger(self.config['debug_mode'])
         if not config['app_id']:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
-
         # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.perimeterx.net'
         if not config['auth_token']:
@@ -92,7 +91,7 @@ class PerimeterX(object):
         if config.get('custom_block_handler', False):
             px_activities_client.send_block_activity(ctx, config)
             return config['custom_block_handler'](ctx, start_response)
-        elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
+        elif config.get('module_mode') == px_constants.MODULE_MODE_BLOCKING:
             return self.PXBlocker.handle_blocking(ctx=ctx, config=config, start_response=start_response)
         else:
             return self.pass_traffic(environ, start_response, ctx)
