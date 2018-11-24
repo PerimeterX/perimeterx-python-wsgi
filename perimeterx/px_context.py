@@ -63,7 +63,7 @@ def build_context(environ, config):
         'hostname': hostname,
         'px_cookies': px_cookies,
         'cookie_names': request_cookie_names,
-        'risk_rtt': 0
+        'risk_rtt': 0,
         'ip': extract_ip(config, environ),
         'vid': vid,
         'query_params': environ['QUERY_STRING']

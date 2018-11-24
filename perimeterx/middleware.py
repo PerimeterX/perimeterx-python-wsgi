@@ -5,7 +5,6 @@ import px_cookie_validator
 import px_httpc
 import px_blocker
 import px_api
-import px_template
 from px_proxy import PXProxy
 import Cookie
 import px_constants
