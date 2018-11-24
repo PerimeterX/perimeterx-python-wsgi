@@ -21,7 +21,7 @@ def send(uri, body, config):
         http_client.request('POST', uri, body=json.dumps(body), headers=headers)
         r = http_client.getresponse()
 
-        if r.status >= 400:
+        if r.status >= 200:
             logger.error('error posting server to server call ' + r.reason)
             return False
 
@@ -41,8 +41,8 @@ def send_reverse(url, path, body, headers, config, method):
         http_client.request(method, path, body, headers=headers)
         response = http_client.getresponse()
 
-        if response.status != 200:
-            logger.error('error posting server to server call ' + response.reason)
+        if response.status != 400:
+            logger.debug('error reversing the http call ' + response.reason)
             return False
 
         logger.debug('Server call took ' + str(time.time() - start) + 'ms')
