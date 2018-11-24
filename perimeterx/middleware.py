@@ -28,7 +28,7 @@ class PerimeterX(object):
             'css_ref': None,
             'js_ref': None,
             'is_mobile': False,
-            'monitor_mode': px_constants.MONITOR_MODE_MONITOR,
+            'monitor_mode': px_constants.MODULE_MODE_MONITOR,
             }
 
         self.config = dict(self.config.items() + config.items())
@@ -92,7 +92,7 @@ class PerimeterX(object):
         if config.get('custom_block_handler', False):
             px_activities_client.send_block_activity(ctx, config)
             return config['custom_block_handler'](ctx, start_response)
-        elif config.get('module_mode', px_constants.MONITOR_MODE_MONITOR) == px_constants.MONITOR_MODE_BLOCKING:
+        elif config.get('module_mode', px_constants.MODULE_MODE_MONITOR) == px_constants.MODULE_MODE_BLOCKING:
             return self.PXBlocker.handle_blocking(ctx=ctx, config=config, start_response=start_response)
         else:
             return self.pass_traffic(environ, start_response, ctx)
