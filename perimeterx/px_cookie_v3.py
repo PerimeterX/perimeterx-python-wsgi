@@ -5,9 +5,10 @@ from px_constants import *
 class PxCookieV3(PxCookie):
 
     def __init__(self, ctx, config):
-        self.ctx = ctx
-        self.config = config
-        spliced_cookie = ctx['px_cookies'].get(PREFIX_PX_COOKIE_V3, '').split(":", 1)
+        self._config = config
+        self._logger = config.logger
+        self._ctx = ctx
+        spliced_cookie = self._ctx['px_cookies'].get(PREFIX_PX_COOKIE_V3, '').split(":", 1)
         if spliced_cookie.count > 1:
             self.hmac = spliced_cookie[0]
             self.raw_cookie = spliced_cookie[1]
@@ -26,7 +27,7 @@ class PxCookieV3(PxCookie):
         return 't' in c and 'v' in c and 'u' in c and 's' in c and 'a' in c
 
     def is_secured(self):
-        user_agent = self.ctx.get('user_agent', '')
+        user_agent = self._ctx.get('user_agent', '')
         str_hmac = self.raw_cookie + user_agent
         return self.is_cookie_valid(str_hmac)
 

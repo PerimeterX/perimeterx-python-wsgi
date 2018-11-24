@@ -1,16 +1,17 @@
 import sys
 import px_httpc
 import time
+import px_constants
 
 
 
 def send_risk_request(ctx, config):
     body = prepare_risk_body(ctx, config)
-    return px_httpc.send('/api/v2/risk', body, config)
+    return px_httpc.send(px_constants.API_RISK, body, config)
 
 
 def verify(ctx, config):
-    logger = config['logger']
+    logger = config.logger
     logger.debug("PXVerify")
     try:
         start = time.time()
@@ -24,7 +25,7 @@ def verify(ctx, config):
             ctx['uuid'] = response['uuid']
             ctx['block_action'] = response['action']
             ctx['risk_rtt'] = risk_rtt
-            if score >= config['blocking_score']:
+            if score >= config.blocking_score:
                 logger.debug("PXVerify block score threshold reached, will initiate blocking")
                 ctx['block_reason'] = 's2s_high_score'
             elif response['action'] is 'j' and response.get('action_data') is not None and response.get('action_data').get('body') is not None:
@@ -47,7 +48,7 @@ def verify(ctx, config):
 
 
 def prepare_risk_body(ctx, config):
-    logger = config['logger']
+    logger = config.logger
     logger.debug("PxAPI[send_risk_request]")
     body = {
         'request': {
@@ -62,8 +63,8 @@ def prepare_risk_body(ctx, config):
             's2s_call_reason': ctx.get('s2s_call_reason', ''),
             'http_method': ctx.get('http_method', ''),
             'http_version': ctx.get('http_version', ''),
-            'module_version': config.get('module_version', ''),
-            'risk_mode': config.get('module_mode', ''),
+            'module_version': config.module_version,
+            'risk_mode': config.module_mode,
             'px_cookie_hmac': ctx.get('cookie_hmac', ''),
             'request_cookie_names': ctx.get('cookie_names', '')
         }

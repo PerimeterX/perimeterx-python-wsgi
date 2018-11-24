@@ -7,13 +7,13 @@ http_client = None
 
 def init(config):
     global http_client
-    http_client = httplib.HTTPConnection(config.get('perimeterx_server_host'), timeout=config.get('api_timeout', 1))
+    http_client = httplib.HTTPConnection(host=config.server_host, timeout=config.api_timeout)
 
 
 def send(uri, body, config):
-    logger = config['logger']
+    logger = config.logger
     headers = {
-        'Authorization': 'Bearer ' + config.get('auth_token', ''),
+        'Authorization': 'Bearer ' + config.auth_token,
         'Content-Type': 'application/json'
     }
     try:
@@ -32,10 +32,10 @@ def send(uri, body, config):
         return False
 
 def send_reverse(url, path, body, headers, config, method):
-    logger = config['logger']
+    logger = config.logger
     try:
         start = time.time()
-        http_client = httplib.HTTPSConnection(url, timeout=config.get('api_timeout', 1))
+        http_client = httplib.HTTPSConnection(url, timeout=config.api_timeout)
         http_client.request(method, path, body, headers=headers)
         response = http_client.getresponse()
 
