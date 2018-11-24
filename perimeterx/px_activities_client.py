@@ -74,6 +74,6 @@ def send_block_activity(ctx, config):
         'risk_rtt': ctx.get('risk_rtt'),
         #'cookie_origin':,
         'module_version': px_constants.MODULE_VERSION,
-        'simulated_block': config.get('monitor_mode')
+        'simulated_block': config.get('monitor_mode') is px_constants.MODULE_MODE_MONITORING
 
     })
