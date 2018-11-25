@@ -61,7 +61,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 
 
 def send_block_activity(ctx, config):
-    send_to_perimeterx('block', ctx, config, {
+    send_to_perimeterx(px_constants.BLOCK, ctx, config, {
         'block_score': ctx.get('risk_score'),
         'client_uuid': ctx.get('uuid'),
         'block_reason': ctx.get('block_reason'),

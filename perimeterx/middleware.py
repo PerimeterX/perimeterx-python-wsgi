@@ -84,7 +84,7 @@ class PerimeterX(object):
         details = {}
         if ctx.get('decoded_cookie', ''):
             details = {"px_cookie": ctx['decoded_cookie']}
-        px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, details)
+        px_activities_client.send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, self.config, details)
         return self.app(environ, start_response)
 
     @property
