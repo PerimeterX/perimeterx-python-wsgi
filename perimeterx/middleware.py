@@ -5,6 +5,7 @@ import px_httpc
 import px_blocker
 import px_api
 import px_constants
+import px_utils
 from px_proxy import PXProxy
 from px_config import PXConfig
 
@@ -46,7 +47,7 @@ class PerimeterX(object):
             px_proxy = PXProxy(config)
             if px_proxy.should_reverse_request(uri):
                 return px_proxy.handle_reverse_request(self.config, ctx, start_response)
-            if is_static_file(ctx):
+            if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
             if not self._config._module_enabled:
@@ -95,14 +96,4 @@ class PerimeterX(object):
         return self._PXBlocker
 
 
-def is_static_file(ctx):
-    uri = ctx.get('uri', '')
-    static_extensions = ['.css', '.bmp', '.tif', '.ttf', '.docx', '.woff2', '.js', '.pict', '.tiff', '.eot',
-                         '.xlsx', '.jpg', '.csv', '.eps', '.woff', '.xls', '.jpeg', '.doc', '.ejs', '.otf', '.pptx',
-                         '.gif', '.pdf', '.swf', '.svg', '.ps', '.ico', '.pls', '.midi', '.svgz', '.class', '.png',
-                         '.ppt', '.mid', 'webp', '.jar']
 
-    for ext in static_extensions:
-        if uri.endswith(ext):
-            return True
-    return False
