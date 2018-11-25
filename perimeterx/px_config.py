@@ -122,5 +122,6 @@ class PXConfig(object):
     def first_party_xhr_enabled(self):
         return self._first_party_xhr_enabled
 
+    @property
     def collector_host(self):
         return self._collector_host
