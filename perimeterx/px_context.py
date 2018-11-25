@@ -42,11 +42,17 @@ def build_context(environ, config):
         if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
             logger.debug('Found cookie prefix:' + key)
             px_cookies[key] = cookies.get(key).value
+    vid = None
+    if '_pxvid' in cookie_keys:
+        vid = cookies.get('_pxvid').value
+    else:
+        vid = ''
 
     user_agent = headers.get('user-agent')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
     hostname = headers.get('host')
+
     ctx = {
         'headers': headers,
         'http_method': http_method,
@@ -57,6 +63,18 @@ def build_context(environ, config):
         'uri': uri,
         'hostname': hostname,
         'px_cookies': px_cookies,
-        'cookie_names': request_cookie_names
+        'cookie_names': request_cookie_names,
+        'risk_rtt': 0,
+        'ip': extract_ip(config, environ),
+        'vid': vid,
+        'query_params': environ['QUERY_STRING']
     }
     return ctx
+
+def extract_ip(config, environ):
+    ip = environ.get('HTTP_X_FORWARDED_FOR')
+    if not ip == None:
+        return ip.split(',')[-1].strip()
+    else:
+        return ''
+
