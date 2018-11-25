@@ -5,6 +5,8 @@ import px_cookie_validator
 import px_httpc
 import px_blocker
 import px_api
+import px_template
+from px_proxy import PXProxy
 import Cookie
 import px_constants
 
@@ -15,7 +17,6 @@ class PerimeterX(object):
         self.config = {
             'blocking_score': 60,
             'debug_mode': False,
-            'module_mode': 'monitor',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
             'server_calls_enabled': True,
@@ -27,6 +28,8 @@ class PerimeterX(object):
             'css_ref': None,
             'js_ref': None,
             'is_mobile': False,
+            'first_party': True,
+            'first_party_xhr_enabled': True,
             'monitor_mode': px_constants.MODULE_MODE_MONITORING,
             }
 
@@ -35,6 +38,9 @@ class PerimeterX(object):
         if not config['app_id']:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
+        url = px_constants.COLLECTOR_URL
+
+        self.config['collector_url'] = url.format(config.get('app_id').lower())
         # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         self.config['perimeterx_server_host'] = 'sapi.perimeterx.net' if self.config['app_id'] == 'PX_APP_ID' else 'sapi-' + self.config['app_id'].lower() + '.perimeterx.net'
         if not config['auth_token']:
@@ -44,29 +50,24 @@ class PerimeterX(object):
         if not config['cookie_key']:
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
+        self.reverse_proxy_prefix = self.config['app_id'][2:].lower()
+
         self.PXBlocker = px_blocker.PXBlocker()
         px_httpc.init(self.config)
 
     def __call__(self, environ, start_response):
-        def custom_start_response(status, headers, exc_info=None):
-            cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
-            if cookies.get('_pxCaptcha') and cookies.get('_pxCaptcha').value:
-                cookie = Cookie.SimpleCookie()
-                cookie['_pxCaptcha'] = '';
-                cookie['_pxCaptcha']['expires'] = 'Expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                headers.append(('Set-Cookie', cookie['_pxCaptcha'].OutputString()))
-                self.config['logger'].debug('Cleared Cookie');
-            return start_response(status, headers, exc_info)
-
         return self._verify(environ, start_response)
 
     def _verify(self, environ, start_response):
         logger = self.config['logger']
         try:
             ctx = px_context.build_context(environ, self.config)
-
+            uri = ctx.get('uri')
+            px_proxy = PXProxy(self.config, ctx)
+            if  px_proxy.should_reverse_request(uri):
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response)
             if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
-                logger.debug('Filter static file request. uri: ' + ctx.get('uri'))
+                logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
 
             cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE'))
@@ -98,7 +99,7 @@ class PerimeterX(object):
 
     def pass_traffic(self, environ, start_response, ctx):
         details = {}
-        if(ctx.get('decoded_cookie','')):
+        if ctx.get('decoded_cookie', ''):
             details = {"px_cookie": ctx['decoded_cookie']}
         px_activities_client.send_to_perimeterx('page_requested', ctx, self.config, details)
         return self.app(environ, start_response)
