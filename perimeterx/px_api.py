@@ -52,7 +52,7 @@ def prepare_risk_body(ctx, config):
     logger.debug("PxAPI[send_risk_request]")
     body = {
         'request': {
-            'ip': ctx.get('socket_ip'),
+            'ip': ctx.get('ip'),
             'headers': format_headers(ctx.get('headers')),
             'uri': ctx.get('uri'),
             'url': ctx.get('full_url', '')

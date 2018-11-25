@@ -13,7 +13,6 @@ def build_context(environ, config):
     px_cookies = {}
     request_cookie_names = list()
 
-
     # Extracting: Headers, user agent, http method, http version
     for key in environ.keys():
         if key.startswith('HTTP_') and environ.get(key):
@@ -64,6 +63,7 @@ def build_context(environ, config):
     }
     return ctx
 
+
 def extract_ip(config, environ):
     ip_default = environ.get('HTTP_X_FORWARDED_FOR')
     ip_headers = config.ip_headers
@@ -77,6 +77,3 @@ def extract_ip(config, environ):
         except:
             logger.debug('Failed to use IP_HEADERS from config')
     return ip_default
-
-
-

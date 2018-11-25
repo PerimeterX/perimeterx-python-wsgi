@@ -47,7 +47,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'type': activity_type,
             'headers': ctx.get('headers'),
             'timestamp': int(round(time.time() * 1000)),
-            'socket_ip': ctx.get('socket_ip'),
+            'socket_ip': ctx.get('ip'),
             'px_app_id': config.app_id,
             'url': ctx.get('full_url'),
             'details': _details,
