@@ -18,7 +18,6 @@ class PerimeterX(object):
         if not px_config.app_id:
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
-        url = px_constants.COLLECTOR_URL
 
         # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         if not px_config.auth_token:
@@ -29,8 +28,8 @@ class PerimeterX(object):
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
         self.reverse_proxy_prefix = px_config.app_id[2:].lower()
-        # if px_config.custom_request_handler:
-        #     self.handle_verification = px_config.custom_request_handler.__get__(self, PerimeterX)
+        if px_config.custom_request_handler:
+             self.handle_verification = px_config.custom_request_handler.__get__(self, PerimeterX)
         self._PXBlocker = px_blocker.PXBlocker()
         self._config = px_config
         px_httpc.init(px_config)
