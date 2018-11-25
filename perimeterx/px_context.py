@@ -41,11 +41,12 @@ def build_context(environ, config):
         vid = cookies.get('_pxvid').value
     else:
         vid = ''
-
     user_agent = headers.get('user-agent')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
     hostname = headers.get('host')
+    sensitive_route = uri in config.sensitive_routes
+    whitelist_route = uri in config.whitelist_routes
     ctx = {
         'headers': headers,
         'http_method': http_method,
@@ -59,13 +60,15 @@ def build_context(environ, config):
         'risk_rtt': 0,
         'ip': extract_ip(config, environ),
         'vid': vid,
-        'query_params': environ['QUERY_STRING']
+        'query_params': environ['QUERY_STRING'],
+        'sensitive_route': sensitive_route,
+        'whitelist_route': whitelist_route,
     }
     return ctx
 
 
 def extract_ip(config, environ):
-    ip_default = environ.get('HTTP_X_FORWARDED_FOR')
+    ip = environ.get('HTTP_X_FORWARDED_FOR')
     ip_headers = config.ip_headers
     logger = config.logger
     if not ip_headers:
@@ -76,4 +79,6 @@ def extract_ip(config, environ):
                     return environ.get(ip_header_name)
         except:
             logger.debug('Failed to use IP_HEADERS from config')
-    return ip_default
+    if config.get_user_ip:
+        ip = config.get_user_ip(environ)
+    return ip

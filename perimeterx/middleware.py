@@ -54,6 +54,10 @@ class PerimeterX(object):
                 logger.debug('Module is disabled, request will not be verified')
                 return self.app(environ, start_response)
 
+            if ctx.get('whitelist'):
+                logger.debug('The requested uri is whitelisted, passing request')
+                return self.app(environ, start_response)
+
             # PX Cookie verification
             if not px_cookie_validator.verify(ctx, config):
                 # Server-to-Server verification fallback
