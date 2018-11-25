@@ -49,3 +49,7 @@ def send_reverse(url, path, body, headers, config, method):
         init(config)
         return False
 
+def send_activity(url, path, body, headers, config):
+    method = 'POST'
+
+

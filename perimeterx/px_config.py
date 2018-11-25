@@ -125,3 +125,8 @@ class PXConfig(object):
     @property
     def collector_host(self):
         return self._collector_host
+
+    def get_telemetry_config(self):
+
+
+

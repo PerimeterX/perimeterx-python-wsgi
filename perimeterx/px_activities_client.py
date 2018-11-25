@@ -14,7 +14,7 @@ def send_activities():
         if len(ACTIVITIES_BUFFER) > 0:
             chunk = ACTIVITIES_BUFFER[:10]
             ACTIVITIES_BUFFER = ACTIVITIES_BUFFER[10:]
-            px_httpc.send('/api/v1/collector/s2s', chunk, CONFIG)
+            px_httpc.send(px_constants.API_ACTIVITIES, chunk, CONFIG)
         time.sleep(1)
 
 
@@ -74,3 +74,19 @@ def send_block_activity(ctx, config):
         'module_version': px_constants.MODULE_VERSION,
         'simulated_block': config.monitor_mode is 0,
     })
+
+def send_enforcer_telemetry_activity(ctx, config):
+    details = {
+        'enforcer_configs': config.get_telemetry_config(),
+        'node_name': os.hostname(),
+        'os_name': os.platform(),
+        'update_reason': updateReason,
+        'module_version': config.module_version
+    }
+    body = {
+        'type': px_constants.TELEMETRY_ACTIVITY,
+        'timestamp': time.time(),
+        'px_app_id': config.app_id,
+        'details': details
+    }
+
