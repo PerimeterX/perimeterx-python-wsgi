@@ -2,6 +2,7 @@ import time
 import px_httpc
 import threading
 import traceback, sys
+import px_constants
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -66,5 +67,13 @@ def send_block_activity(ctx, config):
     send_to_perimeterx('block', ctx, config, {
         'block_score': ctx.get('risk_score'),
         'client_uuid': ctx.get('uuid'),
-        'block_reason': ctx.get('block_reason')
+        'block_reason': ctx.get('block_reason'),
+        'http_method' : ctx.get('http_method'),
+        'http_version': ctx.get('http_version'),
+        'px_cookie': ctx.get('decoded_cookie'),
+        'risk_rtt': ctx.get('risk_rtt'),
+        #'cookie_origin':,
+        'module_version': px_constants.MODULE_VERSION,
+        'simulated_block': config.get('monitor_mode') is px_constants.MODULE_MODE_MONITORING
+
     })

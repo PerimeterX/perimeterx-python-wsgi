@@ -1,5 +1,7 @@
 import sys
 import px_httpc
+import time
+
 
 
 def send_risk_request(ctx, config):
@@ -11,12 +13,17 @@ def verify(ctx, config):
     logger = config['logger']
     logger.debug("PXVerify")
     try:
+        start = time.time()
         response = send_risk_request(ctx, config)
+        risk_rtt = time.time() - start
+        logger.debug('Risk call took ' + str(risk_rtt) + 'ms')
+
         if response:
             score = response['score']
             ctx['score'] = score
             ctx['uuid'] = response['uuid']
             ctx['block_action'] = response['action']
+            ctx['risk_rtt'] = risk_rtt
             if score >= config['blocking_score']:
                 logger.debug("PXVerify block score threshold reached, will initiate blocking")
                 ctx['block_reason'] = 's2s_high_score'

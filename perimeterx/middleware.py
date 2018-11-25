@@ -10,7 +10,6 @@ from px_proxy import PXProxy
 import Cookie
 import px_constants
 
-
 class PerimeterX(object):
     def __init__(self, app, config=None):
         self.app = app
@@ -18,8 +17,6 @@ class PerimeterX(object):
         self.config = {
             'blocking_score': 60,
             'debug_mode': False,
-            'module_version': 'Python SDK v1.0.3',
-            'module_mode': 'active_monitoring',
             'perimeterx_server_host': 'sapi.perimeterx.net',
             'captcha_enabled': True,
             'server_calls_enabled': True,
@@ -33,7 +30,8 @@ class PerimeterX(object):
             'is_mobile': False,
             'first_party': True,
             'first_party_xhr_enabled': True,
-        }
+            'monitor_mode': px_constants.MODULE_MODE_MONITORING,
+            }
 
         self.config = dict(self.config.items() + config.items())
         self.config['logger'] = logger = Logger(self.config['debug_mode'])
@@ -94,7 +92,7 @@ class PerimeterX(object):
         if config.get('custom_block_handler', False):
             px_activities_client.send_block_activity(ctx, config)
             return config['custom_block_handler'](ctx, start_response)
-        elif config.get('module_mode', 'active_monitoring') == 'active_blocking':
+        elif config.get('module_mode') == px_constants.MODULE_MODE_BLOCKING:
             return self.PXBlocker.handle_blocking(ctx=ctx, config=config, start_response=start_response)
         else:
             return self.pass_traffic(environ, start_response, ctx)
