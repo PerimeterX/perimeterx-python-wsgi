@@ -1,6 +1,7 @@
 import px_constants
 from px_logger import Logger
 
+
 class PXConfig(object):
     def __init__(self, config_dict):
         app_id = config_dict.get('app_id')
@@ -12,7 +13,8 @@ class PXConfig(object):
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
         self._module_mode = module_mode
         self._server_host = 'sapi.perimeterx.net' if app_id is None else px_constants.SERVER_URL.format(app_id.lower())
-        self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(app_id.lower())
+        self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
+            app_id.lower())
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
         self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
         self._send_page_activities = config_dict.get('send_page_activities', True)
@@ -31,8 +33,10 @@ class PXConfig(object):
         self._logger = Logger(debug_mode)
         self._ip_headers = config_dict.get('ip_headers', [])
         self._proxy_url = config_dict.get('proxy_url', None)
-        self._custom_request_handler = config_dict.get('custom_request_handler', None)
-        self._custom_block_handler = config_dict.get('custom_block_handler', None)
+        self._max_buffer_len = config_dict.get('max_buffer_len', 30)
+        self._sensitive_routes = config_dict.get('sensitive_routes', [])
+        self._whitelist_routes = config_dict.get('whitelist_routes', [])
+        self.instantiate_user_defined_handlers(config_dict)
 
     @property
     def module_mode(self):
@@ -125,6 +129,30 @@ class PXConfig(object):
     @property
     def collector_host(self):
         return self._collector_host
+
+    @property
+    def get_user_ip(self):
+        return self._get_user_ip
+
+    @property
+    def sensitive_routes(self):
+        return self._sensitive_routes
+
+    @property
+    def whitelist_routes(self):
+        return self._whitelist_routes
+
+
+    def instantiate_user_defined_handlers(self, config_dict):
+        self._custom_request_handler = self.set_handler('custom_request_handler', config_dict)
+        self._custom_block_handler = self.set_handler('custom_block_handler', config_dict)
+        self._get_user_ip = self.set_handler('get_user_ip', config_dict)
+        self._additional_activity_handler = self.set_handler('additional_activity_handler', config_dict)
+
+
+    def set_handler(self, function_name, config_dict):
+        return config_dict.get(function_name) if config_dict.get(function_name) and callable(
+            config_dict.get(function_name)) else None
 
     def get_telemetry_config(self):
 

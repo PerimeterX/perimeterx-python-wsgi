@@ -50,6 +50,11 @@ def verify(ctx, config):
             ctx['s2s_call_reason'] = 'cookie_validation_failed'
             return False
 
+        if ctx.get('sensitive_route'):
+            logger.debug('Sensitive route match, sending Risk API. path: {}'.format(ctx.get('uri')))
+            ctx['s2s_call_reason'] = 'sensitive_route'
+            return False
+
         logger.debug('Cookie validation passed with good score: ' + str(ctx['risk_score']))
         return True
     except Exception, e:
