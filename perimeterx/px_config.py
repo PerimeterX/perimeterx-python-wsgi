@@ -23,7 +23,6 @@ class PXConfig(object):
         self._css_ref = config_dict.get('_custom_logo', '')
         self._js_ref = config_dict.get('js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
-        self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
         self._module_enabled = config_dict.get('module_enabled', True)
         self._cookie_key = config_dict.get('cookie_key', None)
         self._auth_token = config_dict.get('auth_token', None)
