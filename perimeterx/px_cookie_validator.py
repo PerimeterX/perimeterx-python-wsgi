@@ -45,7 +45,7 @@ def verify(ctx, config):
             logger.debug('Cookie expired')
             return False
 
-        if px_cookie.is_secured():
+        if not px_cookie.is_secured():
             logger.debug('Cookie validation failed')
             ctx['s2s_call_reason'] = 'cookie_validation_failed'
             return False
