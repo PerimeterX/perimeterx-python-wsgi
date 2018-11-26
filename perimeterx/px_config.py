@@ -7,6 +7,7 @@ class PXConfig(object):
         app_id = config_dict.get('app_id')
         debug_mode = config_dict.get('debug_mode', False)
         module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
+        custom_logo = config_dict.get('custom_logo', None)
         self._app_id = app_id
         self._blocking_score = config_dict.get('blocking_score', 100)
         self._debug_mode = debug_mode
@@ -19,7 +20,7 @@ class PXConfig(object):
         self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout = config_dict.get('api_timeout', 500)
-        self._custom_logo = config_dict.get('custom_logo', '')
+        self._custom_logo = custom_logo
         self._css_ref = config_dict.get('_custom_logo', '')
         self._js_ref = config_dict.get('js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
@@ -36,7 +37,10 @@ class PXConfig(object):
         self._max_buffer_len = config_dict.get('max_buffer_len', 30)
         self._sensitive_routes = config_dict.get('sensitive_routes', [])
         self._whitelist_routes = config_dict.get('whitelist_routes', [])
-        self.instantiate_user_defined_handlers(config_dict)
+        self._block_html = 'BLOCK'
+        self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
+        self.__instantiate_user_defined_handlers(config_dict)
+        self._telemetry_config = self.__create_telemetry_config()
 
     @property
     def module_mode(self):
@@ -142,19 +146,65 @@ class PXConfig(object):
     def whitelist_routes(self):
         return self._whitelist_routes
 
+    @property
+    def block_html(self):
+        return self._block_html
 
-    def instantiate_user_defined_handlers(self, config_dict):
-        self._custom_request_handler = self.set_handler('custom_request_handler', config_dict)
-        self._custom_block_handler = self.set_handler('custom_block_handler', config_dict)
-        self._get_user_ip = self.set_handler('get_user_ip', config_dict)
-        self._additional_activity_handler = self.set_handler('additional_activity_handler', config_dict)
+    @property
+    def logo_visibility(self):
+        return self._logo_visibility
+
+    @property
+    def additional_activity_handler(self):
+        return self._additional_activity_handler
+
+    @property
+    def debug_mode(self):
+        return self._debug_mode
+
+    @property
+    def max_buffer_len(self):
+        return self._max_buffer_len
+
+    @property
+    def telemetry_config(self):
+        return self._telemetry_config
 
 
-    def set_handler(self, function_name, config_dict):
+    def __instantiate_user_defined_handlers(self, config_dict):
+        self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
+        self._custom_block_handler = self.__set_handler('custom_block_handler', config_dict)
+        self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
+        self._additional_activity_handler = self.__set_handler('additional_activity_handler', config_dict)
+
+
+    def __set_handler(self, function_name, config_dict):
         return config_dict.get(function_name) if config_dict.get(function_name) and callable(
             config_dict.get(function_name)) else None
 
-    def get_telemetry_config(self):
+    def __create_telemetry_config(self):
+        return {
+            'PX_APP_ID': self.app_id,
+            'ENABLE_MODULE': self.module_enabled,
+            'API_TIMEOUT_MS': self.api_timeout,
+            'BLOCKING_SCORE': self.blocking_score,
+            'IP_HEADERS': self.ip_headers,
+            'BLOCK_HTML': self.block_html,
+            'SENSITIVE_HEADERS': self.sensitive_headers,
+            'PROXY_URL': self.proxy_url,
+            'SEND_PAGE_ACTIVITIES': self.send_page_activities,
+            'DEBUG_MODE': self.debug_mode,
+            'MAX_BUFFER_LEN': self.max_buffer_len,
+            'GET_USER_IP': self.get_user_ip,
+            'CSS_REF': self.css_ref,
+            'JS_REF': self.js_ref,
+            'CUSTOM_LOGO': self.custom_logo,
+            'LOGO_VISIBILITY': self.logo_visibility,
+            'SENSITIVE_ROUTES': self.sensitive_routes,
+            'MODULE_MODE': self.module_mode,
+        }
+
+
 
 
 

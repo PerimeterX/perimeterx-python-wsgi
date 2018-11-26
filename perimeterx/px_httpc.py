@@ -31,15 +31,16 @@ def send(uri, body, config):
         init(config)
         return False
 
-def send_reverse(url, path, body, headers, config, method):
+def send_https(url, path, body, headers, config, method):
     logger = config.logger
     try:
         start = time.time()
-        http_client = httplib.HTTPSConnection(url, timeout=config.api_timeout)
-        http_client.request(method, path, body, headers=headers)
+        http_client = httplib.HTTPConnection(url, timeout=config.api_timeout)
+        http_client.request(method=method, url=path, body=json.dumps(body), headers=headers)
         response = http_client.getresponse()
 
         if response.status >= 400:
+            logger.debug('PerimeterX server call failed')
             return False
 
         logger.debug('Server call took ' + str(time.time() - start) + 'ms')
@@ -49,7 +50,6 @@ def send_reverse(url, path, body, headers, config, method):
         init(config)
         return False
 
-def send_activity(url, path, body, headers, config):
-    method = 'POST'
+
 
 

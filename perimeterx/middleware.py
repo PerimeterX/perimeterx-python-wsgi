@@ -34,6 +34,7 @@ class PerimeterX(object):
         self._PXBlocker = px_blocker.PXBlocker()
         self._config = px_config
         px_httpc.init(px_config)
+        px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
         return self._verify(environ, start_response)

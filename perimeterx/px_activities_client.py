@@ -3,6 +3,7 @@ import px_httpc
 import threading
 import traceback, sys
 import px_constants
+import socket
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -75,12 +76,12 @@ def send_block_activity(ctx, config):
         'simulated_block': config.monitor_mode is 0,
     })
 
-def send_enforcer_telemetry_activity(ctx, config):
+def send_enforcer_telemetry_activity(config, update_reason):
     details = {
-        'enforcer_configs': config.get_telemetry_config(),
-        'node_name': os.hostname(),
-        'os_name': os.platform(),
-        'update_reason': updateReason,
+        'enforcer_configs': config.telemetry_config,
+        'node_name': socket.gethostname(),
+        'os_name': sys.platform,
+        'update_reason': update_reason,
         'module_version': config.module_version
     }
     body = {
@@ -89,4 +90,13 @@ def send_enforcer_telemetry_activity(ctx, config):
         'px_app_id': config.app_id,
         'details': details
     }
+    headers = {
+        'Authorization': 'Bearer ' + config.auth_token,
+        'Content-Type': 'application/json'
+    }
+    config.logger.debug('Sending telemetry activity to PerimeterX servers')
+    px_httpc.send_https(url=config.server_host, path=px_constants.API_ENFORCER_TELEMETRY, body=body,
+                        headers=headers, config=config, method='POST')
+
+
 
