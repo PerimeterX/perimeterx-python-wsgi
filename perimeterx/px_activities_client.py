@@ -70,7 +70,7 @@ def send_block_activity(ctx, config):
         'px_cookie': ctx.get('decoded_cookie'),
         'risk_rtt': ctx.get('risk_rtt'),
         #'cookie_origin':,
-        'block_action': ctx.get('block_action',''),
+        'block_action': ctx.get('block_action', ''),
         'module_version': px_constants.MODULE_VERSION,
         'simulated_block': config.monitor_mode is 0,
     })
