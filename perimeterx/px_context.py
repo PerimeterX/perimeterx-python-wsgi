@@ -1,7 +1,6 @@
 import Cookie
 from px_constants import *
 
-
 def build_context(environ, config):
     logger = config['logger']
     headers = {}
@@ -12,6 +11,8 @@ def build_context(environ, config):
     http_protocol = 'http://'
     px_cookies = {}
     request_cookie_names = list()
+    cookie_origin = "cookie"
+    original_token = None
 
     # IP Extraction
     if config.get('ip_handler'):
@@ -34,19 +35,29 @@ def build_context(environ, config):
             if len(protocol_split) > 1:
                 http_version = protocol_split[1]
 
-    cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
-    cookie_keys = cookies.keys()
+    mobile_header = headers.get(MOBILE_SDK_HEADER)
+    if mobile_header is None:
+        cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
+        cookie_keys = cookies.keys()
 
-    for key in cookie_keys:
-        request_cookie_names.append(key)
-        if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
-            logger.debug('Found cookie prefix:' + key)
-            px_cookies[key] = cookies.get(key).value
+        for key in cookie_keys:
+            request_cookie_names.append(key)
+            if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
+                logger.debug('Found cookie prefix:' + key)
+                px_cookies[key] = cookies.get(key).value
+    else:
+        cookie_origin = "header"
+        original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
+        logger.debug('Mobile SDK token detected')
+        sliced_token = get_token_object(mobile_header)
+        print "aaa: " + sliced_token["key"]
+        px_cookies[sliced_token["key"]] = sliced_token["value"]
 
     user_agent = headers.get('user-agent')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
     hostname = headers.get('host')
+
     ctx = {
         'headers': headers,
         'http_method': http_method,
@@ -57,6 +68,24 @@ def build_context(environ, config):
         'uri': uri,
         'hostname': hostname,
         'px_cookies': px_cookies,
-        'cookie_names': request_cookie_names
+        'cookie_names': request_cookie_names,
+        'cookie_origin':cookie_origin,
+        'original_token': original_token,
+        'is_mobile': cookie_origin == "header"
     }
+
     return ctx
+
+def get_token_object(token):
+    result = {}
+    sliced_token = token.split(":")
+    if len(sliced_token) > 1:
+        key = sliced_token.pop(0)
+        if key == PREFIX_PX_TOKEN_V1 or key == PREFIX_PX_TOKEN_V3:
+            logger.debug('Found token prefix:' + key)
+            result["key"] = key
+            result["value"] = ":".join(sliced_token)
+            return result
+    result["key"] = PREFIX_PX_TOKEN_V3
+    result["value"] = token
+    return result

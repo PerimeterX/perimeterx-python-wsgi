@@ -65,6 +65,7 @@ class PerimeterX(object):
         logger = self.config['logger']
         try:
             ctx = px_context.build_context(environ, self.config)
+            print "bbbbb"
 
             if ctx.get('module_mode') == 'inactive' or is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + ctx.get('uri'))

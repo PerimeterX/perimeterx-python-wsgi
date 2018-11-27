@@ -1,5 +1,6 @@
 import traceback
-
+import re
+import px_original_token_validator
 
 def verify(ctx, config):
     """
@@ -20,6 +21,15 @@ def verify(ctx, config):
 
         from px_cookie import PxCookie
         px_cookie = PxCookie.build_px_cookie(ctx, config)
+
+        #Mobile SDK traffic
+        if px_cookie and ctx['cookie_origin'] == "header":
+            pattern = re.compile("^\d+$")
+            if re.match(pattern, px_cookie.raw_cookie):
+                ctx['s2s_call_reason'] = "mobile_error_" + pxCookie;
+                if ctx['original_token'] is not None:
+                    px_original_token_validator.verify()
+                return False
 
         if not px_cookie.deserialize():
             logger.error('Cookie decryption failed')

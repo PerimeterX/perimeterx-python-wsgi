@@ -27,15 +27,26 @@ class PxCookie:
         
         px_cookies.sort(reverse=True)
         prefix = px_cookies[0]
-        if prefix == PREFIX_PX_COOKIE_V1:
-            config["logger"].debug("PxCookie[build_px_cookie] using cookie v1")
-            from px_cookie_v1 import PxCookieV1
-            return PxCookieV1(ctx, config)
+        if ctx['cookie_origin'] == "header":
+            if prefix == PREFIX_PX_TOKEN_V1:
+                config["logger"].debug("PxCookie[build_px_cookie] using token v1")
+                from px_token_v1 import PxTokenV1
+                return PxTokenV1(ctx, config, ctx['px_cookies'].get(PREFIX_PX_TOKEN_V1, ''))
 
-        if prefix == PREFIX_PX_COOKIE_V3:
-            config["logger"].debug("PxCookie[build_px_cookie] using cookie v3")
-            from px_cookie_v3 import PxCookieV3
-            return PxCookieV3(ctx, config)
+            if prefix == PREFIX_PX_TOKEN_V3:
+                config["logger"].debug("PxCookie[build_px_cookie] using token v3")
+                from px_token_v3 import PxTokenV3
+                return PxTokenV3(ctx, config, ctx['px_cookies'].get(PREFIX_PX_TOKEN_V3, ''))
+        else:
+            if prefix == PREFIX_PX_COOKIE_V1:
+                config["logger"].debug("PxCookie[build_px_cookie] using cookie v1")
+                from px_cookie_v1 import PxCookieV1
+                return PxCookieV1(ctx, config)
+
+            if prefix == PREFIX_PX_COOKIE_V3:
+                config["logger"].debug("PxCookie[build_px_cookie] using cookie v3")
+                from px_cookie_v3 import PxCookieV3
+                return PxCookieV3(ctx, config)
 
     def decode_cookie(self):
         self.config['logger'].debug("PxCookie[decode_cookie]")
