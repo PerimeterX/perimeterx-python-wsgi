@@ -26,21 +26,18 @@ t1.start()
 def send_to_perimeterx(activity_type, ctx, config, detail):
     global CONFIG
     try:
-        if not config.get('server_calls_enabled', True):
-            return
-
-        if activity_type == 'page_requested' and not config.get('send_page_activities', False):
+        if activity_type == 'page_requested' and not config.send_page_activities:
             print 'Page activities disabled in config - skipping.'
             return
 
-        if len(CONFIG.keys()) == 0:
+        if not CONFIG:
             CONFIG = config
 
         _details = {
             'http_method': ctx.get('http_method', ''),
             'http_version': ctx.get('http_version', ''),
-            'module_version': config.get('module_version', ''),
-            'risk_mode': config.get('module_mode', '')
+            'module_version': config.module_version,
+            'risk_mode': config.module_mode,
         }
 
         if len(detail.keys()) > 0:
@@ -50,8 +47,8 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'type': activity_type,
             'headers': ctx.get('headers'),
             'timestamp': int(round(time.time() * 1000)),
-            'socket_ip': ctx.get('socket_ip'),
-            'px_app_id': config.get('app_id'),
+            'socket_ip': ctx.get('ip'),
+            'px_app_id': config.app_id,
             'url': ctx.get('full_url'),
             'details': _details,
             'vid': ctx.get('vid', ''),
@@ -64,16 +61,16 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 
 
 def send_block_activity(ctx, config):
-    send_to_perimeterx('block', ctx, config, {
+    send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.get('risk_score'),
         'client_uuid': ctx.get('uuid'),
         'block_reason': ctx.get('block_reason'),
-        'http_method' : ctx.get('http_method'),
+        'http_method': ctx.get('http_method'),
         'http_version': ctx.get('http_version'),
         'px_cookie': ctx.get('decoded_cookie'),
         'risk_rtt': ctx.get('risk_rtt'),
         #'cookie_origin':,
+        'block_action': ctx.get('block_action', ''),
         'module_version': px_constants.MODULE_VERSION,
-        'simulated_block': config.get('monitor_mode') is px_constants.MODULE_MODE_MONITORING
-
+        'simulated_block': config.monitor_mode is 0,
     })

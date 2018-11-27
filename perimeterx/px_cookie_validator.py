@@ -1,4 +1,5 @@
 import traceback
+from px_cookie import PxCookie
 
 
 def verify(ctx, config):
@@ -11,15 +12,15 @@ def verify(ctx, config):
     :return: Returns True if verification succeeded and False if not
     :rtype: Bool
     """
-    logger = config['logger']
+    logger = config.logger
     try:
         if not ctx["px_cookies"].keys():
             logger.debug('No risk cookie on the request')
             ctx['s2s_call_reason'] = 'no_cookie'
             return False
 
-        from px_cookie import PxCookie
-        px_cookie = PxCookie.build_px_cookie(ctx, config)
+        px_cookie_builder = PxCookie(config)
+        px_cookie = px_cookie_builder.build_px_cookie(ctx)
 
         if not px_cookie.deserialize():
             logger.error('Cookie decryption failed')
@@ -47,6 +48,11 @@ def verify(ctx, config):
         if px_cookie.is_secured():
             logger.debug('Cookie validation failed')
             ctx['s2s_call_reason'] = 'cookie_validation_failed'
+            return False
+
+        if ctx.get('sensitive_route'):
+            logger.debug('Sensitive route match, sending Risk API. path: {}'.format(ctx.get('uri')))
+            ctx['s2s_call_reason'] = 'sensitive_route'
             return False
 
         logger.debug('Cookie validation passed with good score: ' + str(ctx['risk_score']))

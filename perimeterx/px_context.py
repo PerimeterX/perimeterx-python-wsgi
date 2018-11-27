@@ -3,7 +3,7 @@ from px_constants import *
 
 
 def build_context(environ, config):
-    logger = config['logger']
+    logger = config.logger
     headers = {}
 
     # Default values
@@ -13,17 +13,11 @@ def build_context(environ, config):
     px_cookies = {}
     request_cookie_names = list()
 
-    # IP Extraction
-    if config.get('ip_handler'):
-        socket_ip = config.get('ip_handler')(environ)
-    else:
-        socket_ip = environ.get('REMOTE_ADDR')
-
     # Extracting: Headers, user agent, http method, http version
     for key in environ.keys():
         if key.startswith('HTTP_') and environ.get(key):
             header_name = key.split('HTTP_')[1].replace('_', '-').lower()
-            if header_name not in config.get('sensitive_headers'):
+            if header_name not in config.sensitive_headers:
                 headers[header_name] = environ.get(key)
         if key == 'REQUEST_METHOD':
             http_method = environ.get(key)
@@ -47,18 +41,17 @@ def build_context(environ, config):
         vid = cookies.get('_pxvid').value
     else:
         vid = ''
-
     user_agent = headers.get('user-agent')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
     hostname = headers.get('host')
-
+    sensitive_route = uri in config.sensitive_routes
+    whitelist_route = uri in config.whitelist_routes
     ctx = {
         'headers': headers,
         'http_method': http_method,
         'http_version': http_version,
         'user_agent': user_agent,
-        'socket_ip': socket_ip,
         'full_url': full_url,
         'uri': uri,
         'hostname': hostname,
@@ -67,14 +60,25 @@ def build_context(environ, config):
         'risk_rtt': 0,
         'ip': extract_ip(config, environ),
         'vid': vid,
-        'query_params': environ['QUERY_STRING']
+        'query_params': environ['QUERY_STRING'],
+        'sensitive_route': sensitive_route,
+        'whitelist_route': whitelist_route,
     }
     return ctx
 
+
 def extract_ip(config, environ):
     ip = environ.get('HTTP_X_FORWARDED_FOR')
-    if not ip == None:
-        return ip.split(',')[-1].strip()
-    else:
-        return ''
-
+    ip_headers = config.ip_headers
+    logger = config.logger
+    if not ip_headers:
+        try:
+            for ip_header in ip_headers:
+                ip_header_name = 'HTTP_' + ip_header.upper()
+                if environ.get(ip_header_name):
+                    return environ.get(ip_header_name)
+        except:
+            logger.debug('Failed to use IP_HEADERS from config')
+    if config.get_user_ip:
+        ip = config.get_user_ip(environ)
+    return ip
