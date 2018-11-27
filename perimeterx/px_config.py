@@ -9,7 +9,7 @@ class PXConfig(object):
         debug_mode = config_dict.get('debug_mode', False)
         module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
         custom_logo = config_dict.get('custom_logo', None)
-        self._app_id = app_id
+        self._px_app_id = app_id
         self._blocking_score = config_dict.get('blocking_score', 100)
         self._debug_mode = debug_mode
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
@@ -20,7 +20,7 @@ class PXConfig(object):
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
         self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
         self._send_page_activities = config_dict.get('send_page_activities', True)
-        self._api_timeout = config_dict.get('api_timeout', 500)
+        self._api_timeout_ms = config_dict.get('api_timeout', 500)
         self._custom_logo = custom_logo
         self._css_ref = config_dict.get('_custom_logo', '')
         self._js_ref = config_dict.get('js_ref', '')
@@ -52,7 +52,7 @@ class PXConfig(object):
 
     @property
     def app_id(self):
-        return self._app_id
+        return self._px_app_id
 
     @property
     def logger(self):
@@ -72,7 +72,7 @@ class PXConfig(object):
 
     @property
     def api_timeout(self):
-        return self._api_timeout
+        return self._api_timeout_ms
 
     @property
     def module_enabled(self):
@@ -185,8 +185,8 @@ class PXConfig(object):
         config = self.__dict__
         mutated_config = {}
         for key, value in config.iteritems():
-            mutated_config[key[1:]] = value
-        config_dict = json.dumps(mutated_config)
+            mutated_config[key[1:].upper()] = value
+        return mutated_config
 
 
 
