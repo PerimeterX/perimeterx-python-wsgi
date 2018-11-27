@@ -26,7 +26,7 @@ class Test_PXBlocker(unittest.TestCase):
             'uuid': px_uuid
         }
         px_config = PXConfig({'app_id': 'PXfake_app_ip'})
-        message = px_blocker.handle_blocking(ctx, px_config, lambda x, y : None)
+        message, _, _ = px_blocker.handle_blocking(ctx, px_config)
         blocking_message = None
         with open('./px_blocking_messages/blocking.txt', 'r') as myfile:
             blocking_message = myfile.read()
@@ -43,7 +43,7 @@ class Test_PXBlocker(unittest.TestCase):
             'block_action': 'r'
         }
         px_config = PXConfig({'app_id': 'PXfake_app_ip'})
-        message = px_blocker.handle_blocking(ctx, px_config, lambda x, y : None)
+        message, _, _ = px_blocker.handle_blocking(ctx, px_config)
         blocking_message = None
         with open('./px_blocking_messages/ratelimit.txt', 'r') as myfile:
             blocking_message = myfile.read()
@@ -61,7 +61,7 @@ class Test_PXBlocker(unittest.TestCase):
             'block_action_data': 'Bla'
         }
         px_config = PXConfig({'app_id': 'PXfake_app_ip'})
-        message = px_blocker.handle_blocking(ctx, px_config, lambda x, y : None)
+        message, _, _ = px_blocker.handle_blocking(ctx, px_config)
         blocking_message = 'Bla'
         self.assertEqual(message, blocking_message)
 
