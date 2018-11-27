@@ -6,7 +6,7 @@ import px_blocker
 import px_api
 import px_constants
 import px_utils
-from px_proxy import PXProxy
+from perimeterx.px_proxy_handler import PXProxy
 from px_config import PXConfig
 
 
