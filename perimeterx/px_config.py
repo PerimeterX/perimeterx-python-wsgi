@@ -1,4 +1,5 @@
 import px_constants
+import json
 from px_logger import Logger
 
 
@@ -26,12 +27,10 @@ class PXConfig(object):
         self._is_mobile = config_dict.get('is_mobile', False)
         self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
         self._module_enabled = config_dict.get('module_enabled', True)
-        self._cookie_key = config_dict.get('cookie_key', None)
         self._auth_token = config_dict.get('auth_token', None)
         self._is_mobile = config_dict.get('is_mobile', False)
         self._first_party = config_dict.get('first_party', True)
         self._first_party_xhr_enabled = config_dict.get('first_party_xhr_enabled', True)
-        self._logger = Logger(debug_mode)
         self._ip_headers = config_dict.get('ip_headers', [])
         self._proxy_url = config_dict.get('proxy_url', None)
         self._max_buffer_len = config_dict.get('max_buffer_len', 30)
@@ -39,8 +38,13 @@ class PXConfig(object):
         self._whitelist_routes = config_dict.get('whitelist_routes', [])
         self._block_html = 'BLOCK'
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
-        self.__instantiate_user_defined_handlers(config_dict)
         self._telemetry_config = self.__create_telemetry_config()
+
+        self._auth_token = config_dict.get('auth_token', None)
+        self._cookie_key = config_dict.get('cookie_key', None)
+        self.__instantiate_user_defined_handlers(config_dict)
+        self._logger = Logger(debug_mode)
+
 
     @property
     def module_mode(self):
@@ -178,26 +182,13 @@ class PXConfig(object):
             config_dict.get(function_name)) else None
 
     def __create_telemetry_config(self):
-        return {
-            'PX_APP_ID': self.app_id,
-            'ENABLE_MODULE': self.module_enabled,
-            'API_TIMEOUT_MS': self.api_timeout,
-            'BLOCKING_SCORE': self.blocking_score,
-            'IP_HEADERS': self.ip_headers,
-            'BLOCK_HTML': self.block_html,
-            'SENSITIVE_HEADERS': self.sensitive_headers,
-            'PROXY_URL': self.proxy_url,
-            'SEND_PAGE_ACTIVITIES': self.send_page_activities,
-            'DEBUG_MODE': self.debug_mode,
-            'MAX_BUFFER_LEN': self.max_buffer_len,
-            'GET_USER_IP': self.get_user_ip,
-            'CSS_REF': self.css_ref,
-            'JS_REF': self.js_ref,
-            'CUSTOM_LOGO': self.custom_logo,
-            'LOGO_VISIBILITY': self.logo_visibility,
-            'SENSITIVE_ROUTES': self.sensitive_routes,
-            'MODULE_MODE': self.module_mode,
-        }
+        config = self.__dict__
+        mutated_config = {}
+        for key, value in config.iteritems():
+            mutated_config[key[1:]] = value
+        config_dict = json.dumps(mutated_config)
+
+
 
 
 
