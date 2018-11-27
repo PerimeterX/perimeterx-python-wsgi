@@ -7,6 +7,7 @@ class PxCookieV1(PxCookie):
     def __init__(self, ctx, config):
         self._ctx = ctx
         self._config = config
+        self._logger = config.logger
         self.raw_cookie = ctx['px_cookies'].get(PREFIX_PX_COOKIE_V1, '')
 
     def get_score(self):

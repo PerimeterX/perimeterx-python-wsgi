@@ -73,8 +73,14 @@ def send_block_activity(ctx, config):
         #'cookie_origin':,
         'block_action': ctx.get('block_action',''),
         'module_version': px_constants.MODULE_VERSION,
-        'simulated_block': config.monitor_mode is 0,
+        'simulated_block': config.module_mode is px_constants.MODULE_MODE_MONITORING,
     })
+
+def send_page_requested_activity(ctx, config):
+    details = {}
+    if ctx.get('decoded_cookie', ''):
+        details = {"px_cookie": ctx['decoded_cookie']}
+    send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, config, details)
 
 def send_enforcer_telemetry_activity(config, update_reason):
     details = {

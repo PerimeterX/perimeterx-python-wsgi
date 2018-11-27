@@ -41,12 +41,12 @@ def build_context(environ, config):
         vid = cookies.get('_pxvid').value
     else:
         vid = ''
-    user_agent = headers.get('user-agent')
+    user_agent = environ.get('HTTP_USER_AGENT', '')
     uri = environ.get('PATH_INFO') or ''
-    full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
+    full_url = http_protocol + (headers.get('host') or environ.get('SERVER_NAME') or '') + uri
     hostname = headers.get('host')
-    sensitive_route = uri in config.sensitive_routes
-    whitelist_route = uri in config.whitelist_routes
+    sensitive_route = len(filter(lambda sensitive_route_item : uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
+    whitelist_route = len(filter(lambda whitelist_route_item : uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
     ctx = {
         'headers': headers,
         'http_method': http_method,
@@ -63,6 +63,8 @@ def build_context(environ, config):
         'query_params': environ['QUERY_STRING'],
         'sensitive_route': sensitive_route,
         'whitelist_route': whitelist_route,
+        's2s_call_reason': 'none',
+        'cookie_origin': 'cookie'
     }
     return ctx
 

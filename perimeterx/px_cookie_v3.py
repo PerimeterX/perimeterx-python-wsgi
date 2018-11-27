@@ -8,8 +8,9 @@ class PxCookieV3(PxCookie):
         self._config = config
         self._logger = config.logger
         self._ctx = ctx
+        self.raw_cookie = ''
         spliced_cookie = self._ctx['px_cookies'].get(PREFIX_PX_COOKIE_V3, '').split(":", 1)
-        if spliced_cookie.count > 1:
+        if len(spliced_cookie) > 1:
             self.hmac = spliced_cookie[0]
             self.raw_cookie = spliced_cookie[1]
 

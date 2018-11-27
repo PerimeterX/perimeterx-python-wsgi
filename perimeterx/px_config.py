@@ -91,10 +91,6 @@ class PXConfig(object):
         return self._custom_request_handler
 
     @property
-    def custom_block_handler(self):
-        return self._custom_block_handler
-
-    @property
     def blocking_score(self):
         return self._blocking_score
 
@@ -173,7 +169,6 @@ class PXConfig(object):
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
-        self._custom_block_handler = self.__set_handler('custom_block_handler', config_dict)
         self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
         self._additional_activity_handler = self.__set_handler('additional_activity_handler', config_dict)
 
