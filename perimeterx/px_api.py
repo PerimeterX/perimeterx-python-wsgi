@@ -26,15 +26,16 @@ def verify(ctx, config):
             ctx['block_action'] = response['action']
             ctx['risk_rtt'] = risk_rtt
             if score >= config.blocking_score:
-                logger.debug("PXVerify block score threshold reached, will initiate blocking")
-                ctx['block_reason'] = 's2s_high_score'
-            elif response['action'] is 'j' and response.get('action_data') is not None and response.get('action_data').get('body') is not None:
-                logger.debug("PXVerify received javascript challenge action")
-                ctx['block_action_data'] = response.get('action_data').get('body')
-                ctx['block_reason'] = 'challenge'
-            elif response['action'] is 'r':
-                logger.debug("PXVerify received javascript ratelimit action")
-                ctx['block_reason'] = 'exceeded_rate_limit'
+                if response['action'] == 'j' and response.get('action_data') is not None and response.get('action_data').get('body') is not None:
+                    logger.debug("PXVerify received javascript challenge action")
+                    ctx['block_action_data'] = response.get('action_data').get('body')
+                    ctx['block_reason'] = 'challenge'
+                elif response['action'] is 'r':
+                    logger.debug("PXVerify received javascript ratelimit action")
+                    ctx['block_reason'] = 'exceeded_rate_limit'
+                else:
+                    logger.debug("PXVerify block score threshold reached, will initiate blocking")
+                    ctx['block_reason'] = 's2s_high_score'
             else:
                 ctx['pass_reason'] = 's2s'
 
