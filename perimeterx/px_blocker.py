@@ -36,7 +36,7 @@ class PXBlocker(object):
         return str(blocking_response), headers, status
 
     def prepare_properties(self, ctx, config):
-        app_id = config.app_id.lower()
+        app_id = config.app_id
         vid = ctx.get('vid') if ctx.get('vid') is not None else ''
         uuid = ctx.get('uuid')
         custom_logo = config.custom_logo
@@ -64,7 +64,7 @@ class PXBlocker(object):
             'logoVisibility': 'visible' if custom_logo is not None else 'hidden',
             'hostUrl': host_url,
             'jsClientSrc': js_client_src,
-            'firstPartyEnabled': config.first_party,
+            'firstPartyEnabled': 'true' if config.first_party else 'false',
             'blockScript': captcha_src
         }
 
