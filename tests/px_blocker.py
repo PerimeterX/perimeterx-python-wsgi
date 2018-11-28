@@ -27,7 +27,6 @@ class Test_PXBlocker(unittest.TestCase):
         }
         px_config = PXConfig({'app_id': 'PXfake_app_ip'})
         message, _, _ = px_blocker.handle_blocking(ctx, px_config)
-        blocking_message = None
         with open('./px_blocking_messages/blocking.txt', 'r') as myfile:
             blocking_message = myfile.read()
         self.assertEqual(message, blocking_message)
@@ -81,11 +80,11 @@ class Test_PXBlocker(unittest.TestCase):
                             'jsRef': '',
                             'hostUrl': '/fake_app_ip/xhr',
                             'customLogo': None,
-                            'appId': 'pxfake_app_ip',
+                            'appId': 'PXfake_app_ip',
                             'uuid': '8712cef7-bcfa-4bb6-ae99-868025e1908a',
                             'logoVisibility': 'hidden',
                             'jsClientSrc': '/fake_app_ip/init.js',
-                            'firstPartyEnabled': True,
+                            'firstPartyEnabled': 'true',
                             'refId': '8712cef7-bcfa-4bb6-ae99-868025e1908a',
                             'cssRef': ''}
         self.assertDictEqual(message, expected_message)
