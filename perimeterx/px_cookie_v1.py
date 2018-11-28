@@ -5,8 +5,9 @@ from px_constants import *
 class PxCookieV1(PxCookie):
 
     def __init__(self, ctx, config):
-        self.ctx = ctx
-        self.config = config
+        self._ctx = ctx
+        self._config = config
+        self._logger = config.logger
         self.raw_cookie = ctx['px_cookies'].get(PREFIX_PX_COOKIE_V1, '')
 
     def get_score(self):
@@ -24,8 +25,8 @@ class PxCookieV1(PxCookie):
 
     def is_secured(self):
         c = self.decoded_cookie
-        user_agent = self.ctx.get('user_agent', '')
-        ip = self.ctx.get('ip', '')
+        user_agent = self._ctx.get('user_agent', '')
+        ip = self._ctx.get('ip', '')
         base_hmac = str(self.get_timestamp()) + str(c['s']['a']) + str(self.get_score()) + self.get_uuid() + self.get_vid()
         hmac_with_ip = base_hmac + ip + user_agent
         hmac_without_ip = base_hmac + user_agent
