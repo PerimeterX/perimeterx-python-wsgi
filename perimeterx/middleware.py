@@ -31,7 +31,7 @@ class PerimeterX(object):
         self.reverse_proxy_prefix = px_config.app_id[2:].lower()
         self._PXBlocker = px_blocker.PXBlocker()
         self._config = px_config
-        px_httpc.init(px_config)
+        px_activities_client.init_activities_configuration(px_config)
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
@@ -45,7 +45,7 @@ class PerimeterX(object):
             uri = ctx.get('uri')
             px_proxy = PXProxy(config)
             if px_proxy.should_reverse_request(uri):
-                return px_proxy.handle_reverse_request(self.config, ctx, start_response)
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response, environ)
             if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
@@ -69,7 +69,7 @@ class PerimeterX(object):
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
-        score = ctx.get('risk_score', -1)
+        score = ctx.get('score', -1)
         result = None
         headers = None
         status = None

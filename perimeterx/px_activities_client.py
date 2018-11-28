@@ -4,35 +4,39 @@ import threading
 import traceback, sys
 import px_constants
 import socket
+import json
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
 
+def init_activities_configuration(config):
+    global CONFIG
+    CONFIG = config
+    t1 = threading.Thread(target=send_activities)
+    t1.daemon = True
+    t1.start()
 
 def send_activities():
     global ACTIVITIES_BUFFER
+    default_headers = {
+        'Authorization': 'Bearer ' + CONFIG.auth_token,
+        'Content-Type': 'application/json'
+    }
+    full_url = CONFIG.server_host + px_constants.API_ACTIVITIES
     while True:
         if len(ACTIVITIES_BUFFER) > 0:
             chunk = ACTIVITIES_BUFFER[:10]
             ACTIVITIES_BUFFER = ACTIVITIES_BUFFER[10:]
-            px_httpc.send(px_constants.API_ACTIVITIES, chunk, CONFIG)
+            px_httpc.send(full_url=full_url, body=json.dumps(chunk), headers=default_headers, config=CONFIG, method='POST')
         time.sleep(1)
 
 
-t1 = threading.Thread(target=send_activities)
-t1.daemon = True
-t1.start()
-
 
 def send_to_perimeterx(activity_type, ctx, config, detail):
-    global CONFIG
     try:
         if activity_type == 'page_requested' and not config.send_page_activities:
             print 'Page activities disabled in config - skipping.'
             return
-
-        if not CONFIG:
-            CONFIG = config
 
         _details = {
             'http_method': ctx.get('http_method', ''),
@@ -101,8 +105,8 @@ def send_enforcer_telemetry_activity(config, update_reason):
         'Content-Type': 'application/json'
     }
     config.logger.debug('Sending telemetry activity to PerimeterX servers')
-    px_httpc.send_https(url=config.server_host, path=px_constants.API_ENFORCER_TELEMETRY, body=body,
-                        headers=headers, config=config, method='POST')
+    px_httpc.send(full_url=config.server_host + px_constants.API_ENFORCER_TELEMETRY, body=json.dumps(body),
+                  headers=headers, config=config, method='POST')
 
 
 

@@ -2,13 +2,18 @@ import sys
 import px_httpc
 import time
 import px_constants
+import json
 
 
 
 def send_risk_request(ctx, config):
     body = prepare_risk_body(ctx, config)
-    return px_httpc.send(px_constants.API_RISK, body, config)
-
+    default_headers = {
+        'Authorization': 'Bearer ' + config.auth_token,
+        'Content-Type': 'application/json'
+    }
+    response = px_httpc.send(full_url=config.server_host + px_constants.API_RISK,body=json.dumps(body),config=config, headers=default_headers,method='POST')
+    return json.loads(response.content)
 
 def verify(ctx, config):
     logger = config.logger

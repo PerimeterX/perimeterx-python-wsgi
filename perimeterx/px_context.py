@@ -27,6 +27,9 @@ def build_context(environ, config):
                 http_protocol = protocol_split[0].lower() + '://'
             if len(protocol_split) > 1:
                 http_version = protocol_split[1]
+        if key == 'CONTENT_TYPE' or key == 'CONTENT_LENGTH':
+            headers['Content-type'.replace('_', '-')] = environ.get(key)
+
 
     cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
     cookie_keys = cookies.keys()
@@ -70,13 +73,13 @@ def build_context(environ, config):
 
 
 def extract_ip(config, environ):
-    ip = environ.get('HTTP_X_FORWARDED_FOR')
+    ip = environ.get('HTTP_X_FORWARDED_FOR') if environ.get('HTTP_X_FORWARDED_FOR') else environ.get('REMOTE_ADDR')
     ip_headers = config.ip_headers
     logger = config.logger
-    if not ip_headers:
+    if ip_headers:
         try:
             for ip_header in ip_headers:
-                ip_header_name = 'HTTP_' + ip_header.upper()
+                ip_header_name = 'HTTP_' + ip_header.replace('-', '_').upper()
                 if environ.get(ip_header_name):
                     return environ.get(ip_header_name)
         except:
