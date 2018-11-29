@@ -1,13 +1,12 @@
 from px_cookie import PxCookie
-from px_constants import *
 
 
 class PxTokenV1(PxCookie):
 
-    def __init__(self, ctx, config):
-        self.ctx = ctx
-        self.config = config
-        self.raw_cookie = ctx['px_cookies'].get(PREFIX_PX_TOKEN_V1, '')
+    def __init__(self, config, token):
+        self._config = config
+        self._logger = config.logger
+        self.raw_cookie = token
 
     def get_score(self):
         return self.decoded_cookie['s']['b']
@@ -22,9 +21,8 @@ class PxTokenV1(PxCookie):
         c = self.decoded_cookie
         return 't' in c and 'v' in c and 'u' in c and "s" in c and 'a' in c['s'] and 'h' in c
 
-    def is_secured(self):
+    def is_secured(self, ip):
         c = self.decoded_cookie
-        ip = self.ctx.get('ip', '')
         base_hmac = str(self.get_timestamp()) + str(c['s']['a']) + str(self.get_score()) + self.get_uuid() + self.get_vid()
         hmac_with_ip = base_hmac + ip
         hmac_without_ip = base_hmac

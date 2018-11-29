@@ -76,6 +76,8 @@ def prepare_risk_body(ctx, config):
         }
     }
 
+    body = add_original_token_data(ctx, body)
+
     if ctx['s2s_call_reason'] == 'cookie_decryption_failed':
         logger.debug('attaching orig_cookie to request')
         body['additional']['px_cookie_orig'] = ctx.get('px_orig_cookie')
@@ -87,6 +89,16 @@ def prepare_risk_body(ctx, config):
     logger.debug("PxAPI[send_risk_request] request body: " + str(body))
     return body
 
+def add_original_token_data(ctx, body):
+    if ctx.get('original_uuid'):
+        body['additional']['original_uuid'] = ctx.get('original_uuid')
+    if ctx.get('original_token_error'):
+        body['additional']['original_token_error'] = ctx.get('original_token_error')
+    if ctx.get('original_token'):
+        body['additional']['original_token'] = ctx.get('original_token')
+    if ctx.get('decoded_original_token'):
+        body['additional']['decoded_original_token'] = ctx.get('decoded_original_token')
+    return body
 
 def format_headers(headers):
     ret_val = []

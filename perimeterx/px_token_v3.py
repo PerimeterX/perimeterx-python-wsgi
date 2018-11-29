@@ -4,20 +4,20 @@ from px_constants import *
 
 class PxTokenV3(PxCookie):
 
-    def __init__(self, ctx, config, token):
-        if token is None:
-            token = ctx['px_cookies'].get(PREFIX_PX_TOKEN_V3, '')
+    def __init__(self, config, token):
 
-        print("Token: " + token)
-        self.ctx = ctx
-        self.config = config
-        spliced_cookie =token.split(":", 1)
+        self._config = config
+        self._logger = config.logger
+        spliced_cookie = token.split(":", 1)
 
-        print ("Count: " + spliced_cookie.count)
+        print ("Count: " + str(len(spliced_cookie)))
 
-        if spliced_cookie.count > 1:
+        if len(spliced_cookie) > 1:
             self.hmac = spliced_cookie[0]
             self.raw_cookie = spliced_cookie[1]
+        else:
+            self.raw_cookie = token
+
 
     def get_score(self):
         return self.decoded_cookie['s']

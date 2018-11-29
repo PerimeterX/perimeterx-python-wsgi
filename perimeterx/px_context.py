@@ -33,6 +33,8 @@ def build_context(environ, config):
 
 
     mobile_header = headers.get(MOBILE_SDK_HEADER)
+    vid = None
+    original_token = None
     if mobile_header is None:
         cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
         cookie_keys = cookies.keys()
@@ -51,11 +53,10 @@ def build_context(environ, config):
         cookie_origin = "header"
         original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
         logger.debug('Mobile SDK token detected')
-        sliced_token = get_token_object(mobile_header)
-        print "aaa: " + sliced_token["key"]
-        px_cookies[sliced_token["key"]] = sliced_token["value"]
+        cookie_name, cookie = get_token_object(config, mobile_header)
+        px_cookies[cookie_name] = cookie
 
-    user_agent = headers.get('user-agent')
+    user_agent = headers.get('user-agent','')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + (headers.get('host') or environ.get('SERVER_NAME') or '') + uri
     hostname = headers.get('host')
@@ -73,7 +74,7 @@ def build_context(environ, config):
         'cookie_names': request_cookie_names,
         'risk_rtt': 0,
         'ip': extract_ip(config, environ),
-        'vid': vid,
+        'vid': vid if vid else None,
         'query_params': environ['QUERY_STRING'],
         'sensitive_route': sensitive_route,
         'whitelist_route': whitelist_route,
@@ -85,19 +86,16 @@ def build_context(environ, config):
 
     return ctx
 
-def get_token_object(token):
+def get_token_object(config, token):
     result = {}
-    sliced_token = token.split(":")
+    logger = config.logger
+    sliced_token = token.split(":", 1)
     if len(sliced_token) > 1:
         key = sliced_token.pop(0)
         if key == PREFIX_PX_TOKEN_V1 or key == PREFIX_PX_TOKEN_V3:
             logger.debug('Found token prefix:' + key)
-            result["key"] = key
-            result["value"] = ":".join(sliced_token)
-            return result
-    result["key"] = PREFIX_PX_TOKEN_V3
-    result["value"] = token
-    return result
+            return key, sliced_token[0]
+    return PREFIX_PX_TOKEN_V3, token
 
 def extract_ip(config, environ):
     ip = environ.get('HTTP_X_FORWARDED_FOR') if environ.get('HTTP_X_FORWARDED_FOR') else environ.get('REMOTE_ADDR')
