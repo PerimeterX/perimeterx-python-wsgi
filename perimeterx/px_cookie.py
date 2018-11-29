@@ -13,14 +13,14 @@ import struct
 
 class PxCookie:
 
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self._config = config
+        self._logger = config.logger
 
-    @staticmethod
-    def build_px_cookie(ctx, config):
-        config["logger"].debug("PxCookie[build_px_cookie]")
+
+    def build_px_cookie(self, ctx):
+        self._logger.debug("PxCookie[build_px_cookie]")
         px_cookies = ctx['px_cookies'].keys()
-
         # Check that its not empty
         if not px_cookies:
             return None
@@ -28,17 +28,17 @@ class PxCookie:
         px_cookies.sort(reverse=True)
         prefix = px_cookies[0]
         if prefix == PREFIX_PX_COOKIE_V1:
-            config["logger"].debug("PxCookie[build_px_cookie] using cookie v1")
+            self._logger.debug("PxCookie[build_px_cookie] using cookie v1")
             from px_cookie_v1 import PxCookieV1
-            return PxCookieV1(ctx, config)
+            return PxCookieV1(ctx, self._config)
 
         if prefix == PREFIX_PX_COOKIE_V3:
-            config["logger"].debug("PxCookie[build_px_cookie] using cookie v3")
+            self._logger.debug("PxCookie[build_px_cookie] using cookie v3")
             from px_cookie_v3 import PxCookieV3
-            return PxCookieV3(ctx, config)
+            return PxCookieV3(ctx, self._config)
 
     def decode_cookie(self):
-        self.config['logger'].debug("PxCookie[decode_cookie]")
+        self._logger.debug("PxCookie[decode_cookie]")
         return base64.b64decode(self.raw_cookie)
 
     def pbkdf2_hmac(self, hash_name, password, salt, iterations, dklen=None):
@@ -103,7 +103,7 @@ class PxCookie:
         :return: Returns decrypted value if valid and False if not
         :rtype: Bool|String
         """
-        self.config['logger'].debug("PxCookie[decrypt_cookie]")
+        self._logger.debug("PxCookie[decrypt_cookie]")
         try:
             parts = self.raw_cookie.split(':', 3)
             if len(parts) != 3:
@@ -113,13 +113,13 @@ class PxCookie:
             if iterations < 1 or iterations > 10000:
                 return False
             data = base64.b64decode(parts[2])
-            dk = self.pbkdf2_hmac('sha256', self.config['cookie_key'], salt, iterations, dklen=48)
+            dk = self.pbkdf2_hmac('sha256', self._config.cookie_key, salt, iterations, dklen=48)
             key = dk[:32]
             iv = dk[32:]
             cipher = AES.new(key, AES.MODE_CBC, iv)
             unpad = lambda s: s[0:-ord(s[-1])]
             plaintext = unpad(cipher.decrypt(data))
-            self.config['logger'].debug("PxCookie[decrypt_cookie] cookie decrypted")
+            self._logger.debug("PxCookie[decrypt_cookie] cookie decrypted")
             return plaintext
         except:
             print traceback.format_exception(*sys.exc_info())
@@ -142,15 +142,15 @@ class PxCookie:
         :rtype: Bool
         """
         try:
-            calculated_digest = hmac.new(self.config['cookie_key'], str_to_hmac, hashlib.sha256).hexdigest()
+            calculated_digest = hmac.new(self._config.cookie_key, str_to_hmac, hashlib.sha256).hexdigest()
             return self.get_hmac() == calculated_digest
         except:
-            self.config["logger"].debug("failed to calculate hmac")
+            self._logger.debug("failed to calculate hmac")
             return False
 
     def deserialize(self):
-        self.config['logger'].debug("PxCookie[deserialize]")
-        if self.config.get("encryption_enabled", False):
+        self._logger.debug("PxCookie[deserialize]")
+        if self._config.encryption_enabled:
             cookie = self.decrypt_cookie()
         else:
             cookie = self.decode_cookie()
@@ -158,12 +158,12 @@ class PxCookie:
         if not cookie:
             return False
 
-        self.config['logger'].debug("PxCookie[deserialize] decoded cookie: " + cookie)
+        self._logger.debug("PxCookie[deserialize] decoded cookie: " + cookie)
         self.decoded_cookie = json.loads(cookie)
         return self.is_cookie_format_valid()
 
     def is_high_score(self):
-        return self.get_score() >= self.config['blocking_score']
+        return self.get_score() >= self._config.blocking_score
 
     def get_timestamp(self):
         return self.decoded_cookie['t']

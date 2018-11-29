@@ -10,7 +10,7 @@ class PXBlocker(object):
         self.ratelimit_rendered_page = self.mustache_renderer.render(
             px_template.get_template(px_constants.RATELIMIT_TEMPLATE), {})
 
-    def handle_blocking(self, ctx, config, start_response):
+    def handle_blocking(self, ctx, config):
         action = ctx.get('block_action')
         status = '403 Forbidden'
 
@@ -31,20 +31,19 @@ class PXBlocker(object):
             blocking_props = self.prepare_properties(ctx, config)
             blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE),
                                                               blocking_props)
-        start_response(status, headers)
         if is_json_response:
             blocking_response = json.dumps(blocking_props)
-        return str(blocking_response)
+        return str(blocking_response), headers, status
 
     def prepare_properties(self, ctx, config):
-        app_id = config.get('app_id').lower()
+        app_id = config.app_id
         vid = ctx.get('vid') if ctx.get('vid') is not None else ''
         uuid = ctx.get('uuid')
-        custom_logo = config.get('CUSTOM_LOGO') if config.get('CUSTOM_LOGO') is not None else ''
+        custom_logo = config.custom_logo
         is_mobile_num = 1 if ctx.get('is_mobile') else 0
         captcha_uri = 'captcha.js?a={}&u={}&v={}&m={}'.format(ctx.get('block_action'), uuid, vid, is_mobile_num)
 
-        if config.get('first_party') and not ctx.get('is_mobile'):
+        if config.first_party and not ctx.get('is_mobile'):
             prefix = app_id[2:]
             js_client_src = '/{}/{}'.format(prefix, px_constants.CLIENT_FP_PATH)
             captcha_src = '/{}/{}/{}'.format(prefix, px_constants.CAPTCHA_FP_PATH, captcha_uri)
@@ -60,12 +59,12 @@ class PXBlocker(object):
             'vid': vid,
             'uuid': uuid,
             'customLogo': custom_logo,
-            'cssRef': config.get('css_ref'),
-            'jsRef': config.get('js_ref'),
+            'cssRef': config.css_ref,
+            'jsRef': config.js_ref,
             'logoVisibility': 'visible' if custom_logo is not None else 'hidden',
             'hostUrl': host_url,
             'jsClientSrc': js_client_src,
-            'firstPartyEnabled': config.get('first_party'),
+            'firstPartyEnabled': 'true' if config.first_party else 'false',
             'blockScript': captcha_src
         }
 
