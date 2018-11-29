@@ -1,10 +1,21 @@
-import sys
 import px_httpc
 import time
 import px_constants
 import json
+import re
 
-
+custom_params = {
+    'custom_param1': '',
+    'custom_param2': '',
+    'custom_param3': '',
+    'custom_param4': '',
+    'custom_param5': '',
+    'custom_param6': '',
+    'custom_param7': '',
+    'custom_param8': '',
+    'custom_param9': '',
+    'custom_param10': ''
+}
 
 def send_risk_request(ctx, config):
     body = prepare_risk_body(ctx, config)
@@ -75,6 +86,13 @@ def prepare_risk_body(ctx, config):
             'request_cookie_names': ctx.get('cookie_names', '')
         }
     }
+
+    if config.enrich_custom_parameters:
+        risk_custom_params = config.enrich_custom_parameters(custom_params)
+        for param in risk_custom_params:
+            if re.match('^custom_param\d$',param) and risk_custom_params[param]:
+                body['additional'][param] = risk_custom_params[param]
+
 
     if ctx['s2s_call_reason'] == 'cookie_decryption_failed':
         logger.debug('attaching orig_cookie to request')

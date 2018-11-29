@@ -169,10 +169,15 @@ class PXConfig(object):
     def telemetry_config(self):
         return self._telemetry_config
 
+    @property
+    def enrich_custom_parameters(self):
+        return self._enrich_custom_parameters
+
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
         self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
         self._additional_activity_handler = self.__set_handler('additional_activity_handler', config_dict)
+        self._enrich_custom_parameters = self.__set_handler('enrich_custom_parameters', config_dict)
 
     def __set_handler(self, function_name, config_dict):
         return config_dict.get(function_name) if config_dict.get(function_name) and callable(
