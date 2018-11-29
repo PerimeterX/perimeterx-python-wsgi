@@ -71,7 +71,7 @@ class PXConfig(object):
 
     @property
     def api_timeout(self):
-        return self._api_timeout_ms
+        return self._api_timeout_ms / 1000.000
 
     @property
     def module_enabled(self):
