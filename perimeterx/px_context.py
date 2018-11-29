@@ -27,6 +27,9 @@ def build_context(environ, config):
                 http_protocol = protocol_split[0].lower() + '://'
             if len(protocol_split) > 1:
                 http_version = protocol_split[1]
+        if key == 'CONTENT_TYPE' or key == 'CONTENT_LENGTH':
+            headers['Content-type'.replace('_', '-')] = environ.get(key)
+
 
     cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
     cookie_keys = cookies.keys()
@@ -41,12 +44,12 @@ def build_context(environ, config):
         vid = cookies.get('_pxvid').value
     else:
         vid = ''
-    user_agent = headers.get('user-agent')
+    user_agent = environ.get('HTTP_USER_AGENT', '')
     uri = environ.get('PATH_INFO') or ''
-    full_url = http_protocol + headers.get('host') or environ.get('SERVER_NAME') or '' + uri
+    full_url = http_protocol + (headers.get('host') or environ.get('SERVER_NAME') or '') + uri
     hostname = headers.get('host')
-    sensitive_route = uri in config.sensitive_routes
-    whitelist_route = uri in config.whitelist_routes
+    sensitive_route = len(filter(lambda sensitive_route_item : uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
+    whitelist_route = len(filter(lambda whitelist_route_item : uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
     ctx = {
         'headers': headers,
         'http_method': http_method,
@@ -63,18 +66,20 @@ def build_context(environ, config):
         'query_params': environ['QUERY_STRING'],
         'sensitive_route': sensitive_route,
         'whitelist_route': whitelist_route,
+        's2s_call_reason': 'none',
+        'cookie_origin': 'cookie'
     }
     return ctx
 
 
 def extract_ip(config, environ):
-    ip = environ.get('HTTP_X_FORWARDED_FOR')
+    ip = environ.get('HTTP_X_FORWARDED_FOR') if environ.get('HTTP_X_FORWARDED_FOR') else environ.get('REMOTE_ADDR')
     ip_headers = config.ip_headers
     logger = config.logger
-    if not ip_headers:
+    if ip_headers:
         try:
             for ip_header in ip_headers:
-                ip_header_name = 'HTTP_' + ip_header.upper()
+                ip_header_name = 'HTTP_' + ip_header.replace('-', '_').upper()
                 if environ.get(ip_header_name):
                     return environ.get(ip_header_name)
         except:

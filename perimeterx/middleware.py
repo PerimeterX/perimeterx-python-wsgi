@@ -6,7 +6,7 @@ import px_blocker
 import px_api
 import px_constants
 import px_utils
-from px_proxy import PXProxy
+from perimeterx.px_proxy_handler import PXProxy
 from px_config import PXConfig
 
 
@@ -29,11 +29,10 @@ class PerimeterX(object):
             logger.error('PX Cookie Key is missing')
             raise ValueError('PX Cookie Key is missing')
         self.reverse_proxy_prefix = px_config.app_id[2:].lower()
-        if px_config.custom_request_handler:
-             self.handle_verification = px_config.custom_request_handler.__get__(self, PerimeterX)
         self._PXBlocker = px_blocker.PXBlocker()
         self._config = px_config
-        px_httpc.init(px_config)
+        px_activities_client.init_activities_configuration(px_config)
+        px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
         return self._verify(environ, start_response)
@@ -46,7 +45,7 @@ class PerimeterX(object):
             uri = ctx.get('uri')
             px_proxy = PXProxy(config)
             if px_proxy.should_reverse_request(uri):
-                return px_proxy.handle_reverse_request(self.config, ctx, start_response)
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response, environ)
             if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
@@ -63,33 +62,46 @@ class PerimeterX(object):
                 # Server-to-Server verification fallback
                 if not px_api.verify(ctx, self.config):
                     return self.app(environ, start_response)
-            if config.custom_request_handler:
-                return config.custom_request_handler(ctx, self.config, environ, start_response)
             return self.handle_verification(ctx, self.config, environ, start_response)
         except:
             logger.error("Cought exception, passing request")
-            self.pass_traffic(environ, start_response, ctx)
+            self.pass_traffic(ctx)
+            return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
-        score = ctx.get('risk_score', -1)
-
+        score = ctx.get('score', -1)
+        result = None
+        headers = None
+        status = None
+        pass_request = True
         if score < config.blocking_score:
-            return self.pass_traffic(environ, start_response, ctx)
-
-        if config.custom_block_handler:
-            px_activities_client.send_block_activity(ctx, config)
-            return config.custom_block_handler(ctx, start_response)
-        elif config.module_mode == px_constants.MODULE_MODE_BLOCKING:
-            return self.px_blocker.handle_blocking(ctx=ctx, config=config, start_response=start_response)
+            self.pass_traffic(ctx)
         else:
-            return self.pass_traffic(environ, start_response, ctx)
+            pass_request = False
+            self.block_traffic(ctx)
 
-    def pass_traffic(self, environ, start_response, ctx):
-        details = {}
-        if ctx.get('decoded_cookie', ''):
-            details = {"px_cookie": ctx['decoded_cookie']}
-        px_activities_client.send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, self.config, details)
-        return self.app(environ, start_response)
+        if config.additional_activity_handler:
+            config.additional_activity_handler(ctx, config)
+
+        if config.module_mode == px_constants.MODULE_MODE_BLOCKING and result is None and not pass_request:
+            result, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
+        if config.custom_request_handler:
+            custom_body, custom_headers, custom_status = config.custom_request_handler(ctx, self.config, environ)
+            if (custom_body is not None):
+                start_response(custom_status, custom_headers)
+                return custom_body
+
+        if headers is not None:
+            start_response(status, headers)
+            return result
+        else:
+            return self.app(environ, start_response)
+
+    def pass_traffic(self, ctx):
+        px_activities_client.send_page_requested_activity( ctx, self.config)
+
+    def block_traffic(self, ctx):
+        px_activities_client.send_block_activity(ctx, self.config)
 
     @property
     def config(self):
@@ -98,6 +110,3 @@ class PerimeterX(object):
     @property
     def px_blocker(self):
         return self._PXBlocker
-
-
-

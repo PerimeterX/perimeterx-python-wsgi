@@ -10,7 +10,7 @@ class PXBlocker(object):
         self.ratelimit_rendered_page = self.mustache_renderer.render(
             px_template.get_template(px_constants.RATELIMIT_TEMPLATE), {})
 
-    def handle_blocking(self, ctx, config, start_response):
+    def handle_blocking(self, ctx, config):
         action = ctx.get('block_action')
         status = '403 Forbidden'
 
@@ -31,13 +31,12 @@ class PXBlocker(object):
             blocking_props = self.prepare_properties(ctx, config)
             blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE),
                                                               blocking_props)
-        start_response(status, headers)
         if is_json_response:
             blocking_response = json.dumps(blocking_props)
-        return str(blocking_response)
+        return str(blocking_response), headers, status
 
     def prepare_properties(self, ctx, config):
-        app_id = config.app_id.lower()
+        app_id = config.app_id
         vid = ctx.get('vid') if ctx.get('vid') is not None else ''
         uuid = ctx.get('uuid')
         custom_logo = config.custom_logo
@@ -65,7 +64,7 @@ class PXBlocker(object):
             'logoVisibility': 'visible' if custom_logo is not None else 'hidden',
             'hostUrl': host_url,
             'jsClientSrc': js_client_src,
-            'firstPartyEnabled': config.first_party,
+            'firstPartyEnabled': 'true' if config.first_party else 'false',
             'blockScript': captcha_src
         }
 
