@@ -20,7 +20,7 @@ class PXConfig(object):
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
         self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
         self._send_page_activities = config_dict.get('send_page_activities', True)
-        self._api_timeout_ms = config_dict.get('api_timeout', 2000)
+        self._api_timeout_ms = config_dict.get('api_timeout', 500)
         self._custom_logo = custom_logo
         self._css_ref = config_dict.get('_custom_logo', '')
         self._js_ref = config_dict.get('js_ref', '')

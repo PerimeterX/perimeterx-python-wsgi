@@ -57,6 +57,7 @@ class PXProxy(object):
 
         self.handle_proxy_response(response, start_response)
         return response.raw.read()
+      
 
     def send_reverse_xhr_request(self, config, context, start_response, body):
         uri = context.get('uri')
