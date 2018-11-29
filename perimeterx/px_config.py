@@ -45,7 +45,6 @@ class PXConfig(object):
         self.__instantiate_user_defined_handlers(config_dict)
         self._logger = Logger(debug_mode)
 
-
     @property
     def module_mode(self):
         return self._module_mode
@@ -170,12 +169,10 @@ class PXConfig(object):
     def telemetry_config(self):
         return self._telemetry_config
 
-
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
         self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
         self._additional_activity_handler = self.__set_handler('additional_activity_handler', config_dict)
-
 
     def __set_handler(self, function_name, config_dict):
         return config_dict.get(function_name) if config_dict.get(function_name) and callable(
@@ -187,11 +184,3 @@ class PXConfig(object):
         for key, value in config.iteritems():
             mutated_config[key[1:].upper()] = value
         return mutated_config
-
-
-
-
-
-
-
-
