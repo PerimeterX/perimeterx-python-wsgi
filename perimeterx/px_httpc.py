@@ -9,7 +9,7 @@ def send(full_url, body, headers, config, method):
         if method == 'GET':
             response = requests.get(url=full_url, headers=headers, timeout=config.api_timeout)
         else:
-            response = requests.post(url=full_url, headers=headers, data=body, timeout=config.api_timeout / 1000.000)
+            response = requests.post(url=full_url, headers=headers, data=body, timeout=config.api_timeout)
 
         if response.status_code >= 400:
             logger.debug('PerimeterX server call failed')
