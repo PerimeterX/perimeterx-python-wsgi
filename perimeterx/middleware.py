@@ -45,7 +45,8 @@ class PerimeterX(object):
             uri = ctx.get('uri')
             px_proxy = PXProxy(config)
             if px_proxy.should_reverse_request(uri):
-                return px_proxy.handle_reverse_request(self.config, ctx, start_response, environ)
+                body = environ['wsgi.input'].read(int(environ.get('CONTENT_LENGTH', '0')))
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response, body)
             if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
