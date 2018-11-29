@@ -18,5 +18,5 @@ def send(full_url, body, headers, config, method):
         logger.debug('PerimeterX server call took ' + str(time.time() - start) + 'ms')
         return response
     except requests.exceptions.RequestException as e:
-        print e
+        logger.debug('Received RequestException, message: ' + e.message)
         return False
