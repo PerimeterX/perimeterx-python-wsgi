@@ -54,7 +54,7 @@ def verify(ctx, config):
         if px_cookie.is_high_score():
             ctx['block_reason'] = 'cookie_high_score'
             logger.debug('Cookie with high score: ' + str(ctx['risk_score']))
-            return True
+            return False
 
         if px_cookie.is_cookie_expired():
             ctx['s2s_call_reason'] = 'cookie_expired'

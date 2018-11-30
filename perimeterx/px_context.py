@@ -29,7 +29,7 @@ def build_context(environ, config):
             if len(protocol_split) > 1:
                 http_version = protocol_split[1]
         if key == 'CONTENT_TYPE' or key == 'CONTENT_LENGTH':
-            headers['Content-type'.replace('_', '-')] = environ.get(key)
+            headers[key.replace('_', '-').lower()] = environ.get(key)
         if key == 'HTTP_' + MOBILE_SDK_HEADER.replace('-','_').upper():
             headers[MOBILE_SDK_HEADER] = environ.get(key, '')
 
