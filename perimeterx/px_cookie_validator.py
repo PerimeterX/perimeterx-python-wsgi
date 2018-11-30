@@ -44,7 +44,7 @@ def verify(ctx, config):
             ctx['s2s_call_reason'] = 'cookie_decryption_failed'
             return False
 
-        ctx['risk_score'] = px_cookie.get_score()
+        ctx['score'] = px_cookie.get_score()
         ctx['uuid'] = px_cookie.get_uuid()
         ctx['vid'] = px_cookie.get_vid()
         ctx['decoded_cookie'] = px_cookie.decoded_cookie
@@ -53,8 +53,8 @@ def verify(ctx, config):
 
         if px_cookie.is_high_score():
             ctx['block_reason'] = 'cookie_high_score'
-            logger.debug('Cookie with high score: ' + str(ctx['risk_score']))
-            return False
+            logger.debug('Cookie with high score: ' + str(ctx['score']))
+            return True
 
         if px_cookie.is_cookie_expired():
             ctx['s2s_call_reason'] = 'cookie_expired'
@@ -71,7 +71,7 @@ def verify(ctx, config):
             ctx['s2s_call_reason'] = 'sensitive_route'
             return False
 
-        logger.debug('Cookie validation passed with good score: ' + str(ctx['risk_score']))
+        logger.debug('Cookie validation passed with good score: ' + str(ctx['score']))
         return True
     except Exception, e:
         traceback.print_exc()
