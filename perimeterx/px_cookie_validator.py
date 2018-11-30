@@ -27,7 +27,7 @@ def verify(ctx, config):
             return False
 
         px_cookie_builder = PxCookie(config)
-        px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.get('px_cookies'), is_mobile=ctx.get('is_mobile'),
+        px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.get('px_cookies'),
                                                       user_agent=ctx.get('user_agent'))
         #Mobile SDK traffic
         if px_cookie and ctx['is_mobile']:

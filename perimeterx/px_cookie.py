@@ -11,14 +11,14 @@ import binascii
 import struct
 
 
-class PxCookie:
+class PxCookie(object):
 
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
 
 
-    def build_px_cookie(self, px_cookies, is_mobile, user_agent):
+    def build_px_cookie(self, px_cookies, user_agent):
         self._logger.debug("PxCookie[build_px_cookie]")
         # Check that its not empty
         if not px_cookies:
@@ -26,26 +26,17 @@ class PxCookie:
         px_cookie_keys = px_cookies.keys()
         px_cookie_keys.sort(reverse=True)
         prefix = px_cookie_keys[0]
-        if is_mobile:
-            if prefix == PREFIX_PX_TOKEN_V1:
-                self._logger.debug("PxCookie[build_px_cookie] using token v1")
-                from px_token_v1 import PxTokenV1
-                return PxTokenV1(self._config, px_cookies[prefix])
-
-            if prefix == PREFIX_PX_TOKEN_V3:
-                self._logger.debug("PxCookie[build_px_cookie] using token v3")
-                from px_token_v3 import PxTokenV3
-                return PxTokenV3(self._config, px_cookies[prefix])
-        else:
-            if prefix == PREFIX_PX_COOKIE_V1:
-                self._logger.debug("PxCookie[build_px_cookie] using cookie v1")
-                from px_cookie_v1 import PxCookieV1
-                return PxCookieV1(self._config, px_cookies[prefix])
-
+        if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
+            self._logger.debug("PxCookie[build_px_cookie] using token v1")
+            from px_cookie_v1 import PxCookieV1
+            return PxCookieV1(self._config, px_cookies[prefix])
+        if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
+            self._logger.debug("PxCookie[build_px_cookie] using token v3")
+            from px_cookie_v3 import PxCookieV3
+            ua = ''
             if prefix == PREFIX_PX_COOKIE_V3:
-                self._logger.debug("PxCookie[build_px_cookie] using cookie v3")
-                from px_cookie_v3 import PxCookieV3
-                return PxCookieV3(self._config, px_cookies[prefix], user_agent)
+                ua = user_agent
+            return PxCookieV3(self._config, px_cookies[prefix], ua)
 
     def decode_cookie(self):
         self._logger.debug("PxCookie[decode_cookie]")
