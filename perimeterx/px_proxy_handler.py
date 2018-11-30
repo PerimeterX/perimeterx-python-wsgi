@@ -10,6 +10,13 @@ hoppish = {'connection', 'keep-alive', 'proxy-authenticate',
            }
 
 
+def delete_extra_headers(filtered_headers):
+    if 'content-length'in filtered_headers.keys():
+        del filtered_headers['content-length']
+    if 'content-type'in filtered_headers.keys():
+        del filtered_headers['content-type']
+
+
 class PXProxy(object):
     def __init__(self, config):
         self._logger = config.logger
@@ -26,13 +33,13 @@ class PXProxy(object):
             return True
         return False
 
-    def handle_reverse_request(self, config, ctx, start_response, environ):
+    def handle_reverse_request(self, config, ctx, start_response, body):
         uri = ctx.get('uri').lower()
 
         if uri.startswith(self.client_reverse_prefix):
             return self.send_reverse_client_request(config=config, context=ctx, start_response=start_response)
         if uri.startswith(self.xhr_reverse_prefix):
-            return self.send_reverse_xhr_request(config=config, context=ctx, start_response=start_response, body = environ['wsgi.input'].read(int(environ.get('CONTENT_LENGTH', '0'))))
+            return self.send_reverse_xhr_request(config=config, context=ctx, start_response=start_response, body=body)
         if uri.startswith(self.captcha_reverse_prefix):
             return self.send_reverse_captcha_request(config=config, context=ctx, start_response=start_response)
 
@@ -50,8 +57,7 @@ class PXProxy(object):
                    px_constants.ENFORCER_TRUE_IP_HEADER: context.get('ip')}
         filtered_headers = px_utils.handle_proxy_headers(context.get('headers'), context.get('ip'))
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
-        del filtered_headers['content-length']
-        del filtered_headers['content-type']
+        delete_extra_headers(filtered_headers)
         response = px_httpc.send(full_url=px_constants.CLIENT_HOST + client_request_uri, body='',
                                  headers=filtered_headers, config=config, method='GET')
 
@@ -122,8 +128,7 @@ class PXProxy(object):
                    px_constants.ENFORCER_TRUE_IP_HEADER: context.get('ip')}
         filtered_headers = px_utils.handle_proxy_headers(context.get('headers'), context.get('ip'))
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
-        del filtered_headers['content-length']
-        del filtered_headers['content-type']
+        delete_extra_headers(filtered_headers)
         self._logger.debug('Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(), host, uri))
         response = px_httpc.send(full_url=host + uri, body='',
                                  headers=filtered_headers, config=config, method='GET')
