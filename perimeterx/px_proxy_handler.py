@@ -11,9 +11,9 @@ hoppish = {'connection', 'keep-alive', 'proxy-authenticate',
 
 
 def delete_extra_headers(filtered_headers):
-    if 'content-length'in filtered_headers.keys():
+    if 'content-length' in filtered_headers.keys():
         del filtered_headers['content-length']
-    if 'content-type'in filtered_headers.keys():
+    if 'content-type' in filtered_headers.keys():
         del filtered_headers['content-type']
 
 
@@ -50,7 +50,9 @@ class PXProxy(object):
             return ""
 
         client_request_uri = '/{}/main.min.js'.format(config.app_id)
-        self._logger.debug('Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(),px_constants.CLIENT_HOST, client_request_uri))
+        self._logger.debug(
+            'Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(), px_constants.CLIENT_HOST,
+                                                                  client_request_uri))
 
         headers = {'host': px_constants.CLIENT_HOST,
                    px_constants.FIRST_PARTY_HEADER: '1',
@@ -63,7 +65,6 @@ class PXProxy(object):
 
         self.handle_proxy_response(response, start_response)
         return response.raw.read()
-      
 
     def send_reverse_xhr_request(self, config, context, start_response, body):
         uri = context.get('uri')
@@ -86,7 +87,8 @@ class PXProxy(object):
 
         filtered_headers = px_utils.handle_proxy_headers(context.get('headers'), context.get('ip'))
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
-        self._logger.debug('Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(), host, suffix_uri))
+        self._logger.debug(
+            'Forwarding request from {} to client at {}{}'.format(context.get('uri').lower(), host, suffix_uri))
         response = px_httpc.send(full_url=host + suffix_uri, body=body,
                                  headers=filtered_headers, config=config, method=context.get('http_method'))
 
@@ -120,7 +122,8 @@ class PXProxy(object):
             headers = [('Content-Type', 'application/javascript')]
             start_response(status, headers)
             return ''
-        uri = '/{}{}?{}'.format(config.app_id, context.get('uri').lower().replace(self.captcha_reverse_prefix, ''), context['query_params'])
+        uri = '/{}{}?{}'.format(config.app_id, context.get('uri').lower().replace(self.captcha_reverse_prefix, ''),
+                                context['query_params'])
         host = px_constants.CAPTCHA_HOST
 
         headers = {'host': px_constants.CAPTCHA_HOST,
@@ -134,5 +137,3 @@ class PXProxy(object):
                                  headers=filtered_headers, config=config, method='GET')
         self.handle_proxy_response(response, start_response)
         return response.raw.read()
-
-

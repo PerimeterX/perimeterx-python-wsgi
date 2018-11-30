@@ -70,7 +70,7 @@ class PerimeterX(object):
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
-        score = ctx.get('risk_score', -1)
+        score = ctx.get('score', -1)
         result = None
         headers = None
         status = None
