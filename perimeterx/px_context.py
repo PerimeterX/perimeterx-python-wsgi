@@ -85,7 +85,7 @@ class PxContext(object):
         self._s2s_call_reason = 'none'
         self._cookie_origin = cookie_origin
         self._is_mobile = cookie_origin == "header"
-        self._score = 0
+        self._score = -1
         self._block_reason = ''
         self._decoded_cookie = ''
         self._block_action = ''
