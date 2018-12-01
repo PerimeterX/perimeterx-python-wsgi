@@ -14,14 +14,14 @@ def verify(ctx, config):
     logger = config.logger
     try:
         logger.debug('Original token found, Evaluating')
-        original_token = ctx.get('original_token')
+        original_token = ctx.original_token
         version, no_version_token = original_token.split(':', 1)
         px_cookie_builder = PxCookie(config)
-        px_cookie = px_cookie_builder.build_px_cookie({version: no_version_token}, ctx.get('is_mobile'),'')
+        px_cookie = px_cookie_builder.build_px_cookie({version: no_version_token}, ctx.is_mobile, '')
 
         if not px_cookie.deserialize():
             logger.error('Original token decryption failed, value:' + px_cookie.raw_cookie)
-            ctx['original_token_error'] = 'decryption_failed'
+            ctx.original_token_error = 'decryption_failed'
             return False
 
         ctx['decoded_original_token'] = px_cookie.decoded_cookie

@@ -11,7 +11,7 @@ class PXBlocker(object):
             px_template.get_template(px_constants.RATELIMIT_TEMPLATE), {})
 
     def handle_blocking(self, ctx, config):
-        action = ctx.get('block_action')
+        action = ctx.block_action
         status = '403 Forbidden'
 
         is_json_response = self.is_json_response(ctx)
@@ -37,13 +37,13 @@ class PXBlocker(object):
 
     def prepare_properties(self, ctx, config):
         app_id = config.app_id
-        vid = ctx.get('vid') if ctx.get('vid') is not None else ''
-        uuid = ctx.get('uuid')
+        vid = ctx.vid
+        uuid = ctx.uuid
         custom_logo = config.custom_logo
-        is_mobile_num = 1 if ctx.get('is_mobile') else 0
-        captcha_uri = 'captcha.js?a={}&u={}&v={}&m={}'.format(ctx.get('block_action'), uuid, vid, is_mobile_num)
+        is_mobile_num = 1 if ctx.is_mobile else 0
+        captcha_uri = 'captcha.js?a={}&u={}&v={}&m={}'.format(ctx.block_action, uuid, vid, is_mobile_num)
 
-        if config.first_party and not ctx.get('is_mobile'):
+        if config.first_party and not ctx.is_mobile:
             prefix = app_id[2:]
             js_client_src = '/{}/{}'.format(prefix, px_constants.CLIENT_FP_PATH)
             captcha_src = '/{}/{}/{}'.format(prefix, px_constants.CAPTCHA_FP_PATH, captcha_uri)
@@ -69,8 +69,8 @@ class PXBlocker(object):
         }
 
     def is_json_response(self, ctx):
-        headers = ctx.get('headers')
-        if ctx.get('block_action') is not 'r':
+        headers = ctx.headers
+        if ctx.block_action is not 'r':
             for item in headers.keys():
                 if (item.lower() == 'accept' or item.lower() == 'content-type'):
                     item_arr = headers[item].split(',')

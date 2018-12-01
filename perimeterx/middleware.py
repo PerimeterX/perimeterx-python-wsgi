@@ -1,7 +1,6 @@
-import px_context
 import px_activities_client
 import px_cookie_validator
-import px_httpc
+from px_context import PxContext
 import px_blocker
 import px_api
 import px_constants
@@ -41,8 +40,9 @@ class PerimeterX(object):
         config = self.config
         logger = config.logger
         try:
-            ctx = px_context.build_context(environ, config)
-            uri = ctx.get('uri')
+
+            ctx = PxContext(environ, config)
+            uri = ctx.uri
             px_proxy = PXProxy(config)
             if px_proxy.should_reverse_request(uri):
                 body = environ['wsgi.input'].read(int(environ.get('CONTENT_LENGTH'))) if environ.get('CONTENT_LENGTH') else ''
@@ -54,7 +54,7 @@ class PerimeterX(object):
                 logger.debug('Module is disabled, request will not be verified')
                 return self.app(environ, start_response)
 
-            if ctx.get('whitelist'):
+            if ctx.whitelist_route:
                 logger.debug('The requested uri is whitelisted, passing request')
                 return self.app(environ, start_response)
 
@@ -66,11 +66,11 @@ class PerimeterX(object):
             return self.handle_verification(ctx, self.config, environ, start_response)
         except:
             logger.error("Cought exception, passing request")
-            self.pass_traffic({})
+            self.pass_traffic(PxContext())
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
-        score = ctx.get('score', -1)
+        score = ctx.score
         result = None
         headers = None
         status = None
