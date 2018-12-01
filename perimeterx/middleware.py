@@ -45,7 +45,8 @@ class PerimeterX(object):
             uri = ctx.get('uri')
             px_proxy = PXProxy(config)
             if px_proxy.should_reverse_request(uri):
-                return px_proxy.handle_reverse_request(self.config, ctx, start_response, environ)
+                body = environ['wsgi.input'].read(int(environ.get('CONTENT_LENGTH'))) if environ.get('CONTENT_LENGTH') else ''
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response, body)
             if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
@@ -65,11 +66,11 @@ class PerimeterX(object):
             return self.handle_verification(ctx, self.config, environ, start_response)
         except:
             logger.error("Cought exception, passing request")
-            self.pass_traffic(ctx)
+            self.pass_traffic({})
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
-        score = ctx.get('risk_score', -1)
+        score = ctx.get('score', -1)
         result = None
         headers = None
         status = None

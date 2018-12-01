@@ -7,7 +7,7 @@ def send(full_url, body, headers, config, method):
     try:
         start = time.time()
         if method == 'GET':
-            response = requests.get(url='https://' + full_url, headers=headers, timeout=500, stream=True)
+            response = requests.get(url='https://' + full_url, headers=headers, timeout=config.api_timeout, stream=True)
         else:
             response = requests.post(url='https://' + full_url, headers=headers, data=body, timeout=config.api_timeout)
 
@@ -17,6 +17,6 @@ def send(full_url, body, headers, config, method):
 
         logger.debug('PerimeterX server call took ' + str(time.time() - start) + 'ms')
         return response
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions as e:
         logger.debug('Received RequestException, message: ' + e.message)
         return False

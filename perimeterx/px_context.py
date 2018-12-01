@@ -1,7 +1,6 @@
 import Cookie
 from px_constants import *
 
-
 def build_context(environ, config):
     logger = config.logger
     headers = {}
@@ -12,6 +11,8 @@ def build_context(environ, config):
     http_protocol = 'http://'
     px_cookies = {}
     request_cookie_names = list()
+    cookie_origin = "cookie"
+    original_token = None
 
     # Extracting: Headers, user agent, http method, http version
     for key in environ.keys():
@@ -29,22 +30,34 @@ def build_context(environ, config):
                 http_version = protocol_split[1]
         if key == 'CONTENT_TYPE' or key == 'CONTENT_LENGTH':
             headers[key.replace('_', '-').lower()] = environ.get(key)
+        if key == 'HTTP_' + MOBILE_SDK_HEADER.replace('-','_').upper():
+            headers[MOBILE_SDK_HEADER] = environ.get(key, '')
 
-
-    cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
-    cookie_keys = cookies.keys()
-
-    for key in cookie_keys:
-        request_cookie_names.append(key)
-        if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
-            logger.debug('Found cookie prefix:' + key)
-            px_cookies[key] = cookies.get(key).value
+    mobile_header = headers.get(MOBILE_SDK_HEADER)
     vid = None
-    if '_pxvid' in cookie_keys:
-        vid = cookies.get('_pxvid').value
+    original_token = None
+    if mobile_header is None:
+        cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
+        cookie_keys = cookies.keys()
+
+        for key in cookie_keys:
+            request_cookie_names.append(key)
+            if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
+                logger.debug('Found cookie prefix:' + key)
+                px_cookies[key] = cookies.get(key).value
+        vid = None
+        if '_pxvid' in cookie_keys:
+            vid = cookies.get('_pxvid').value
+        else:
+            vid = ''
     else:
-        vid = ''
-    user_agent = environ.get('HTTP_USER_AGENT', '')
+        cookie_origin = "header"
+        original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
+        logger.debug('Mobile SDK token detected')
+        cookie_name, cookie = get_token_object(config, mobile_header)
+        px_cookies[cookie_name] = cookie
+
+    user_agent = headers.get('user-agent','')
     uri = environ.get('PATH_INFO') or ''
     full_url = http_protocol + (headers.get('host') or environ.get('SERVER_NAME') or '') + uri
     hostname = headers.get('host')
@@ -62,15 +75,28 @@ def build_context(environ, config):
         'cookie_names': request_cookie_names,
         'risk_rtt': 0,
         'ip': extract_ip(config, environ),
-        'vid': vid,
+        'vid': vid if vid else None,
         'query_params': environ['QUERY_STRING'],
         'sensitive_route': sensitive_route,
         'whitelist_route': whitelist_route,
         's2s_call_reason': 'none',
-        'cookie_origin': 'cookie'
+        'cookie_origin':cookie_origin,
+        'original_token': original_token,
+        'is_mobile': cookie_origin == "header"
     }
+
     return ctx
 
+def get_token_object(config, token):
+    result = {}
+    logger = config.logger
+    sliced_token = token.split(":", 1)
+    if len(sliced_token) > 1:
+        key = sliced_token.pop(0)
+        if key == PREFIX_PX_TOKEN_V1 or key == PREFIX_PX_TOKEN_V3:
+            logger.debug('Found token prefix:' + key)
+            return key, sliced_token[0]
+    return PREFIX_PX_TOKEN_V3, token
 
 def extract_ip(config, environ):
     ip = environ.get('HTTP_X_FORWARDED_FOR') if environ.get('HTTP_X_FORWARDED_FOR') else environ.get('REMOTE_ADDR')

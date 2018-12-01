@@ -72,7 +72,8 @@ def prepare_risk_body(ctx, config):
             'ip': ctx.get('ip'),
             'headers': format_headers(ctx.get('headers')),
             'uri': ctx.get('uri'),
-            'url': ctx.get('full_url', '')
+            'url': ctx.get('full_url', ''),
+            'firstParty': 'true' if config.first_party else 'false'
         },
         'vid': ctx.get('vid', ''),
         'uuid': ctx.get('uuid', ''),
@@ -82,10 +83,15 @@ def prepare_risk_body(ctx, config):
             'http_version': ctx.get('http_version', ''),
             'module_version': config.module_version,
             'risk_mode': config.module_mode,
-            'px_cookie_hmac': ctx.get('cookie_hmac', ''),
-            'request_cookie_names': ctx.get('cookie_names', '')
+            'request_cookie_names': ctx.get('cookie_names', ''),
+            'cookie_origin': ctx.get('cookie_origin')
         }
     }
+    if ctx.get('cookie_hmac'):
+        body['additional']['px_cookie_hmac'] = ctx.get('cookie_hmac')
+
+
+    body = add_original_token_data(ctx, body)
 
     if config.enrich_custom_parameters:
         risk_custom_params = config.enrich_custom_parameters(custom_params)
@@ -96,7 +102,7 @@ def prepare_risk_body(ctx, config):
 
     if ctx['s2s_call_reason'] == 'cookie_decryption_failed':
         logger.debug('attaching orig_cookie to request')
-        body['additional']['px_cookie_orig'] = ctx.get('px_orig_cookie')
+        body['additional']['px_orig_cookie'] = ctx.get('px_orig_cookie')
 
     if ctx['s2s_call_reason'] in ['cookie_expired', 'cookie_validation_failed']:
         logger.debug('attaching px_cookie to request')
@@ -105,6 +111,16 @@ def prepare_risk_body(ctx, config):
     logger.debug("PxAPI[send_risk_request] request body: " + str(body))
     return body
 
+def add_original_token_data(ctx, body):
+    if ctx.get('original_uuid'):
+        body['additional']['original_uuid'] = ctx.get('original_uuid')
+    if ctx.get('original_token_error'):
+        body['additional']['original_token_error'] = ctx.get('original_token_error')
+    if ctx.get('original_token'):
+        body['additional']['original_token'] = ctx.get('original_token')
+    if ctx.get('decoded_original_token'):
+        body['additional']['decoded_original_token'] = ctx.get('decoded_original_token')
+    return body
 
 def format_headers(headers):
     ret_val = []
