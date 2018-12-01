@@ -24,16 +24,16 @@ def verify(ctx, config):
             ctx.original_token_error = 'decryption_failed'
             return False
 
-        ctx['decoded_original_token'] = px_cookie.decoded_cookie
-        ctx['vid'] = px_cookie.get_vid()
-        ctx['original_uuid'] = px_cookie.get_uuid()
+        ctx.decoded_original_token = px_cookie.decoded_cookie
+        ctx.vid = px_cookie.get_vid()
+        ctx.original_uuid = px_cookie.get_uuid()
         if not px_cookie.is_secured():
             logger.debug('Original token HMAC validation failed, value: ' + str(px_cookie.decoded_cookie))
-            ctx['original_token_error'] = 'validation_failed'
+            ctx.original_token_error = 'validation_failed'
             return False
         return True
 
     except Exception, e:
         logger.debug('Could not decrypt original token, exception was thrown, decryption failed ' + e.message)
-        ctx['original_token_error'] = 'decryption_failed'
+        ctx.original_token_error = 'decryption_failed'
         return False

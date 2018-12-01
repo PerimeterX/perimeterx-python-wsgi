@@ -66,7 +66,7 @@ class PerimeterX(object):
             return self.handle_verification(ctx, self.config, environ, start_response)
         except:
             logger.error("Cought exception, passing request")
-            self.pass_traffic(PxContext())
+            self.pass_traffic(PxContext(environ, config))
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
