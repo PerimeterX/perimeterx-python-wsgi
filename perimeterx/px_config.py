@@ -1,9 +1,8 @@
 import px_constants
-import json
 from px_logger import Logger
 
 
-class PXConfig(object):
+class PxConfig(object):
     def __init__(self, config_dict):
         app_id = config_dict.get('app_id')
         debug_mode = config_dict.get('debug_mode', False)

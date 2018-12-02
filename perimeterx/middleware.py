@@ -6,14 +6,14 @@ import px_api
 import px_constants
 import px_utils
 from perimeterx.px_proxy_handler import PXProxy
-from px_config import PXConfig
+from px_config import PxConfig
 
 
 class PerimeterX(object):
     def __init__(self, app, config=None):
         self.app = app
         # merging user's defined configurations with the default one
-        px_config = PXConfig(config)
+        px_config = PxConfig(config)
         logger = px_config.logger
         if not px_config.app_id:
             logger.error('PX App ID is missing')

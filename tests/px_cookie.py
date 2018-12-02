@@ -1,13 +1,13 @@
 
 import unittest
 from perimeterx.px_cookie import PxCookie
-from perimeterx.px_config import PXConfig
+from perimeterx.px_config import PxConfig
 
 class TestPXCookie(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config = PXConfig({'app_id': 'fake_app_id'})
+        config = PxConfig({'app_id': 'fake_app_id'})
         cls.px_cookie = PxCookie(config)
         cls.config = config
 

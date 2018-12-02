@@ -22,7 +22,7 @@ class PXBlocker(object):
         headers = [('Content-Type', content_type)]
 
         if action is 'j':
-            blocking_props = ctx['block_action_data']
+            blocking_props = ctx.block_action_data
             blocking_response = blocking_props
         elif action is 'r':
             blocking_response = self.ratelimit_rendered_page

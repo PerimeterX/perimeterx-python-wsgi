@@ -4,7 +4,7 @@ from px_constants import *
 
 class PxContext(object):
 
-    def __init__(self, environ, config):
+    def         __init__(self, environ, config):
 
         logger = config.logger
         headers = {}
@@ -65,7 +65,7 @@ class PxContext(object):
             filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
         whitelist_route = len(
             filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
-
+        query_params = environ.get('QUERY_STRING') if environ.get('QUERY_STRING') else ''
         self._headers = headers
         self._http_method = http_method
         self._http_version = http_version
@@ -79,7 +79,7 @@ class PxContext(object):
         self._ip = self.extract_ip(config, environ)
         self._vid = vid
         self._uuid = ''
-        self._query_params = environ['QUERY_STRING']
+        self._query_params = query_params
         self._sensitive_route = sensitive_route
         self._whitelist_route = whitelist_route
         self._s2s_call_reason = 'none'
