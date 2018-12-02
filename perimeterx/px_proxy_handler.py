@@ -94,7 +94,7 @@ class PXProxy(object):
 
         if response.status_code >= 400:
             body, content_type = self.return_default_response(uri)
-            px_logger.Logger.debug('error reversing the http call ' + response.reason)
+            self._logger.debug('error reversing the http call ' + response.reason)
             start_response('200 OK', [content_type])
             return body
         self.handle_proxy_response(response, start_response)
