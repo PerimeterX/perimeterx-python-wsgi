@@ -28,7 +28,7 @@ Table of Contents
 
 ## <a name="installation"></a> Installation
 PerimeterX python middleware is installed via PIP:
-`$ pip install --save perimeterx-python-wsgi`
+`$ pip install perimeterx-python-wsgi`
 
 ## <a name="basicUsage"></a> Basic Usage Example
 To use PerimeterX middleware on a specific route follow this example:
