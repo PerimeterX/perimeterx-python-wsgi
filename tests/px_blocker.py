@@ -1,6 +1,6 @@
 from perimeterx.px_blocker import PXBlocker
 
-
+import os
 import unittest
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
@@ -36,8 +36,10 @@ class Test_PXBlocker(unittest.TestCase):
         ctx.uuid = px_uuid
         px_config = PxConfig({'app_id': 'PXfake_app_ip'})
         message, _, _ = px_blocker.handle_blocking(ctx, px_config)
-        with open('./px_blocking_messages/blocking.txt', 'r') as myfile:
+        working_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(working_dir + '/px_blocking_messages/blocking.txt', 'r') as myfile:
             blocking_message = myfile.read()
+
         self.assertEqual(message, blocking_message)
 
     def test_handle_ratelimit(self):
@@ -55,7 +57,8 @@ class Test_PXBlocker(unittest.TestCase):
         ctx.block_action = 'r'
         message, _, _ = px_blocker.handle_blocking(ctx, config)
         blocking_message = None
-        with open('./px_blocking_messages/ratelimit.txt', 'r') as myfile:
+        working_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(working_dir + '/px_blocking_messages/ratelimit.txt', 'r') as myfile:
             blocking_message = myfile.read()
         self.assertEqual(message, blocking_message)
 
