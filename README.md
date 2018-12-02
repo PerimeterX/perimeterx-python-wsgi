@@ -10,27 +10,27 @@
 Table of Contents
 -----------------
 - [Installation](#installation)
-- [Basic Usage Example](#basicUsage)
-- [Advanced Blocking Response](#advancedBlockingResponse)
+- [Basic Usage Example](#basic_usage)
+- [Advanced Blocking Response](#advanced_blocking_response)
 - [Advanced Configuration Options](#configuration)
-    * [Module Enabled](#moduleEnabled)
-    * [Module Mode](#moduleMode)
-    * [Blocking Score](#blockingScore)
-    * [Send Page Activities](#sendPageActivities)
-    * [Debug Mode](#debugMode)
-    * [Sensitive Routes](#sensitiveRoutes)
-    * [Whitelist Routes](#whitelistRoutes)
-    * [Sensitive Headers](#sensitiveHeaders)
-    * [IP Headers](#ipHeaders)
-    * [First Party Enabled](#firstPartyEnabled)
-    * [Custom Request Handler](#customRequestHandler)
-    * [Additional Activity Handler](#additionalActivityHandler)
+    * [Module Enabled](#module_enabled)
+    * [Module Mode](#module_mode)
+    * [Blocking Score](#blocking_score)
+    * [Send Page Activities](#send_page_activities)
+    * [Debug Mode](#debug_mode)
+    * [Sensitive Routes](#sensitive_routes)
+    * [Whitelist Routes](#whitelist_routes)
+    * [Sensitive Headers](#sensitive_headers)
+    * [IP Headers](#ip_headers)
+    * [First Party Enabled](#first_party_enabled)
+    * [Custom Request Handler](#custom_request_handler)
+    * [Additional Activity Handler](#additional_activity_handler)
 
 ## <a name="installation"></a> Installation
 PerimeterX python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
 
-## <a name="basicUsage"></a> Basic Usage Example
+## <a name="basic_usage"></a> Basic Usage Example
 To use PerimeterX middleware on a specific route follow this example:
 
 ```python
