@@ -18,7 +18,7 @@ class PxCookie(object):
         self._logger = config.logger
 
 
-    def build_px_cookie(self, px_cookies, user_agent):
+    def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")
         # Check that its not empty
         if not px_cookies:
