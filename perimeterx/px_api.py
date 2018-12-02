@@ -39,17 +39,17 @@ def verify(ctx, config):
         logger.debug('Risk call took ' + str(risk_rtt) + 'ms')
 
         if response:
-            ctx.score = response['score']
-            ctx.uuid = response['uuid']
-            ctx.block_action = response['action']
+            ctx.score = response.get('score')
+            ctx.uuid = response.get('uuid')
+            ctx.block_action = response.get('action')
             ctx.risk_rtt = risk_rtt
             if ctx.score >= config.blocking_score:
-                if response['action'] == 'j' and response.get('action_data') is not None and response.get(
+                if response.get('action') == px_constants.ACTION_CHALLENGE and response.get('action_data') is not None and response.get(
                         'action_data').get('body') is not None:
                     logger.debug("PXVerify received javascript challenge action")
                     ctx.block_action_data = response.get('action_data').get('body')
                     ctx.block_reason = 'challenge'
-                elif response['action'] is 'r':
+                elif response.get('action') is px_constants.ACTION_RATELIMIT:
                     logger.debug("PXVerify received javascript ratelimit action")
                     ctx.block_reason = 'exceeded_rate_limit'
                 else:

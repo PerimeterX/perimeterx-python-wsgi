@@ -4,7 +4,7 @@ from px_constants import *
 
 class PxContext(object):
 
-    def         __init__(self, environ, config):
+    def __init__(self, environ, config):
 
         logger = config.logger
         headers = {}

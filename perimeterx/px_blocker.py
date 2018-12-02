@@ -21,10 +21,10 @@ class PXBlocker(object):
             content_type = 'text/html'
         headers = [('Content-Type', content_type)]
 
-        if action is 'j':
+        if action is px_constants.ACTION_CHALLENGE:
             blocking_props = ctx.block_action_data
             blocking_response = blocking_props
-        elif action is 'r':
+        elif action is px_constants.ACTION_RATELIMIT:
             blocking_response = self.ratelimit_rendered_page
             status = '429 Too Many Requests'
         else:
@@ -70,9 +70,9 @@ class PXBlocker(object):
 
     def is_json_response(self, ctx):
         headers = ctx.headers
-        if ctx.block_action is not 'r':
+        if ctx.block_action is not px_constants.ACTION_RATELIMIT:
             for item in headers.keys():
-                if (item.lower() == 'accept' or item.lower() == 'content-type'):
+                if item.lower() == 'accept' or item.lower() == 'content-type':
                     item_arr = headers[item].split(',')
                     for header_item in item_arr:
                         if header_item.strip() == 'application/json':
