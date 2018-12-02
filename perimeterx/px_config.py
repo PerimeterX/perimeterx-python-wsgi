@@ -42,7 +42,7 @@ class PxConfig(object):
         self._auth_token = config_dict.get('auth_token', None)
         self._cookie_key = config_dict.get('cookie_key', None)
         self.__instantiate_user_defined_handlers(config_dict)
-        self._logger = Logger(debug_mode)
+        self._logger = Logger(debug_mode, app_id)
 
     @property
     def module_mode(self):
