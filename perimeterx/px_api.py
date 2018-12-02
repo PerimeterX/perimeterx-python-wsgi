@@ -78,20 +78,24 @@ def prepare_risk_body(ctx, config):
             'url': ctx.full_url,
             'firstParty': 'true' if config.first_party else 'false'
         },
-        'vid': ctx.vid,
-        'uuid': ctx.uuid,
         'additional': {
             's2s_call_reason': ctx.s2s_call_reason,
             'http_method': ctx.http_method,
             'http_version': ctx.http_version,
             'module_version': config.module_version,
             'risk_mode': config.module_mode,
-            'request_cookie_names': ctx.cookie_names,
             'cookie_origin': ctx.cookie_origin
         }
     }
+    if ctx.vid:
+        body['vid'] = ctx.vid
+    if ctx.uuid:
+        body['uuid'] = ctx.uuid
     if ctx.cookie_hmac:
         body['additional']['px_cookie_hmac'] = ctx.cookie_hmac
+    if ctx.cookie_names:
+        body['additional']['request_cookie_names'] = ctx.cookie_names
+
 
     body = add_original_token_data(ctx, body)
 
