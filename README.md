@@ -1,329 +1,226 @@
-![image](http://media.marketwire.com/attachments/201604/34215_PerimeterX_logo.jpg)
+[![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-wsgi)
 
-[PerimeterX](http://www.perimeterx.com) Python WSGI Middleware
+![image](https://s.perimeterx.net/logo.png)
+
+[PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> The PerimeterX Python Middleware is supported by all [WSGI based frameworks](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface#WSGI-compatible_applications_and_frameworks).
+
+> Latest stable version: [v2.0.0](link to package)
 
 Table of Contents
 -----------------
+- [Installation](#installation)
+- [Basic Usage Example](#basic_usage)
+- [Advanced Blocking Response](#advanced_blocking_response)
+- [Advanced Configuration Options](#configuration)
+    * [Module Enabled](#module_enabled)
+    * [Module Mode](#module_mode)
+    * [Blocking Score](#blocking_score)
+    * [Send Page Activities](#send_page_activities)
+    * [Debug Mode](#debug_mode)
+    * [Sensitive Routes](#sensitive_routes)
+    * [Whitelist Routes](#whitelist_routes)
+    * [Sensitive Headers](#sensitive_headers)
+    * [IP Headers](#ip_headers)
+    * [First Party Enabled](#first_party_enabled)
+    * [Custom Request Handler](#custom_request_handler)
+    * [Additional Activity Handler](#additional_activity_handler)
 
--   [Usage](#usage)
-  *   [Dependencies](#dependencies)
-  *   [Installation](#installation)
-  *   [Basic Usage Example](#basic-usage)
--   [Configuration](#configuration)
-  *   [Blocking Score](#blocking-score)
-  *   [Customizing Block page](#custom-block-page)
-  *   [Custom Block Action](#custom-block)
-  *   [Enable/Disable Server Calls](#server-calls)
-  *   [Enable/Disable Captcha](#captcha-support)
-  *   [Extracting Real IP Address](#real-ip)
-  *   [Filter Sensitive Headers](#sensitive-headers)
-  *   [API Timeouts](#api-timeout)
-  *   [Send Page Activities](#send-page-activities)
-  *   [Debug Mode](#debug-mode)
--   [Contributing](#contributing)
-  *   [Tests](#tests)
+## <a name="installation"></a> Installation
+PerimeterX python middleware is installed via PIP:
+`$ pip install perimeterx-python-wsgi`
 
-<a name="Usage"></a>
-
-<a name="dependencies"></a> Dependencies
-----------------------------------------
-
--  [Python v2.7](https://www.python.org/download/releases/2.7/)
--  [pycrypto v2.6](https://pypi.python.org/pypi/pycrypto)
- - Note: pycrypto is a python core module, this need to be manually added to dependencies when using GAE
-
-
-<a name="installation"></a> Installation
-----------------------------------------
-
-Installation can be done using Composer.
-
-```sh
-$ pip install perimeterx-python-wsgi
-```
-
-### <a name="basic-usage"></a> Basic Usage Example
-##### Django:
+## <a name="basic_usage"></a> Basic Usage Example
+To use PerimeterX middleware on a specific route follow this example:
 
 ```python
-from perimeterx.middleware import PerimeterX
-
 px_config = {
-   'app_id': 'APP_ID',
-   'cookie_key': 'COOKIE_KEY',
-   'auth_token': 'AUTH_TOKEN',
-	'blocking_score': 70
+    'app_id': 'APP_ID',
+    'cookie_key': 'COOKIE_KEY',
+    'auth_token': 'AUTH_TOKEN',
 }
 
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
-```
-##### Google App Engine:
-app.yaml:
 
-```yaml
-libraries:
-- name: pycrypto
-  version: 2.6
+**Note:** app id, cookie secret and auth token are required fields.
+
+
 ```
+
+
+
+For details on how to create a custom Captcha page, refer to the [documentation](https://console.perimeterx.com/docs/server_integration_new.html#custom-captcha-section)
+
+## <a name="configuration"></a>Advanced Configuration Options
+
+In addition to the basic installation configuration [above](#basicUsage), the following configurations options are available:
+
+#### <a name="module_enabled"></a>Module Enabled
+A boolean flag to enable/disable the PerimeterX Enforcer.
+
+**Default:** true
 
 ```python
-import webapp2
-from perimeterx.middleware import PerimeterX
-
-app = webapp2.WSGIApplication([
-    ('/', MainPage),
-], debug=True)
-
-px_config = {
-   'app_id': 'APP_ID',
-   'cookie_key': 'COOKIE_KEY',
-   'auth_token': 'AUTH_TOKEN',
-	'blocking_score': 70
-}
-
-app = PerimeterX(app, px_config)
-```
-
-### <a name="configuration"></a> Configuration Options
-
-#### Configuring Required Parameters
-
-Configuration options are set in the `px_config` variable.
-
-#### Required parameters:
-
-- app_id
-- cookie_key
-- auth_token
-
-#### <a name="blocking-score"></a> Changing the Minimum Score for Blocking Requests
-
-**default:** 70
-
-```python
-px_config = {
-	..
-    'blocking_score': 75
-    ..
+config = {
+  ...
+  module_enabled: False
+  ...
 }
 ```
 
-### <a name="custom-block-page"></a> Customizing Block Page
-#### Customizing logo
-Adding a custom logo to the blocking page is by providing the pxConfig a key ```custom_logo``` , the logo will be displayed at the top div of the the block page The logo's ```max-heigh``` property would be 150px and width would be set to ``auto``
+#### <a name="module_mode"></a>Module Mode
+Sets the working mode of the Enforcer.
 
-The key customLogo expects a valid URL address such as https://s.perimeterx.net/logo.png
+Possible values:
 
-Example below:
+* `active_blocking` - Blocking Mode
+* `monitor` - Monitoring Mode
+
+**Default:** `monitor` - Monitor Mode
+
 ```python
-px_config = {
-	..
-    'custom_logo': 'https://s.perimeterx.net/logo.png'
-    ..
+config = {
+  ...
+  module_mode: 'active_blocking'
+  ...
 }
 ```
 
-#### Custom JS/CSS
+#### <a name="blocking_score"></a>Blocking Score
+Sets the minimum blocking score of a request.
 
-The block page can be modified with a custom CSS by adding to the pxConfig the key ```css_ref``` and providing a valid URL to the css In addition there is also the option to add a custom JS file by adding ```js_ref``` key to the pxConfig and providing the JS file that will be loaded with the block page, this key also expects a valid URL
+Possible values:
 
-On both cases if the URL is not a valid format an exception will be thrown
-Example below:
+* Any integer between 0 and 100.
 
-Example below:
+**Default:** 100
+
 ```python
-px_config = {
-	..
-    'js_ref': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'
-    'css_ref': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
-    ..
+config = {
+  ...
+  blocking_score: 100
+  ...
 }
 ```
 
-#### <a name="custom-block"></a> Custom Blocking Actions
-Defining a custom block handler is done by setting the value of `custom_block_handler` to a user-defined function, on the `px_config` variable.
+#### <a name="send_page_activities"></a>Send Page Activities
+A boolean flag to enable/disable sending activities and metrics to PerimeterX with each request. <br/>
+Enabling this feature allows data to populate the PerimeterX Portal with valuable information, such as the number of requests blocked and additional API usage statistics.
 
-The custom block handler should contain the action to take when a visitng user is given a high score. Common customizations are to present a reCAPTHA or a custom branded Block Page.
-
-**default:** return HTTP status code 403 and serve the PerimeterX block page.
-
-```python
-def custom_block_handler(ctx, start_response):
-    start_response('403 Forbidden', [('Content-Type', 'text/html')])
-    return ['You have been blocked']
-
-
-px_config = {
-	..
-	'custom_block_handler': custom_block_handler,
-	..
-}
-
-application = get_wsgi_application()
-application = PerimeterX(application, px_config)
-```      
-
-###### Examples
-
-**Serve a Custom HTML Page**
+**Default:** true
 
 ```python
-def custom_block_handler(ctx, start_response):
-    block_score = ctx.get('risk_score')
-    block_uuid = ctx.get('uuid')
-    full_url = ctx.get('full_url')
-
-    html = '<div>Access to ' + full_url + ' has been blocked.</div> ' \
-                  '<div>Block reference - ' + uuid + ' </div> ' \
-                  '<div>Block score - ' + block_score + '</div>'
-
-	start_response('403 Forbidden', [('Content-Type', 'text/html')])
-	return [html]
-};
-
-px_config = {
-	..
-	'custom_block_handler': custom_block_handler,
-	..
-}
-
-application = get_wsgi_application()
-application = PerimeterX(application, px_config)
-```
-
-#### <a name="module-score"></a> Module Mode
-
-**default:** `active_monitoring`
-
-**Applicable Values:** - `['active_monitoring', 'active_blocking', 'inactive']`
-
-```python
-px_config = {
-	..
-    'module_mode': 'active_blocking'
-    ..
-}
-```
-
-#### <a name="server-calls"></a> Enable/Disable Server Calls
-
-By disabling server calls, the module will only evaluate users by their cookie. Users without a cookie will not generate a request to the PerimeterX servers.
-
-**default:** `True`
-
-```python
-px_config = {
-	..
-    'server_calls_enabled': False
-    ..
-}
-```
-
-#### <a name="captcha-support"></a>Enable/Disable CAPTCHA on the block page
-
-By enabling CAPTCHA support, a CAPTCHA will be served as part of the block page, giving real users the ability to answer, get their score cleaned up and navigate to the requested page.
-
-**default: True**
-
-```python
-px_config = {
-	..
-    'captcha_enabled': True
-    ..
-}
-```
-
-#### <a name="real-ip"></a>Extracting the Real User IP Address
-
-> Note: IP extraction, according to your network setup, is important. It is common to have a load balancer/proxy on top of your applications, in this case the PerimeterX module will send an internal IP as the user's. In order to perform processing and detection for server-to-server calls, PerimeterX's module requires the real user's IP.
-
-The user's IP can be returned to the PerimeterX module, using a custom user defined function on the `px_config` variable.
-
-**default value:** `environ.get('REMOTE_ADDR')`
-
-```python
-def ip_handler(environ):
-    for key in environ.keys():
-        if key == 'HTTP_X_FORWARDED_FOR':
-            xff = environ[key].split(' ')[1]
-            return xff
-    return '1.2.3.4'
-
-px_config = {
-	..
-   'ip_handler': ip_handler,
-	..
-}
-
-
-application = get_wsgi_application()
-application = PerimeterX(application, px_config)
-```
-
-#### <a name="sensitive-headers"></a> Filter sensitive headers
-
-A user can define a list of sensitive headers that will be excluded from any message sent to PerimeterX's servers (lowere case header names). Filtering the 'cookie' header is set by default (for privacy) and will be overridden if a user specifies otherwise in the configuration.
-
-**default value:** `['cookie', 'cookies']`
-
-```python
-px_config = {
-	..
-    'sensitive_headers': ['cookie', 'cookies', 'secret-header']
-	..
-}
-```
-
-#### <a name="api-timeout"></a>API Timeouts
-
-Controls the timeouts for PerimeterX requests. The API is called when the risk cookie does not exist, is expired or is invalid.
-
-API Timeout in seconds (float) to wait for the PerimeterX servers' API response.
-
-
-**default:** 1
-
-```python
-px_config = {
-	..
-    'api_timeout': 2
-    ..
+config = {
+  ...
+  send_page_activities: True
+  ...
 }
 ```
 
 
-#### <a name="send-page-activities"></a> Send Page Activities
+#### <a name="debug_mode"></a>Debug Mode
+A boolean flag to enable/disable the debug log messages.
 
-A boolean flag to determine whether or not to send activities and metrics to
-PerimeterX, on each page request. Disabling this feature will prevent PerimeterX from receiving data
-populating the PerimeterX portal, containing valuable information such as
-the amount of requests blocked and other API usage statistics.
-
-**default:** True
+**Default:** False
 
 ```python
-px_config = {
-	..
-    'send_page_activities': False
-    ..
+config = {
+  ...
+  debug_mode: True
+  ...
 }
 ```
 
-#### <a name="debug-mode"></a> Debug Mode
+#### <a name="sensitive_routes"></a> Sensitive Routes
+An array of route prefixes that trigger a server call to PerimeterX servers every time the page is viewed, regardless of viewing history.
 
-Enables debug logging.
-
-**default:** false
+**Default:** Empty
 
 ```python
-px_config = {
-	..
-    'debug_mode': True
-    ..
+const config = {
+  ...
+  sensitive_routes: ['/login', '/user/checkout']
+  ...
 }
 ```
-<a name="contributing"></a> Contributing
-----------------------------------------
+
+#### <a name="whitelist_routes"></a> Whitelist Routes
+An array of route prefixes which will bypass enforcement (will never get scored).
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  whitelist_routes: ['/about-us', '/careers']
+  ...
+}
+```
+
+#### <a name="sensitive_headers"></a>Sensitive Headers
+An array of headers that are not sent to PerimeterX servers on API calls.
+
+**Default:** ['cookie', 'cookies']
+
+```python
+config = {
+  ...
+  sensitive_headers: ['cookie', 'cookies', 'x-sensitive-header']
+  ...
+}
+```
+
+#### <a name="ip_headers"></a>IP Headers
+An array of trusted headers that specify an IP to be extracted.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  ip_headers: ['x-user-real-ip']
+  ...
+}
+```
+
+#### <a name="first_party_enabled"></a>First Party Enabled
+A boolean flag to enable/disable first party mode.
+
+**Default:** True
+
+```python
+const pxConfig = {
+  ...
+  first_party_enabled: False
+  ...
+}
+```
+
+#### <a name="custom_request_handler"></a>Custom Request Handler
+A Python function that adds a custom response handler to the request.
+Do not forget to declare the function before using it in the config.
+Custom request handler is triggered after PerimeterX's verification.
+The custom function should handle the response (probably create a new one)
+**Default:** Empty
+
+```python
+config = {
+  ...
+  custom_request_handler: custom_request_handler_function,
+  ...
+}
+```
+
+#### <a name="additional_activity_handler"></a>Additional Activity Handler
+A Python function that allows interaction with the request data collected by PerimeterX before the data is returned to the PerimeterX servers. Does not alter the response.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  additional_activity_handler: additional_activity_handler_function,
+  ...
+}
+```

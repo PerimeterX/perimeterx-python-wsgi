@@ -17,7 +17,7 @@ def handle_proxy_headers(filtered_headers, ip):
 
 
 def is_static_file(ctx):
-    uri = ctx.get('uri', '')
+    uri = ctx.uri
     static_extensions = ['.css', '.bmp', '.tif', '.ttf', '.docx', '.woff2', '.js', '.pict', '.tiff', '.eot',
                          '.xlsx', '.jpg', '.csv', '.eps', '.woff', '.xls', '.jpeg', '.doc', '.ejs', '.otf', '.pptx',
                          '.gif', '.pdf', '.swf', '.svg', '.ps', '.ico', '.pls', '.midi', '.svgz', '.class', '.png',

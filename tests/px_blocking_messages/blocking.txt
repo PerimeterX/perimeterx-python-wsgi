@@ -150,14 +150,14 @@
 </script>
 <script>
     var s = document.createElement('script');
-    s.src = '/fake_app_ip/captcha/captcha.js?a=None&amp;u=8712cef7-bcfa-4bb6-ae99-868025e1908a&amp;v=bf619be8-94be-458a-b6b1-ee81f154c282&amp;m=0';
+    s.src = '/fake_app_ip/captcha/captcha.js?a=&amp;u=8712cef7-bcfa-4bb6-ae99-868025e1908a&amp;v=bf619be8-94be-458a-b6b1-ee81f154c282&amp;m=0';
     var p = document.getElementsByTagName('head')[0];
     p.insertBefore(s, null);
     if (true) {
         s.onerror = function () {
             s = document.createElement('script');
-            var suffixIndex = '/fake_app_ip/captcha/captcha.js?a=None&amp;u=8712cef7-bcfa-4bb6-ae99-868025e1908a&amp;v=bf619be8-94be-458a-b6b1-ee81f154c282&amp;m=0'.indexOf('captcha.js');
-            var temperedBlockScript = '/fake_app_ip/captcha/captcha.js?a=None&amp;u=8712cef7-bcfa-4bb6-ae99-868025e1908a&amp;v=bf619be8-94be-458a-b6b1-ee81f154c282&amp;m=0'.substring(suffixIndex);
+            var suffixIndex = '/fake_app_ip/captcha/captcha.js?a=&amp;u=8712cef7-bcfa-4bb6-ae99-868025e1908a&amp;v=bf619be8-94be-458a-b6b1-ee81f154c282&amp;m=0'.indexOf('captcha.js');
+            var temperedBlockScript = '/fake_app_ip/captcha/captcha.js?a=&amp;u=8712cef7-bcfa-4bb6-ae99-868025e1908a&amp;v=bf619be8-94be-458a-b6b1-ee81f154c282&amp;m=0'.substring(suffixIndex);
             s.src = '//captcha.px-cdn.net/PXfake_app_ip/' + temperedBlockScript;
             p.parentNode.insertBefore(s, p);
         };

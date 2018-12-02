@@ -11,31 +11,32 @@ import binascii
 import struct
 
 
-class PxCookie:
+class PxCookie(object):
 
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
 
 
-    def build_px_cookie(self, ctx):
+    def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")
-        px_cookies = ctx['px_cookies'].keys()
         # Check that its not empty
         if not px_cookies:
             return None
-        
-        px_cookies.sort(reverse=True)
-        prefix = px_cookies[0]
-        if prefix == PREFIX_PX_COOKIE_V1:
-            self._logger.debug("PxCookie[build_px_cookie] using cookie v1")
+        px_cookie_keys = px_cookies.keys()
+        px_cookie_keys.sort(reverse=True)
+        prefix = px_cookie_keys[0]
+        if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
+            self._logger.debug("PxCookie[build_px_cookie] using token v1")
             from px_cookie_v1 import PxCookieV1
-            return PxCookieV1(ctx, self._config)
-
-        if prefix == PREFIX_PX_COOKIE_V3:
-            self._logger.debug("PxCookie[build_px_cookie] using cookie v3")
+            return PxCookieV1(self._config, px_cookies[prefix])
+        if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
+            self._logger.debug("PxCookie[build_px_cookie] using token v3")
             from px_cookie_v3 import PxCookieV3
-            return PxCookieV3(ctx, self._config)
+            ua = ''
+            if prefix == PREFIX_PX_COOKIE_V3:
+                ua = user_agent
+            return PxCookieV3(self._config, px_cookies[prefix], ua)
 
     def decode_cookie(self):
         self._logger.debug("PxCookie[decode_cookie]")
@@ -149,7 +150,8 @@ class PxCookie:
             return False
 
     def deserialize(self):
-        self._logger.debug("PxCookie[deserialize]")
+        logger = self._logger
+        logger.debug("PxCookie[deserialize]")
         if self._config.encryption_enabled:
             cookie = self.decrypt_cookie()
         else:
@@ -158,7 +160,7 @@ class PxCookie:
         if not cookie:
             return False
 
-        self._logger.debug("PxCookie[deserialize] decoded cookie: " + cookie)
+        logger.debug("Original token deserialized : " + cookie)
         self.decoded_cookie = json.loads(cookie)
         return self.is_cookie_format_valid()
 

@@ -1,19 +1,19 @@
 PREFIX_PX_COOKIE_V1 = '_px'
 PREFIX_PX_COOKIE_V3 = '_px3'
+PREFIX_PX_TOKEN_V1 = '1'
+PREFIX_PX_TOKEN_V3 = '3'
+MOBILE_SDK_HEADER = "x-px-authorization"
+MOBILE_SDK_ORIGINAL_HEADER= "x-px-original-token"
 
 TRANS_5C = b"".join(chr(x ^ 0x5C) for x in range(256))
 TRANS_36 = b"".join(chr(x ^ 0x36) for x in range(256))
 
 BLOCK_TEMPLATE = 'block_template.mustache'
 RATELIMIT_TEMPLATE = 'ratelimit.mustache'
-CAPTCHA_ACTION_CAPTCHA = 'c'
-BLOCK_ACTION_CAPTCHA = 'b'
-BLOCK_ACTION_CHALLENGE = 'j'
-BLOCK_ACTION_RATE = 'r'
-CLIENT_HOST = 'https://client.perimeterx.net'
-CAPTCHA_HOST = 'https://captcha.px-cdn.net'
-COLLECTOR_URL = 'https://collector-{}.perimeterx.net'
-SERVER_URL = 'https://sapi-{}.perimeterx.net'
+CLIENT_HOST = 'client.perimeterx.net'
+CAPTCHA_HOST = 'captcha.px-cdn.net'
+COLLECTOR_URL = 'collector-{}.perimeterx.net'
+SERVER_URL = 'sapi-{}.perimeterx.net'
 CLIENT_FP_PATH = 'init.js'
 CAPTCHA_FP_PATH = 'captcha'
 XHR_FP_PATH = 'xhr'
@@ -32,3 +32,7 @@ BLOCK_ACTIVITY = 'block'
 API_ENFORCER_TELEMETRY = '/api/v2/risk/telemetry'
 API_ACTIVITIES = '/api/v1/collector/s2s'
 TELEMETRY_ACTIVITY = 'enforcer_telemetry'
+ACTION_CHALLENGE = 'j'
+ACTION_BLOCK = 'b'
+ACTION_RATELIMIT = 'r'
+ACTION_CAPTCHA = 'c'

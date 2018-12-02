@@ -1,7 +1,8 @@
 from perimeterx import px_utils
 import unittest
 from perimeterx import px_constants
-
+from perimeterx.px_context import PxContext
+from perimeterx.px_config import PxConfig
 
 class Test_PXUtils(unittest.TestCase):
 
@@ -20,7 +21,8 @@ class Test_PXUtils(unittest.TestCase):
         self.assertEqual(headers_sample[px_constants.FIRST_PARTY_FORWARDED_FOR], '127.0.0.1')
 
     def test_is_static_file(self):
-        ctx = {'uri': '/sample.css'}
+        config = PxConfig({'app_id' : 'fake_app_id'})
+        ctx = PxContext({'PATH_INFO': '/sample.css'}, config)
         self.assertTrue(px_utils.is_static_file(ctx))
-        ctx = {'uri': '/sample.html'}
+        ctx = PxContext({'PATH_INFO': '/sample.html'}, config)
         self.assertFalse(px_utils.is_static_file(ctx))
