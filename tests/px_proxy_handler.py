@@ -60,17 +60,13 @@ class Test_PXProxy(unittest.TestCase):
     def test_send_reverse_xhr_request(self, mock):
         content = 'captcha content'
         config = PxConfig({'app_id': 'PXfake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/fake_app_id/init.js',
+        ctx = PxContext({'PATH_INFO': '/fake_app_id/xhr/api/v1/collector',
                          'HTTP_X_FORWARDED_FOR': '127.0.0.1',
                          'ip': '127.0.0.1'},
                         PxConfig({'app_id': 'fake_app_id'}))
-        ctx = {'uri': '/fake_app_id/xhr/api/v1/collector',
-               'headers': {'X-FORWARDED-FOR': '127.0.0.1'},
-               'ip': '127.0.0.1',
-               'REQUEST_METHOD': 'POST'}
         headers = {'host': config.collector_host,
                    px_constants.FIRST_PARTY_HEADER: '1',
-                   px_constants.ENFORCER_TRUE_IP_HEADER: ctx.get('ip'),
+                   px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip,
                    px_constants.FIRST_PARTY_FORWARDED_FOR: '127.0.0.1'}
         mock.post(url='https://collector-pxfake_app_id.perimeterx.net/api/v1/collector', text=content,
                   request_headers=headers, status_code=200, reason='OK')
