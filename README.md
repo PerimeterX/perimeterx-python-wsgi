@@ -17,7 +17,6 @@ Table of Contents
     * [Module Mode](#moduleMode)
     * [Blocking Score](#blockingScore)
     * [Send Page Activities](#sendPageActivities)
-    * [Send Block Activities](#sendBlockActivities)
     * [Debug Mode](#debugMode)
     * [Sensitive Routes](#sensitiveRoutes)
     * [Whitelist Routes](#whitelistRoutes)
