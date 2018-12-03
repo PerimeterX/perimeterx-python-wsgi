@@ -1,5 +1,4 @@
 import px_constants
-import px_logger
 import px_httpc
 import px_utils
 import base64

@@ -1,6 +1,6 @@
 import unittest
 import requests_mock
-from perimeterx.px_proxy_handler import PXProxy
+from perimeterx.px_proxy import PXProxy
 from perimeterx.px_config import PxConfig
 from perimeterx import px_constants
 from perimeterx.px_context import PxContext
