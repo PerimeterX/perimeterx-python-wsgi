@@ -34,7 +34,7 @@ class PXBlocker(object):
                                                               blocking_props)
 
         if ctx.is_mobile:
-            blocking_response = json.dumps({
+            page_response = json.dumps({
                 'action': parse_action(ctx.block_action),
                 'uuid': ctx.uuid,
                 'vid': ctx.vid,
@@ -42,7 +42,7 @@ class PXBlocker(object):
                 'page': base64.b64encode(blocking_response),
                 'collectorURL': 'https://' + config.collector_host
             })
-            return blocking_response, headers, status
+            return page_response, headers, status
 
         if is_json_response:
             blocking_response = json.dumps(blocking_props)
