@@ -34,8 +34,6 @@ class PxContext(object):
                     http_version = protocol_split[1]
             if key == 'CONTENT_TYPE' or key == 'CONTENT_LENGTH':
                 headers[key.replace('_', '-').lower()] = environ.get(key)
-            if key == 'HTTP_' + MOBILE_SDK_HEADER.replace('-', '_').upper():
-                headers[MOBILE_SDK_HEADER] = environ.get(key, '')
 
         mobile_header = headers.get(MOBILE_SDK_HEADER)
         original_token = ''
