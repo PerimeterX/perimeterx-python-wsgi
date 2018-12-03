@@ -37,8 +37,8 @@ class PxContext(object):
             if key == 'HTTP_' + MOBILE_SDK_HEADER.replace('-', '_').upper():
                 headers[MOBILE_SDK_HEADER] = environ.get(key, '')
 
-        mobile_header = headers.get(MOBILE_SDK_HEADER)
         original_token = ''
+        mobile_header = headers.get(MOBILE_SDK_HEADER)
         if mobile_header is None:
             cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
             cookie_keys = cookies.keys()

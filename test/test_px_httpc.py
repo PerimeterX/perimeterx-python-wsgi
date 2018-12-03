@@ -3,6 +3,7 @@ from perimeterx import px_httpc
 import requests_mock
 from perimeterx.px_config import PxConfig
 
+
 class TestPXHttpc(unittest.TestCase):
     def test_send(self):
         with requests_mock.mock() as m:
