@@ -2,6 +2,7 @@
 
 from setuptools import setup
 
+version = 'v1.2.0'
 setup(name='perimeterx-python-wsgi',
       packages='perimeterx-python-wsgi',
       version='v2.0.0',
