@@ -2,6 +2,7 @@ import pystache
 import px_template
 import px_constants
 import json
+import base64
 
 
 class PXBlocker(object):
@@ -31,9 +32,23 @@ class PXBlocker(object):
             blocking_props = self.prepare_properties(ctx, config)
             blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE),
                                                               blocking_props)
+
+        if ctx.is_mobile:
+            blocking_response = json.dumps({
+                'action': parse_action(ctx.block_action),
+                'uuid': ctx.uuid,
+                'vid': ctx.vid,
+                'appId': config.app_id,
+                'page': base64.b64encode(blocking_response),
+                'collectorURL': 'https://' + config.collector_host
+            })
+            return blocking_response, headers, status
+
         if is_json_response:
             blocking_response = json.dumps(blocking_props)
-        return str(blocking_response), headers, status
+
+        blocking_response = str(blocking_response)
+        return blocking_response, headers, status
 
     def prepare_properties(self, ctx, config):
         app_id = config.app_id
@@ -78,3 +93,14 @@ class PXBlocker(object):
                         if header_item.strip() == 'application/json':
                             return True
         return False
+
+
+def parse_action(action):
+    if 'b' == action:
+        return 'block'
+    elif 'j' == action:
+        return 'challege'
+    elif 'r' == action:
+        return 'ratelimit'
+    else:
+        return 'captcha'
