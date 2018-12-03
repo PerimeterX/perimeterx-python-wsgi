@@ -3,5 +3,5 @@ requests==2.20.1
 setuptools==40.6.2
 requests_mock==1.5.2
 pycrypto==2.6.1
-iwebapp2==2.5.2
+webapp2==2.5.2
 pylint
