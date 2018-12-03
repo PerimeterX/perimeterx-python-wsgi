@@ -2,7 +2,7 @@
 ![image](https://s.perimeterx.net/logo.png)
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v2.0.0](link to package)
+> Latest stable version: [v2.0.0](https://pypi.org/project/perimeterx-python-wsgi/)
 Table of Contents
 -----------------
 - [Installation](#installation)
