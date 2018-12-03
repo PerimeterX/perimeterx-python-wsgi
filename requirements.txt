@@ -1,7 +1,7 @@
 pystache==0.5.4
+mock==2.0.0
 requests==2.20.1
-setuptools==40.6.2
 requests_mock==1.5.2
+setuptools==40.6.2
 pycrypto==2.6.1
-webapp2==2.5.2
 pylint
