@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-wsgi)
+
 ![image](https://s.perimeterx.net/logo.png)
+
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
 > Latest stable version: [v2.0.0](https://pypi.org/project/perimeterx-python-wsgi/)
