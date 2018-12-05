@@ -1,0 +1,7 @@
+pystache==0.5.4
+mock==2.0.0
+requests==2.20.1
+requests_mock==1.5.2
+setuptools==40.6.2
+Crypto
+pylint
