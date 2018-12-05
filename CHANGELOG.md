@@ -1,6 +1,6 @@
 # Change Log
 
-## [v2.0.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-05)
+## [v2.0.2](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-05)
 - Fixed copying resources to package on pypi.
 
 ## [v2.0.0](https://github.com/PerimeterX/perimeterx-python-wsgi/compare/v1.0.17...HEAD) (2018-12-03)
