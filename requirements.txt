@@ -1,4 +1,4 @@
-Crypto
+pycrypto==2.6.1
 pystache==0.5.4
 requests==2.20.1
 setuptools==40.6.2
