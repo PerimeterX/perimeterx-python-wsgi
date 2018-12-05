@@ -27,18 +27,7 @@ Table of Contents
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
-After the installation, go to your django working dir and verify that the
-INSTALLED_APPS clause in your settings.py file contains 'perimeterx' .
-```
-INSTALLED_APPS = [
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'perimeterx',
-]
-```
+
 ## <a name="upgrading"></a> Upgrading
 Contact [PerimeterX Support](mailto: support@perimeterx.com) for details.
 ## <a name="required_config"></a> Required Configurations
