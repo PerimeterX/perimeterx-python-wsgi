@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
-version = 'v2.0.0'
+install_requires = open('./requirements.txt', 'r').readlines()
+version = 'v2.0.1'
 setup(name='perimeterx-python-wsgi',
       version=version,
       license='MIT',
@@ -11,10 +12,8 @@ setup(name='perimeterx-python-wsgi',
       author_email='ben@perimeterx.com',
       url='https://github.com/PerimeterX/perimeterx-python-wsgi',
       download_url='https://github.com/PerimeterX/perimeterx-python-wsgi/tarball/' + version,
-      package_dir={'perimeterx': 'perimeterx'},
-      install_requires=[
-        "pystache==0.5.4", 'requests==2.20.1', 'setuptools==40.6.2', 'requests_mock==1.5.2',
-        'pycrypto==2.6.1', 'mock==2.0.0', 'pylint'],
+      packages=find_packages(exclude=['dev', 'test*']),
+      package_data={'perimeterx': ['templates/*']},
+      install_requires=install_requires,
       classifiers=['Intended Audience :: Developers',
                    'Programming Language :: Python :: 2.7'])
-
