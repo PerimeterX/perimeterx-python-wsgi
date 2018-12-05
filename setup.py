@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-version = 'v2.0.0'
+version = 'v2.0.1'
 setup(name='perimeterx-python-wsgi',
       version=version,
       license='MIT',
