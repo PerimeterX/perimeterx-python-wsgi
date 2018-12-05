@@ -1,5 +1,8 @@
 # Change Log
 
+## [v2.0.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-05)
+- Fixed copying resources to package on pypi.
+
 ## [v2.0.0](https://github.com/PerimeterX/perimeterx-python-wsgi/compare/v1.0.17...HEAD) (2018-12-03)
 - Added Major Enforcer functionalities: Mobile SDK, FirstParty, CaptchaV2, Block handling
 - Added unit tests
@@ -15,4 +18,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - New block/captcha templates
 - Delete captcha cookie after evaluation
 - Sending original cookie value when decryption fails
-

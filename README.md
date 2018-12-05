@@ -4,7 +4,7 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v2.0.0](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v2.0.1](https://pypi.org/project/perimeterx-python-wsgi/)
 Table of Contents
 -----------------
 - [Installation](#installation)
@@ -27,11 +27,15 @@ Table of Contents
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
+
 ## <a name="upgrading"></a> Upgrading
 Contact [PerimeterX Support](mailto: support@perimeterx.com) for details.
 ## <a name="required_config"></a> Required Configurations
 To use PerimeterX middleware on a specific route follow this example:
+
 ```python
+from perimeterx.middleware import PerimeterX
+
 px_config = {
     'app_id': 'APP_ID',
     'cookie_key': 'COOKIE_KEY',
