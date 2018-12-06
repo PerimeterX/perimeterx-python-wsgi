@@ -3,6 +3,7 @@ from perimeterx import px_original_token_validator
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
 from perimeterx import px_constants
+
 class TestPXOriginalTokenValidator(unittest.TestCase):
 
     @classmethod

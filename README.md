@@ -110,7 +110,7 @@ config = {
 An array of route prefixes that trigger a server call to PerimeterX servers every time the page is viewed, regardless of viewing history.
 **Default:** Empty
 ```python
-const config = {
+config = {
   ...
   sensitive_routes: ['/login', '/user/checkout']
   ...
@@ -150,7 +150,7 @@ config = {
 Enable/disable First-Party mode.
 **Default:** True
 ```python
-const pxConfig = {
+config = {
   ...
   first_party_enabled: False
   ...

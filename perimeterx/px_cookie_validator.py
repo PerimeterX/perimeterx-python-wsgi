@@ -1,6 +1,7 @@
-import traceback
 import re
 import px_original_token_validator
+import json
+import time
 from px_cookie import PxCookie
 
 
@@ -53,16 +54,17 @@ def verify(ctx, config):
 
         if px_cookie.is_high_score():
             ctx.block_reason = 'cookie_high_score'
-            logger.debug('Cookie with high score: ' + str(ctx.score))
+            logger.debug('Cookie evaluation ended successfully, risk score: ' + str(ctx.score))
             return True
 
         if px_cookie.is_cookie_expired():
             ctx.s2s_call_reason = 'cookie_expired'
-            logger.debug('Cookie expired')
+            cookieAge = time.time() - px_cookie.get_timestamp()
+            logger.debug('Cookie TTL is expired, value: {}, age: {}'.format(json.dumps(px_cookie.decoded_cookie), str(cookieAge)))
             return False
 
         if not px_cookie.is_secured():
-            logger.debug('Cookie validation failed')
+            logger.debug('Cookie HMAC validation failed, value: {}, user-agent: {}'.format(ctx.decoded_cookie, ctx.user_agent))
             ctx.s2s_call_reason = 'cookie_validation_failed'
             return False
 
@@ -74,8 +76,7 @@ def verify(ctx, config):
         logger.debug('Cookie validation passed with good score: ' + str(ctx.score))
         return True
     except Exception, e:
-        traceback.print_exc()
         logger.debug('Could not decrypt cookie, exception was thrown, decryption failed ' + e.message)
-        ctx.px_orig_cookie = px_cookie.raw_cookie
+        ctx.px_orig_cookie = px_cookie._raw_cookie
         ctx.s2s_call_reason = 'cookie_decryption_failed'
         return False

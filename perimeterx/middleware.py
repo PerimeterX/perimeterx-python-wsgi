@@ -19,7 +19,6 @@ class PerimeterX(object):
             logger.error('PX App ID is missing')
             raise ValueError('PX App ID is missing')
 
-        # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         if not px_config.auth_token:
             logger.error('PX Auth Token is missing')
             raise ValueError('PX Auth Token is missing')
@@ -50,7 +49,7 @@ class PerimeterX(object):
             if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: ' + uri)
                 return self.app(environ, start_response)
-            if not self._config._module_enabled:
+            if not self._config.module_enabled:
                 logger.debug('Module is disabled, request will not be verified')
                 return self.app(environ, start_response)
 

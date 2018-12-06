@@ -99,8 +99,8 @@ class PxContext(object):
         self._original_token = original_token
 
 
+
     def get_token_object(self, config, token):
-        result = {}
         logger = config.logger
         sliced_token = token.split(":", 1)
         if len(sliced_token) > 1:

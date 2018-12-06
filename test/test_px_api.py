@@ -36,7 +36,20 @@ class Test_PXApi(unittest.TestCase):
             response = px_api.send_risk_request(ctx, config)
             self.assertEqual({'action': 'c', 'score': 100, 'uuid': uuid_val}, response)
 
-
+    def test_verify(self):
+        config = PxConfig({'app_id': 'app_id',
+                           'enrich_custom_parameters': self.enrich_custom_parameters,
+                           'auth_token': 'auth'})
+        ctx = PxContext({'PATH_INFO': '/test_path'}, config)
+        uuid_val = str(uuid.uuid4())
+        response = {'score': 100, 'uuid': uuid_val, 'action': 'c', 'data_enrichment': 'fake_de'}
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            api_response = px_api.verify(ctx, config)
+            # self.assertEqual(ctx.pxde, 'fake_de')
+            # self.assertEqual(ctx.pxde_verified, True)
+            self.assertEqual('s2s_high_score', ctx.block_reason)
+            self.assertEqual('c', ctx.block_action)
+            self.assertTrue(api_response)
 
 class ResponseMock(object):
     def __init__(self, dict):
