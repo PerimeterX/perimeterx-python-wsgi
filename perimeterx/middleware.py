@@ -1,5 +1,6 @@
 import px_activities_client
 import px_cookie_validator
+import px_testing_mode_handler
 from px_context import PxContext
 import px_blocker
 import px_api
@@ -57,7 +58,9 @@ class PerimeterX(object):
             if ctx.whitelist_route:
                 logger.debug('The requested uri is whitelisted, passing request')
                 return self.app(environ, start_response)
-
+            if config.testing_mode:
+                return px_testing_mode_handler.testing_mode_handling(ctx=ctx, config=config,
+                                                                     start_response=start_response)
             # PX Cookie verification
             if not px_cookie_validator.verify(ctx, config):
                 # Server-to-Server verification fallback

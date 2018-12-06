@@ -38,7 +38,7 @@ class PxConfig(object):
         self._block_html = 'BLOCK'
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
-
+        self._testing_mode = config_dict.get('testing_mode', False)
         self._auth_token = config_dict.get('auth_token', None)
         self._cookie_key = config_dict.get('cookie_key', None)
         self.__instantiate_user_defined_handlers(config_dict)
@@ -171,6 +171,10 @@ class PxConfig(object):
     @property
     def enrich_custom_parameters(self):
         return self._enrich_custom_parameters
+
+    @property
+    def testing_mode(self):
+        return self._testing_mode
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
