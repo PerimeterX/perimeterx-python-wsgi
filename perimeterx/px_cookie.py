@@ -16,6 +16,8 @@ class PxCookie(object):
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
+        self.raw_cookie = ''
+        self.hmac = ''
 
     def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")

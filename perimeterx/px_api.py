@@ -81,7 +81,7 @@ def verify(ctx, config):
         else:
             return False
     except:
-        logger.error('could not complete server to server verification')
+        logger.error('Could not complete server to server verification')
         return False
 
 
