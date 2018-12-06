@@ -4,6 +4,8 @@ import px_constants
 import json
 import re
 
+from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
+
 custom_params = {
     'custom_param1': '',
     'custom_param2': '',
@@ -19,6 +21,11 @@ custom_params = {
 
 
 def send_risk_request(ctx, config):
+    """
+    :param PxContext ctx:
+    :param PxConfig config:
+    :return dict:
+    """
     body = prepare_risk_body(ctx, config)
     default_headers = {
         'Authorization': 'Bearer ' + config.auth_token,
@@ -30,6 +37,12 @@ def send_risk_request(ctx, config):
 
 
 def verify(ctx, config):
+    """
+    :param PxContext ctx:
+    :param pxConfig config:
+    :return bool: is request verified
+    """
+
     logger = config.logger
     logger.debug("PXVerify")
     try:
@@ -43,9 +56,14 @@ def verify(ctx, config):
             ctx.uuid = response.get('uuid')
             ctx.block_action = response.get('action')
             ctx.risk_rtt = risk_rtt
+            ctx.data_enrichment = PxDataEnrichmentCookie(config)
+            ctx.data_enrichment.is_valid = True
+            ctx.data_enrichment.payload = response.get('data_enrichment', {})
             if ctx.score >= config.blocking_score:
-                if response.get('action') == px_constants.ACTION_CHALLENGE and response.get('action_data') is not None and response.get(
-                        'action_data').get('body') is not None:
+                if response.get('action') == px_constants.ACTION_CHALLENGE and \
+                        response.get('action_data') is not None and \
+                        response.get('action_data').get('body') is not None:
+
                     logger.debug("PXVerify received javascript challenge action")
                     ctx.block_action_data = response.get('action_data').get('body')
                     ctx.block_reason = 'challenge'
@@ -63,7 +81,7 @@ def verify(ctx, config):
         else:
             return False
     except:
-        logger.error('couldnt complete server to server verification')
+        logger.error('could not complete server to server verification')
         return False
 
 
@@ -95,7 +113,6 @@ def prepare_risk_body(ctx, config):
         body['additional']['px_cookie_hmac'] = ctx.cookie_hmac
     if ctx.cookie_names:
         body['additional']['request_cookie_names'] = ctx.cookie_names
-
 
     body = add_original_token_data(ctx, body)
 

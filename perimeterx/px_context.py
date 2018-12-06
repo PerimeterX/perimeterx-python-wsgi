@@ -1,5 +1,6 @@
 import Cookie
 from px_constants import *
+from px_data_enrichment_cookie import PxDataEnrichmentCookie
 
 
 class PxContext(object):
@@ -17,6 +18,7 @@ class PxContext(object):
         request_cookie_names = []
         cookie_origin = "cookie"
         vid = ''
+        data_enrichment = PxDataEnrichmentCookie(config)
 
         # Extracting: Headers, user agent, http method, http version
         for key in environ.keys():
@@ -48,6 +50,9 @@ class PxContext(object):
                 if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
                     logger.debug('Found cookie prefix:' + key)
                     px_cookies[key] = cookies.get(key).value
+                elif key == PREFIX_PX_DATA_ENRICHMENT:
+                    data_enrichment.from_raw_cookie(cookies.get(key).value)
+
             if '_pxvid' in cookie_keys:
                 vid = cookies.get('_pxvid').value
         else:
@@ -97,10 +102,9 @@ class PxContext(object):
         self._original_uuid = ''
         self._decoded_original_token = ''
         self._original_token = original_token
-
+        self._data_enrichment = data_enrichment
 
     def get_token_object(self, config, token):
-        result = {}
         logger = config.logger
         sliced_token = token.split(":", 1)
         if len(sliced_token) > 1:
@@ -373,3 +377,11 @@ class PxContext(object):
     @decoded_original_token.setter
     def decoded_original_token(self, decoded_original_token):
         self._decoded_original_token = decoded_original_token
+
+    @property
+    def data_enrichment(self):
+        return self._data_enrichment
+
+    @data_enrichment.setter
+    def data_enrichment(self, data_enrichment):
+        self._data_enrichment = data_enrichment

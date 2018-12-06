@@ -17,9 +17,6 @@ class PxCookieV3(PxCookie):
     def get_score(self):
         return self.decoded_cookie['s']
 
-    def get_hmac(self):
-        return self.hmac
-
     def get_action(self):
         return self.decoded_cookie['a']
 
