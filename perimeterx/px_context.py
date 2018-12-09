@@ -46,7 +46,7 @@ class PxContext(object):
             for key in cookie_keys:
                 request_cookie_names.append(key)
                 if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
-                    logger.debug('Found cookie prefix:' + key)
+                    logger.debug('Found cookie prefix: %s' % key)
                     px_cookies[key] = cookies.get(key).value
             if '_pxvid' in cookie_keys:
                 vid = cookies.get('_pxvid').value
@@ -98,15 +98,15 @@ class PxContext(object):
         self._decoded_original_token = ''
         self._original_token = original_token
 
+        logger.debug('Request context created successfully')
 
     def get_token_object(self, config, token):
-        result = {}
         logger = config.logger
         sliced_token = token.split(":", 1)
         if len(sliced_token) > 1:
             key = sliced_token.pop(0)
             if key == PREFIX_PX_TOKEN_V1 or key == PREFIX_PX_TOKEN_V3:
-                logger.debug('Found token prefix:' + key)
+                logger.debug('Found token prefix: %s' % key)
                 return key, sliced_token[0]
         return PREFIX_PX_TOKEN_V3, token
 

@@ -4,15 +4,12 @@ from px_logger import Logger
 
 class PxConfig(object):
     def __init__(self, config_dict):
-        app_id = config_dict.get('app_id')
-        debug_mode = config_dict.get('debug_mode', False)
-        module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
-        custom_logo = config_dict.get('custom_logo', None)
+        app_id = config_dict.get('app_id', None)
         self._px_app_id = app_id
         self._blocking_score = config_dict.get('blocking_score', 100)
-        self._debug_mode = debug_mode
+        self._debug_mode = config_dict.get('debug_mode', False)
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
-        self._module_mode = module_mode
+        self._module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
         self._server_host = 'sapi.perimeterx.net' if app_id is None else px_constants.SERVER_URL.format(app_id.lower())
         self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
             app_id.lower())
@@ -20,11 +17,11 @@ class PxConfig(object):
         self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 500)
-        self._custom_logo = custom_logo
+        self._custom_logo = config_dict.get('custom_logo', None)
         self._css_ref = config_dict.get('_custom_logo', '')
         self._js_ref = config_dict.get('js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
-        self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
+        self._monitor_mode = 0 if self._module_mode is px_constants.MODULE_MODE_MONITORING else 1
         self._module_enabled = config_dict.get('module_enabled', True)
         self._auth_token = config_dict.get('auth_token', None)
         self._is_mobile = config_dict.get('is_mobile', False)
@@ -36,13 +33,13 @@ class PxConfig(object):
         self._sensitive_routes = config_dict.get('sensitive_routes', [])
         self._whitelist_routes = config_dict.get('whitelist_routes', [])
         self._block_html = 'BLOCK'
-        self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
+        self._logo_visibility = 'visible' if self._custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
 
         self._auth_token = config_dict.get('auth_token', None)
         self._cookie_key = config_dict.get('cookie_key', None)
         self.__instantiate_user_defined_handlers(config_dict)
-        self._logger = Logger(debug_mode, app_id)
+        self._logger = Logger(self._debug_mode, app_id)
 
     @property
     def module_mode(self):

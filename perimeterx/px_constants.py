@@ -3,7 +3,9 @@ PREFIX_PX_COOKIE_V3 = '_px3'
 PREFIX_PX_TOKEN_V1 = '1'
 PREFIX_PX_TOKEN_V3 = '3'
 MOBILE_SDK_HEADER = "x-px-authorization"
-MOBILE_SDK_ORIGINAL_HEADER= "x-px-original-token"
+MOBILE_SDK_ORIGINAL_HEADER = "x-px-original-token"
+MOBILE_SDK_CONNECTION_ERROR_CODE = '2'
+MOBILE_SDK_PINNING_ERROR_CODE = '3'
 
 TRANS_5C = b"".join(chr(x ^ 0x5C) for x in range(256))
 TRANS_36 = b"".join(chr(x ^ 0x36) for x in range(256))

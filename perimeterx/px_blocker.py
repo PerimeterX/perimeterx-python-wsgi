@@ -3,6 +3,8 @@ import px_template
 import px_constants
 import json
 import base64
+from px_config import PxConfig
+from px_context import PxContext
 
 
 class PXBlocker(object):
@@ -12,6 +14,14 @@ class PXBlocker(object):
             px_template.get_template(px_constants.RATELIMIT_TEMPLATE), {})
 
     def handle_blocking(self, ctx, config):
+        """
+        Returns the appropriate response parameters according to blocking parameters
+        :param PxContext ctx:
+        :param PxConfig config:
+        :return (string, array, string): response string, headers array, and status string
+        """
+
+        logger = config.logger
         action = ctx.block_action
         status = '403 Forbidden'
 
@@ -23,12 +33,18 @@ class PXBlocker(object):
         headers = [('Content-Type', content_type)]
 
         if action is px_constants.ACTION_CHALLENGE:
+            logger.debug('Challenge page is served')
             blocking_props = ctx.block_action_data
             blocking_response = blocking_props
+
         elif action is px_constants.ACTION_RATELIMIT:
+            logger.debug('Rate limit page is served')
+            blocking_props = None
             blocking_response = self.ratelimit_rendered_page
             status = '429 Too Many Requests'
-        else:
+
+        else:  # block
+            logger.debug('Block page is served')
             blocking_props = self.prepare_properties(ctx, config)
             blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE),
                                                               blocking_props)

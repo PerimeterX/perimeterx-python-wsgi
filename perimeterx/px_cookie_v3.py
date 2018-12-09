@@ -4,6 +4,7 @@ from px_cookie import PxCookie
 class PxCookieV3(PxCookie):
 
     def __init__(self, config, cookie, user_agent):
+        super(PxCookieV3, self).__init__(config)
         self._config = config
         self._logger = config.logger
         self._user_agent = user_agent
@@ -31,4 +32,3 @@ class PxCookieV3(PxCookie):
         user_agent = self._user_agent
         str_hmac = self.raw_cookie + user_agent
         return self.is_cookie_valid(str_hmac)
-
