@@ -61,9 +61,10 @@ class PerimeterX(object):
                 if not px_api.verify(ctx, self.config):
                     return self.app(environ, start_response)
             return self.handle_verification(ctx, self.config, environ, start_response)
-        except Exception as e:
-            logger.error("Passing request, caught an exception: {}".format(str(e.message)))
-            return self.pass_traffic(environ=environ, start_response=start_response)
+        except Exception as err:
+            logger.error("Caught exception, passing request. Exception: %s" % err)
+            self.pass_traffic(PxContext({}, config))
+            return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
         score = ctx.score

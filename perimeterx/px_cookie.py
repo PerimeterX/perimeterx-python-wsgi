@@ -16,11 +16,14 @@ class PxCookie(object):
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
+        self.raw_cookie = ''
+        self.hmac = ''
 
     def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")
         if not px_cookies:
             return None
+
         px_cookie_keys = px_cookies.keys()
         px_cookie_keys.sort(reverse=True)
         for prefix in px_cookie_keys:
@@ -145,8 +148,8 @@ class PxCookie(object):
         try:
             calculated_digest = px_enc_utils.create_hmac(str_to_hmac, self._config)
             return self.get_hmac() == calculated_digest
-        except:
-            self._logger.debug("failed to calculate hmac")
+        except Exception as err:
+            self._logger.debug("failed to calculate hmac: %s" % err)
             return False
 
     def deserialize(self):
@@ -175,3 +178,6 @@ class PxCookie(object):
 
     def get_vid(self):
         return self.decoded_cookie['v']
+
+    def get_hmac(self):
+        return self.hmac

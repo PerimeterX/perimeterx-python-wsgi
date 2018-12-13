@@ -6,7 +6,6 @@ import mock
 import uuid
 import json
 
-
 class Test_PXApi(unittest.TestCase):
 
     def enrich_custom_parameters(self, params):
@@ -41,7 +40,8 @@ class Test_PXApi(unittest.TestCase):
                            'auth_token': 'auth'})
         ctx = PxContext({'PATH_INFO': '/test_path'}, config)
         uuid_val = str(uuid.uuid4())
-        response = {'score': 100, 'uuid': uuid_val, 'action': 'c', 'data_enrichment': 'fake_de'}
+        data_enrichment = {'timestamp': 10033200222}
+        response = {'score': 100, 'uuid': uuid_val, 'action': 'c', 'data_enrichment': data_enrichment}
         with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
             api_response = px_api.verify(ctx, config)
             # self.assertEqual(ctx.pxde, 'fake_de')
@@ -49,6 +49,8 @@ class Test_PXApi(unittest.TestCase):
             self.assertEqual('s2s_high_score', ctx.block_reason)
             self.assertEqual('c', ctx.block_action)
             self.assertTrue(api_response)
+            self.assertEqual(data_enrichment, ctx.data_enrichment.payload)
+
 
 
 class ResponseMock(object):
