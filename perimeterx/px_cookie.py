@@ -16,20 +16,24 @@ class PxCookie(object):
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
-
+        self.raw_cookie = ''
+        self.hmac = ''
 
     def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")
         # Check that its not empty
         if not px_cookies:
             return None
+
         px_cookie_keys = px_cookies.keys()
         px_cookie_keys.sort(reverse=True)
         prefix = px_cookie_keys[0]
+
         if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
             self._logger.debug("PxCookie[build_px_cookie] using token v1")
             from px_cookie_v1 import PxCookieV1
             return PxCookieV1(self._config, px_cookies[prefix])
+
         if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
             self._logger.debug("PxCookie[build_px_cookie] using token v3")
             from px_cookie_v3 import PxCookieV3
@@ -145,8 +149,8 @@ class PxCookie(object):
         try:
             calculated_digest = hmac.new(self._config.cookie_key, str_to_hmac, hashlib.sha256).hexdigest()
             return self.get_hmac() == calculated_digest
-        except:
-            self._logger.debug("failed to calculate hmac")
+        except Exception as err:
+            self._logger.debug("failed to calculate hmac: %s" % err)
             return False
 
     def deserialize(self):
@@ -176,6 +180,5 @@ class PxCookie(object):
     def get_vid(self):
         return self.decoded_cookie['v']
 
-
-
-
+    def get_hmac(self):
+        return self.hmac

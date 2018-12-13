@@ -2,15 +2,14 @@ import traceback
 import re
 import px_original_token_validator
 from px_cookie import PxCookie
+from px_context import PxContext
 
 
 def verify(ctx, config):
     """
     main verification function, verifying the content of the perimeterx risk cookie if exists
-    :param ctx: perimeterx request context object
-    :param config: global configurations
-    :type ctx: dictionary
-    :type config: dictionary
+    :param PxContext ctx:
+    :param PxConfig config:
     :return: Returns True if verification succeeded and False if not
     :rtype: Bool
     """
@@ -29,14 +28,14 @@ def verify(ctx, config):
         px_cookie_builder = PxCookie(config)
         px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.px_cookies,
                                                       user_agent=ctx.user_agent)
-        #Mobile SDK traffic
+        # Mobile SDK traffic
         if px_cookie and ctx.is_mobile:
-             pattern = re.compile("^\d+$")
-             if re.match(pattern, px_cookie.raw_cookie):
-                 ctx.s2s_call_reason = "mobile_error_" + px_cookie.raw_cookie
-                 if ctx.original_token is not None:
-                     px_original_token_validator.verify(ctx, config)
-                 return False
+            pattern = re.compile("^\d+$")
+            if re.match(pattern, px_cookie.raw_cookie):
+                ctx.s2s_call_reason = "mobile_error_" + px_cookie.raw_cookie
+                if ctx.original_token is not None:
+                    px_original_token_validator.verify(ctx, config)
+                return False
 
         if not px_cookie.deserialize():
             logger.error('Cookie decryption failed')
