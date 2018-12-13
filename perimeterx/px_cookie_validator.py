@@ -4,6 +4,7 @@ import px_original_token_validator
 from px_cookie import PxCookie
 from px_config import PxConfig
 import px_constants
+from px_context import PxContext
 
 mobile_error_pattern = re.compile("^\d+$")
 
@@ -36,9 +37,8 @@ def verify(ctx, config):
                 ctx.s2s_call_reason = "mobile_error_" + px_cookie.raw_cookie
                 if ctx.original_token is not None:
                     px_original_token_validator.verify(ctx, config)
+                    
                 return False
-            else:
-                logger.debug('Mobile special token - no token')
 
         if not px_cookie.deserialize():
             logger.error('Cookie decryption failed, value: {}'.format(px_cookie.raw_cookie))

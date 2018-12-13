@@ -64,7 +64,9 @@ class PerimeterX(object):
             if ctx.whitelist_route:
                 logger.debug('The requested uri is whitelisted, passing request')
                 return self.app(environ, start_response)
-
+            if config.testing_mode:
+                return px_testing_mode_handler.testing_mode_handling(ctx=ctx, config=config,
+                                                                     start_response=start_response)
             # PX Cookie verification
             if not px_cookie_validator.verify(ctx, config):
                 # Server-to-Server verification fallback
@@ -73,8 +75,8 @@ class PerimeterX(object):
 
             return self.handle_verification(ctx, self.config, environ, start_response)
         except Exception as err:
-            logger.error("Caught unexpected exception, passing request. Error: {}".format(err))
-            self.report_pass_traffic(PxContext({}, config))
+            logger.error("Caught exception, passing request. Exception: {}".format(err))
+            self.pass_traffic(PxContext({}, config))
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):

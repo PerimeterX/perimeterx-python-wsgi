@@ -5,6 +5,8 @@ import json
 import re
 import requests
 
+from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
+
 custom_params = {
     'custom_param1': '',
     'custom_param2': '',
@@ -20,6 +22,11 @@ custom_params = {
 
 
 def send_risk_request(ctx, config):
+    """
+    :param PxContext ctx:
+    :param PxConfig config:
+    :return dict:
+    """
     start = time.time()
     body = prepare_risk_body(ctx, config)
     default_headers = {
@@ -37,6 +44,12 @@ def send_risk_request(ctx, config):
 
 
 def verify(ctx, config):
+    """
+    :param PxContext ctx:
+    :param pxConfig config:
+    :return bool: is request verified
+    """
+
     logger = config.logger
     logger.debug('Evaluating Risk API request, call reason: {}'.format(ctx.s2s_call_reason))
     try:
@@ -50,6 +63,9 @@ def verify(ctx, config):
             ctx.uuid = response.get('uuid')
             ctx.block_action = response.get('action')
             ctx.risk_rtt = risk_rtt
+            ctx.data_enrichment = PxDataEnrichmentCookie(config)
+            ctx.data_enrichment.is_valid = True
+            ctx.data_enrichment.payload = response.get('data_enrichment', {})
             if ctx.score >= config.blocking_score:
                 if response.get('action') == px_constants.ACTION_CHALLENGE and \
                         response.get('action_data') is not None and \

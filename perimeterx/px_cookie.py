@@ -17,6 +17,8 @@ class PxCookie(object):
         self._logger = config.logger
         self.user_agent = ''
         self.decoded_cookie = {}
+        self.raw_cookie = ''
+        self.hmac = ''
 
     def build_px_cookie(self, px_cookies, user_agent=''):
         self.user_agent = user_agent
@@ -29,6 +31,7 @@ class PxCookie(object):
         px_cookie_keys = px_cookies.keys()
         px_cookie_keys.sort(reverse=True)
         prefix = px_cookie_keys[0]
+
         if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
             self._logger.debug('Cookie/Token V1 found, evaluating..')
             from px_cookie_v1 import PxCookieV1
@@ -149,8 +152,8 @@ class PxCookie(object):
         try:
             calculated_digest = hmac.new(self._config.cookie_key, str_to_hmac, hashlib.sha256).hexdigest()
             return self.get_hmac() == calculated_digest
-        except:
-            self._logger.debug('failed to calculate hmac')
+        except Exception as err:
+            self._logger.debug("failed to calculate hmac: {}".format(err))
             return False
 
     def deserialize(self):
@@ -181,3 +184,6 @@ class PxCookie(object):
 
     def get_age(self):
         return int(round(time() * 1000)) - self.decoded_cookie['t']
+      
+    def get_hmac(self):
+        return self.hmac
