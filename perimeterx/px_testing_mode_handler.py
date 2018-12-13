@@ -1,6 +1,7 @@
 import json
 import px_constants
 
+
 def testing_mode_handling(ctx, config, start_response):
     result = {
         'px_cookies': ctx.px_cookies,
