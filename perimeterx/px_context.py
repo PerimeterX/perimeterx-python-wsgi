@@ -1,18 +1,17 @@
 from px_constants import *
 from px_data_enrichment_cookie import PxDataEnrichmentCookie
-
+from requests.structures import CaseInsensitiveDict
 
 class PxContext(object):
 
     def __init__(self, request, config):
 
         logger = config.logger
-        headers = {}
+        headers = CaseInsensitiveDict()
 
         # Default values
         http_method = ''
         http_version = ''
-        http_protocol = ''
         px_cookies = {}
         request_cookie_names = []
         cookie_origin = "cookie"
@@ -25,9 +24,9 @@ class PxContext(object):
         original_token = ''
         mobile_header = headers.get(MOBILE_SDK_HEADER)
         if mobile_header is None:
-            cookies = request.headers.get('cookies', [])
-            for cookie in cookies:
-                cookie_key, cookie_value = map(lambda x: x.strip(), cookie.split('=', 1))
+            cookies = request.cookies
+            for cookie_key in cookies:
+                cookie_value = cookies[cookie_key]
                 request_cookie_names.append(cookie_key)
                 if cookie_key == PREFIX_PX_COOKIE_V1 or cookie_key == PREFIX_PX_COOKIE_V3:
                     logger.debug('Found cookie prefix:' + cookie_key)
@@ -44,7 +43,7 @@ class PxContext(object):
             cookie_name, cookie = self.get_token_object(config, mobile_header)
             px_cookies[cookie_name] = cookie
 
-        user_agent = request.user_agent
+        user_agent = request.user_agent.string
         uri = request.path
         full_url = request.url
         hostname = request.host

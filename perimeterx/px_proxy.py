@@ -38,19 +38,20 @@ class PXProxy(object):
         uri = ctx.uri.lower()
 
         if uri.startswith(self.client_reverse_prefix):
-            return self.send_reverse_client_request(config=config, ctx=ctx, start_response=start_response, environ=environ)
-        if uri.startswith(self.xhr_reverse_prefix):
-            return self.send_reverse_xhr_request(config=config, ctx=ctx, start_response=start_response, body=body, environ=environ)
-        if uri.startswith(self.captcha_reverse_prefix):
-            return self.send_reverse_captcha_request(config=config, ctx=ctx, start_response=start_response, environ=environ)
+            status, headers, data = self.send_reverse_client_request(config=config, ctx=ctx, start_response=start_response, environ=environ)
+        elif uri.startswith(self.xhr_reverse_prefix):
+            status, headers, data = self.send_reverse_xhr_request(config=config, ctx=ctx, start_response=start_response, body=body, environ=environ)
+        elif uri.startswith(self.captcha_reverse_prefix):
+            status, headers, data = self.send_reverse_captcha_request(config=config, ctx=ctx, start_response=start_response, environ=environ)
+        px_response = Response(data)
+        px_response.headers = headers
+        px_response.status = status
+        return px_response(environ, start_response)
 
-    def send_reverse_client_request(self, config, ctx, start_response, environ):
+    def send_reverse_client_request(self, config, ctx):
         if not config.first_party:
             headers = [('Content-Type', 'application/javascript')]
-            px_response = Response()
-            px_response.headers = headers
-            px_response.status = '200 OK'
-            return px_response(environ, start_response)
+            return '200 OK', headers, ''
 
         client_request_uri = '/{}/main.min.js'.format(config.app_id)
         self._logger.debug(
@@ -65,18 +66,16 @@ class PXProxy(object):
         delete_extra_headers(filtered_headers)
         px_response = px_httpc.send(full_url=px_constants.CLIENT_HOST + client_request_uri, body='',
                                  headers=filtered_headers, config=config, method='GET')
+        data = px_response.raw.read()
+        headers = px_response.headers
+        status = str(px_response.status_code) + ' ' + px_response.reason
+        return status, headers, data
 
-        response = self.handle_proxy_response(px_response)
-        return response(environ, start_response)
-
-    def send_reverse_xhr_request(self, config, ctx, start_response, body, environ):
+    def send_reverse_xhr_request(self, config, ctx, body):
         uri = ctx.uri
         if not config.first_party or not config.first_party_xhr_enabled:
             body, content_type = self.return_default_response(uri)
-            px_response = Response(body)
-            px_response.status = '200 OK'
-            px_response.headers = [content_type]
-            return px_response(environ, start_response)
+            return '200 OK', [content_type], body
 
         xhr_path_index = uri.find('/' + px_constants.XHR_FP_PATH)
         suffix_uri = uri[xhr_path_index + 4:]
@@ -97,12 +96,36 @@ class PXProxy(object):
                                  headers=filtered_headers, config=config, method=ctx.http_method)
 
         if px_response.status_code >= 400:
-            body, content_type = self.return_default_response(uri)
+            data, content_type = self.return_default_response(uri)
             self._logger.debug('error reversing the http call ' + px_response.reason)
-            start_response('200 OK', [content_type])
-            return body
-        response = self.handle_proxy_response(px_response)
-        return response(environ, start_response)
+            return '200 OK', [content_type], data
+        data = px_response.raw.read()
+        headers = px_response.headers
+        status = str(px_response.status_code) + ' ' + px_response.reason
+        return status, headers, data
+
+    def send_reverse_captcha_request(self, config, ctx):
+        if not config.first_party:
+            status = '200 OK'
+            headers = [('Content-Type', 'application/javascript')]
+            return status, headers, ''
+        uri = '/{}{}?{}'.format(config.app_id, ctx.uri.lower().replace(self.captcha_reverse_prefix, ''),
+                                ctx.query_params)
+        host = px_constants.CAPTCHA_HOST
+
+        headers = {'host': px_constants.CAPTCHA_HOST,
+                   px_constants.FIRST_PARTY_HEADER: '1',
+                   px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip}
+        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip)
+        filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
+        delete_extra_headers(filtered_headers)
+        self._logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, uri))
+        px_response = px_httpc.send(full_url=host + uri, body='',
+                                 headers=filtered_headers, config=config, method='GET')
+        data = px_response.raw.read()
+        headers = px_response.headers
+        status = str(px_response.status_code) + ' ' + px_response.reason
+        return status, headers, data
 
     def handle_proxy_response(self, px_response):
         headers = []
@@ -122,25 +145,3 @@ class PXProxy(object):
             content_type = tuple('Content-Type', 'application/json')
             body = {}
         return body, content_type
-
-    def send_reverse_captcha_request(self, config, ctx, start_response, environ):
-        if not config.first_party:
-            status = '200 OK'
-            headers = [('Content-Type', 'application/javascript')]
-            start_response(status, headers)
-            return ''
-        uri = '/{}{}?{}'.format(config.app_id, ctx.uri.lower().replace(self.captcha_reverse_prefix, ''),
-                                ctx.query_params)
-        host = px_constants.CAPTCHA_HOST
-
-        headers = {'host': px_constants.CAPTCHA_HOST,
-                   px_constants.FIRST_PARTY_HEADER: '1',
-                   px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip}
-        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip)
-        filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
-        delete_extra_headers(filtered_headers)
-        self._logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, uri))
-        px_response = px_httpc.send(full_url=host + uri, body='',
-                                 headers=filtered_headers, config=config, method='GET')
-        response = self.handle_proxy_response(px_response)
-        return response(environ, start_response)

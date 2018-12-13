@@ -2,7 +2,7 @@ import json
 import px_constants
 
 
-def testing_mode_handling(ctx, config, start_response):
+def testing_mode_handling(ctx, config):
     result = {
         'px_cookies': ctx.px_cookies,
         'vid': ctx.vid,
@@ -13,7 +13,7 @@ def testing_mode_handling(ctx, config, start_response):
         'block_action': ctx.block_action,
         'http_method': ctx.http_method,
         'hostname': ctx.hostname,
-        'headers': ctx.headers,
+        'headers': dict(ctx.headers),
         'user_agent': ctx.user_agent,
         'uri': ctx.uri,
         'is_made_s2s_api_call': True if ctx.s2s_call_reason != 'none' else False,
@@ -26,13 +26,12 @@ def testing_mode_handling(ctx, config, start_response):
         'module_mode': 1 if config.module_mode is px_constants.MODULE_MODE_BLOCKING else 0,
         'score': ctx.score,
         'risk_rtt': ctx.risk_rtt,
-        'uuid': ctx.uuid}
+        'uuid': ctx.uuid
+    }
 
     if ctx.original_uuid:
         result['original_uuid'] = ctx.original_uuid
     if ctx.original_token_error:
         result['original_token_error'] = ctx.original_token_error
 
-    response_headers = [('Content-Type', 'application/json')]
-    start_response('200 OK', response_headers)
-    return json.dumps(result)
+    return '200 OK', [('Content-Type', 'application/json')], json.dumps(result)

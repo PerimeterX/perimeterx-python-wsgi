@@ -16,8 +16,8 @@ class PxCookie(object):
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
-        self.raw_cookie = ''
-        self.hmac = ''
+        self._raw_cookie = ''
+        self._hmac = ''
 
     def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")
@@ -41,7 +41,7 @@ class PxCookie(object):
 
     def decode_cookie(self):
         self._logger.debug("PxCookie[decode_cookie]")
-        return px_enc_utils.decode_cookie(self._raw_cookie)
+        return px_enc_utils.decode_cookie(self._config, self._raw_cookie)
 
         '''
         Password based key derivation function 2 (PKCS #5 v2.0)
@@ -180,4 +180,4 @@ class PxCookie(object):
         return self.decoded_cookie['v']
 
     def get_hmac(self):
-        return self.hmac
+        return self._hmac

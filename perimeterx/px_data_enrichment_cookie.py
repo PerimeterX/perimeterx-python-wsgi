@@ -9,7 +9,7 @@ class PxDataEnrichmentCookie(PxCookie):
         super(PxDataEnrichmentCookie, self).__init__(config)
         self._is_valid = False
         self._payload = {}
-        self.hmac = ''
+        self._hmac = ''
         self._decoded_cookie = ''
 
     def from_raw_cookie(self, raw_cookie):
@@ -17,9 +17,9 @@ class PxDataEnrichmentCookie(PxCookie):
         if len(spliced_cookie) != 2:
             return
 
-        self.hmac = spliced_cookie[0]
-        self.raw_cookie = spliced_cookie[1]
-        self._is_valid = self.is_cookie_valid(self.raw_cookie)
+        self._hmac = spliced_cookie[0]
+        self._raw_cookie = spliced_cookie[1]
+        self._is_valid = self.is_cookie_valid(self._raw_cookie)
 
         self._decoded_cookie = self.decode_cookie()
         try:
