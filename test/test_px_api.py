@@ -6,9 +6,8 @@ import mock
 import uuid
 import json
 
+
 class Test_PXApi(unittest.TestCase):
-
-
 
     def enrich_custom_parameters(self, params):
         params['custom_param1'] = '1'
@@ -18,7 +17,7 @@ class Test_PXApi(unittest.TestCase):
 
     def test_prepare_risk_body(self):
         config = PxConfig({'app_id': 'app_id', 'enrich_custom_parameters': self.enrich_custom_parameters})
-        ctx = PxContext({},config)
+        ctx = PxContext({}, config)
         ctx.s2s_call_reason = 'no_cookie'
         body = px_api.prepare_risk_body(ctx, config)
         self.assertEqual(body['additional'].get('custom_param1'), '1')
@@ -51,7 +50,7 @@ class Test_PXApi(unittest.TestCase):
             self.assertEqual('c', ctx.block_action)
             self.assertTrue(api_response)
 
+
 class ResponseMock(object):
     def __init__(self, dict):
         self.content = json.dumps(dict)
-
