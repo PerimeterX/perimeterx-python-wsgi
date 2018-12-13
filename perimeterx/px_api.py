@@ -33,17 +33,17 @@ def send_risk_request(ctx, config):
         return json.loads(response.content)
     except requests.exceptions.Timeout:
         risk_rtt = time.time() - start
-        config.logger('Risk API timed out, round_trip_time: %s' % risk_rtt)
+        config.logger('Risk API timed out, round_trip_time: {}'.format(risk_rtt))
 
 
 def verify(ctx, config):
     logger = config.logger
-    logger.debug('Evaluating Risk API request, call reason: %s' % ctx.s2s_call_reason)
+    logger.debug('Evaluating Risk API request, call reason: {}'.format(ctx.s2s_call_reason))
     try:
         start = time.time()
         response = send_risk_request(ctx, config)
         risk_rtt = time.time() - start
-        logger.debug('Risk call took %s ms' % risk_rtt)
+        logger.debug('Risk call took {} ms'.format(risk_rtt))
 
         if response:
             ctx.score = response.get('score')
@@ -69,13 +69,13 @@ def verify(ctx, config):
             else:
                 ctx.pass_reason = 's2s'
 
-            msg = 'Risk API response returned successfully, risk score: %s, round_trip_time: %s ms'
-            logger.debug(msg % (ctx.score, risk_rtt))
+            msg = 'Risk API response returned successfully, risk score: {}, round_trip_time: {} ms'
+            logger.debug(msg.format(ctx.score, risk_rtt))
             return True
         else:
             return False
     except Exception as err:
-        logger.error('Risk API request failed. Error: %s' % err)
+        logger.error('Risk API request failed. Error: {}'.format(err))
         return False
 
 

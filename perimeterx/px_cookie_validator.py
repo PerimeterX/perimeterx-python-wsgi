@@ -32,13 +32,7 @@ def verify(ctx, config):
         # Mobile SDK traffic
         if px_cookie and ctx.is_mobile:
             if re.match(mobile_error_pattern, px_cookie.raw_cookie):
-                if px_cookie.raw_cookie == px_constants.MOBILE_SDK_CONNECTION_ERROR_CODE:
-                    logger.debug('Mobile special token - connection error')
-                elif px_cookie.raw_cookie == px_constants.MOBILE_SDK_PINNING_ERROR_CODE:
-                    logger.debug('Mobile special token - pinning error')
-                else:
-                    logger.debug('Mobile special token - unknown error code: %s' % px_cookie.raw_cookie)
-
+                logger.debug('Mobile special token - {}'.format(px_cookie.raw_cookie))
                 ctx.s2s_call_reason = "mobile_error_" + px_cookie.raw_cookie
                 if ctx.original_token is not None:
                     px_original_token_validator.verify(ctx, config)
@@ -47,7 +41,7 @@ def verify(ctx, config):
                 logger.debug('Mobile special token - no token')
 
         if not px_cookie.deserialize():
-            logger.error('Cookie decryption failed, value: %s' % px_cookie.raw_cookie)
+            logger.error('Cookie decryption failed, value: {}'.format(px_cookie.raw_cookie))
             ctx.px_orig_cookie = px_cookie.raw_cookie
             ctx.s2s_call_reason = 'cookie_decryption_failed'
             return False
@@ -61,32 +55,32 @@ def verify(ctx, config):
 
         if px_cookie.is_high_score():
             ctx.block_reason = 'cookie_high_score'
-            logger.debug('Cookie with high score: %s' % ctx.score)
+            logger.debug('Cookie with high score: {}'.format(ctx.score))
             return True
 
         if px_cookie.is_cookie_expired():
             ctx.s2s_call_reason = 'cookie_expired'
-            msg = 'Cookie TTL expired, value: %s, age: %s'
-            logger.debug(msg % (px_cookie.decoded_cookie, px_cookie.get_age()))
+            msg = 'Cookie TTL expired, value: {}, age: {}'
+            logger.debug(msg.format(px_cookie.decoded_cookie, px_cookie.get_age()))
             return False
 
         if not px_cookie.is_secured():
-            msg = 'Cookie HMAC validation failed, value: %s, user-agent: %s'
-            logger.debug(msg % (px_cookie.decoded_cookie, px_cookie.user_agent))
+            msg = 'Cookie HMAC validation failed, value: {}, user-agent: {}'
+            logger.debug(msg.format(px_cookie.decoded_cookie, px_cookie.user_agent))
             ctx.s2s_call_reason = 'cookie_validation_failed'
             return False
 
         if ctx.sensitive_route:
-            logger.debug('Sensitive route match, sending Risk API. path: %s' % ctx.uri)
+            logger.debug('Sensitive route match, sending Risk API. path: {}'.format(ctx.uri))
             ctx.s2s_call_reason = 'sensitive_route'
             return False
 
-        logger.debug('Cookie evaluation ended successfully, risk score: %s' % ctx.score)
+        logger.debug('Cookie evaluation ended successfully, risk score: {}'.format(ctx.score))
         return True
 
     except Exception as err:
         traceback.print_exc()
-        logger.debug('Unexpected exception while evaluating Risk cookie. Error: %s' % err)
+        logger.debug('Unexpected exception while evaluating Risk cookie. Error: {}'.format(err))
         ctx.px_orig_cookie = px_cookie.raw_cookie
         ctx.s2s_call_reason = 'cookie_decryption_failed'
         return False

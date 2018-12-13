@@ -163,7 +163,7 @@ class PxCookie(object):
         if not cookie:
             return False
 
-        logger.debug('Original token deserialized: %s' % cookie)
+        logger.debug('Original token deserialized: {}'.format(cookie))
         self.decoded_cookie = json.loads(cookie)
         return self.is_cookie_format_valid()
 

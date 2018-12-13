@@ -53,7 +53,7 @@ class PerimeterX(object):
                 return px_proxy.handle_reverse_request(self.config, ctx, start_response, body)
 
             if px_utils.is_static_file(ctx):
-                logger.debug('Filter static file request. uri: %s' % uri)
+                logger.debug('Filter static file request. uri: {}'.format(uri))
                 return self.app(environ, start_response)
 
             if not self._config._module_enabled:
@@ -72,7 +72,7 @@ class PerimeterX(object):
 
             return self.handle_verification(ctx, self.config, environ, start_response)
         except Exception as err:
-            logger.error("Caught unexpected exception, passing request. Error: %s" % err)
+            logger.error("Caught unexpected exception, passing request. Error: {}".format(err))
             self.report_pass_traffic(PxContext({}, config))
             return self.app(environ, start_response)
 
