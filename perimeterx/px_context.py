@@ -1,10 +1,9 @@
-import Cookie
 from px_constants import *
 
 
 class PxContext(object):
 
-    def __init__(self, environ, config):
+    def __init__(self, request, config):
 
         logger = config.logger
         headers = {}
@@ -17,39 +16,22 @@ class PxContext(object):
         request_cookie_names = []
         cookie_origin = "cookie"
         vid = ''
-
-        # Extracting: Headers, user agent, http method, http version
-        for key in environ.keys():
-            if key.startswith('HTTP_') and environ.get(key):
-                header_name = key.split('HTTP_')[1].replace('_', '-').lower()
-                if header_name not in config.sensitive_headers:
-                    headers[header_name] = environ.get(key)
-            if key == 'REQUEST_METHOD':
-                http_method = environ.get(key)
-            if key == 'SERVER_PROTOCOL':
-                protocol_split = environ.get(key, '').split('/')
-                if protocol_split[0].startswith('HTTP'):
-                    http_protocol = protocol_split[0].lower() + '://'
-                if len(protocol_split) > 1:
-                    http_version = protocol_split[1]
-            if key == 'CONTENT_TYPE' or key == 'CONTENT_LENGTH':
-                headers[key.replace('_', '-').lower()] = environ.get(key)
-            if key == 'HTTP_' + MOBILE_SDK_HEADER.replace('-', '_').upper():
-                headers[MOBILE_SDK_HEADER] = environ.get(key, '')
+        request_headers = request.headers
+        for header_name, header_value in request_headers:
+            headers[header_name] = header_value
 
         original_token = ''
         mobile_header = headers.get(MOBILE_SDK_HEADER)
         if mobile_header is None:
-            cookies = Cookie.SimpleCookie(environ.get('HTTP_COOKIE', ''))
-            cookie_keys = cookies.keys()
-
-            for key in cookie_keys:
-                request_cookie_names.append(key)
-                if key == PREFIX_PX_COOKIE_V1 or key == PREFIX_PX_COOKIE_V3:
-                    logger.debug('Found cookie prefix:' + key)
-                    px_cookies[key] = cookies.get(key).value
-            if '_pxvid' in cookie_keys:
-                vid = cookies.get('_pxvid').value
+            cookies = request.headers.get('cookies', [])
+            for cookie in cookies:
+                cookie_key, cookie_value = map(lambda x: x.strip(), cookie.split('=', 1))
+                request_cookie_names.append(cookie_key)
+                if cookie_key == PREFIX_PX_COOKIE_V1 or cookie_key == PREFIX_PX_COOKIE_V3:
+                    logger.debug('Found cookie prefix:' + cookie_key)
+                    px_cookies[cookie_key] = cookie_value
+            if '_pxvid' in px_cookies.keys():
+                vid = px_cookies.get('_pxvid')
         else:
             cookie_origin = "header"
             original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
@@ -57,15 +39,15 @@ class PxContext(object):
             cookie_name, cookie = self.get_token_object(config, mobile_header)
             px_cookies[cookie_name] = cookie
 
-        user_agent = headers.get('user-agent', '')
-        uri = environ.get('PATH_INFO') or ''
-        full_url = http_protocol + (headers.get('host') or environ.get('SERVER_NAME') or '') + uri
-        hostname = headers.get('host')
+        user_agent = request.user_agent
+        uri = request.path
+        full_url = request.url
+        hostname = request.host
         sensitive_route = len(
             filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
         whitelist_route = len(
             filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
-        query_params = environ.get('QUERY_STRING') if environ.get('QUERY_STRING') else ''
+        query_params = request.query_string
         self._headers = headers
         self._http_method = http_method
         self._http_version = http_version
@@ -76,7 +58,7 @@ class PxContext(object):
         self._px_cookies = px_cookies
         self._cookie_names = request_cookie_names
         self._risk_rtt = 0
-        self._ip = self.extract_ip(config, environ)
+        self._ip = self.extract_ip(config, request)
         self._vid = vid
         self._uuid = ''
         self._query_params = query_params
@@ -98,8 +80,6 @@ class PxContext(object):
         self._decoded_original_token = ''
         self._original_token = original_token
 
-
-
     def get_token_object(self, config, token):
         logger = config.logger
         sliced_token = token.split(":", 1)
@@ -110,20 +90,20 @@ class PxContext(object):
                 return key, sliced_token[0]
         return PREFIX_PX_TOKEN_V3, token
 
-    def extract_ip(self, config, environ):
-        ip = environ.get('HTTP_X_FORWARDED_FOR') if environ.get('HTTP_X_FORWARDED_FOR') else environ.get('REMOTE_ADDR')
+    def extract_ip(self, config, request):
+        request_headers = request.headers
+        ip = request_headers.get('X-FORWARDED-FOR') if request_headers.get('X-FORWARDED-FOR') else request.remote_addr
         ip_headers = config.ip_headers
         logger = config.logger
         if ip_headers:
             try:
                 for ip_header in ip_headers:
-                    ip_header_name = 'HTTP_' + ip_header.replace('-', '_').upper()
-                    if environ.get(ip_header_name):
-                        return environ.get(ip_header_name)
+                    if request_headers.get(ip_header):
+                        return request_headers.get(ip_header)
             except:
                 logger.debug('Failed to use IP_HEADERS from config')
         if config.get_user_ip:
-            ip = config.get_user_ip(environ)
+            ip = config.get_user_ip
         return ip
 
     @property

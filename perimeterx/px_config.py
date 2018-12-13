@@ -21,7 +21,7 @@ class PxConfig(object):
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 500)
         self._custom_logo = custom_logo
-        self._css_ref = config_dict.get('_custom_logo', '')
+        self._css_ref = config_dict.get('_css', '')
         self._js_ref = config_dict.get('js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
         self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
