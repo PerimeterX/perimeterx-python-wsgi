@@ -49,9 +49,8 @@ class PXProxy(object):
             return ""
 
         client_request_uri = '/{}/main.min.js'.format(config.app_id)
-        self._logger.debug(
-            'Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), px_constants.CLIENT_HOST,
-                                                                  client_request_uri))
+        msg = 'Forwarding request from {} to client at {}{}'
+        self._logger.debug(msg.format(ctx.uri.lower(), px_constants.CLIENT_HOST, client_request_uri))
 
         headers = {'host': px_constants.CLIENT_HOST,
                    px_constants.FIRST_PARTY_HEADER: '1',
@@ -86,14 +85,14 @@ class PXProxy(object):
 
         filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
-        self._logger.debug(
-            'Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, suffix_uri))
+        msg = 'Forwarding request from {} to client at {}{}'
+        self._logger.debug(msg.format(ctx.uri.lower(), host, suffix_uri))
         response = px_httpc.send(full_url=host + suffix_uri, body=body,
                                  headers=filtered_headers, config=config, method=ctx.http_method)
 
         if response.status_code >= 400:
             body, content_type = self.return_default_response(uri)
-            self._logger.debug('error reversing the http call ' + response.reason)
+            self._logger.debug('Error reversing the http call: {}'.format(response.reason))
             start_response('200 OK', [content_type])
             return body
         self.handle_proxy_response(response, start_response)

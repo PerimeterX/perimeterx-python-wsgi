@@ -15,8 +15,9 @@ def send(full_url, body, headers, config, method):
             logger.debug('PerimeterX server call failed')
             return False
 
-        logger.debug('PerimeterX server call took ' + str(time.time() - start) + 'ms')
+        request_time = time.time() - start
+        logger.debug('PerimeterX server call took {} ms'.format(request_time))
         return response
-    except requests.exceptions.RequestException as e:
-        logger.debug('Received RequestException, message: ' + e.message)
-        return False
+    except requests.exceptions.RequestException as err:
+        logger.debug('Received RequestException. Error: {}'.format(err))
+        raise err
