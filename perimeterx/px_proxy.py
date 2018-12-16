@@ -38,13 +38,13 @@ class PXProxy(object):
         uri = ctx.uri.lower()
 
         if uri.startswith(self.client_reverse_prefix):
-            status, headers, data = self.send_reverse_client_request(config=config, ctx=ctx, start_response=start_response, environ=environ)
+            status, headers, data = self.send_reverse_client_request(config=config, ctx=ctx)
         elif uri.startswith(self.xhr_reverse_prefix):
-            status, headers, data = self.send_reverse_xhr_request(config=config, ctx=ctx, start_response=start_response, body=body, environ=environ)
+            status, headers, data = self.send_reverse_xhr_request(config=config, ctx=ctx, body=body)
         elif uri.startswith(self.captcha_reverse_prefix):
-            status, headers, data = self.send_reverse_captcha_request(config=config, ctx=ctx, start_response=start_response, environ=environ)
+            status, headers, data = self.send_reverse_captcha_request(config=config, ctx=ctx)
         px_response = Response(data)
-        px_response.headers = headers
+        px_response.headers = px_response.headers
         px_response.status = status
         return px_response(environ, start_response)
 
@@ -66,7 +66,7 @@ class PXProxy(object):
         delete_extra_headers(filtered_headers)
         px_response = px_httpc.send(full_url=px_constants.CLIENT_HOST + client_request_uri, body='',
                                  headers=filtered_headers, config=config, method='GET')
-        data = px_response.raw.read()
+        data = px_response.content
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + px_response.reason
         return status, headers, data
@@ -99,7 +99,7 @@ class PXProxy(object):
             data, content_type = self.return_default_response(uri)
             self._logger.debug('error reversing the http call ' + px_response.reason)
             return '200 OK', [content_type], data
-        data = px_response.raw.read()
+        data = px_response.content
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + px_response.reason
         return status, headers, data
@@ -122,20 +122,11 @@ class PXProxy(object):
         self._logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, uri))
         px_response = px_httpc.send(full_url=host + uri, body='',
                                  headers=filtered_headers, config=config, method='GET')
-        data = px_response.raw.read()
+        data = px_response.content
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + px_response.reason
         return status, headers, data
 
-    def handle_proxy_response(self, px_response):
-        headers = []
-        for header in px_response.headers:
-            if header.lower() not in hoppish:
-                headers.append((header, px_response.headers[header]))
-        response = Response(px_response.raw.read())
-        response.headers = headers
-        response.status = str(px_response.status_code) + ' ' + px_response.reason
-        return response
 
     def return_default_response(self, uri):
         if 'gif' in uri.lower():

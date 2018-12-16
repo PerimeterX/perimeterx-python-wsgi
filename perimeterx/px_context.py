@@ -2,6 +2,7 @@ from px_constants import *
 from px_data_enrichment_cookie import PxDataEnrichmentCookie
 from requests.structures import CaseInsensitiveDict
 
+
 class PxContext(object):
 
     def __init__(self, request, config):
@@ -18,12 +19,10 @@ class PxContext(object):
         vid = ''
         data_enrichment = PxDataEnrichmentCookie(config)
         request_headers = request.headers
-        for header_name, header_value in request_headers:
-            headers[header_name] = header_value
-
+        headers = generate_context_headers(request_headers, config.sensitive_headers)
         original_token = ''
         mobile_header = headers.get(MOBILE_SDK_HEADER)
-        if mobile_header is None:
+        if not mobile_header:
             cookies = request.cookies
             for cookie_key in cookies:
                 cookie_value = cookies[cookie_key]
@@ -366,3 +365,11 @@ class PxContext(object):
     @data_enrichment.setter
     def data_enrichment(self, data_enrichment):
         self._data_enrichment = data_enrichment
+
+
+def generate_context_headers(request_headers, sensitive_headers):
+    headers = CaseInsensitiveDict()
+    for header_name, header_value in request_headers:
+        if header_name.lower() not in sensitive_headers:
+            headers[header_name] = header_value
+    return headers

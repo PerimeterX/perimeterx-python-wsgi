@@ -2,7 +2,7 @@ import json
 import px_constants
 
 
-def testing_mode_handling(ctx, config):
+def testing_mode_handling(ctx, config, environ):
     result = {
         'px_cookies': ctx.px_cookies,
         'vid': ctx.vid,
@@ -34,4 +34,4 @@ def testing_mode_handling(ctx, config):
     if ctx.original_token_error:
         result['original_token_error'] = ctx.original_token_error
 
-    return '200 OK', [('Content-Type', 'application/json')], json.dumps(result)
+    return json.dumps(result), [('Content-Type', 'application/json')], '200 OK'

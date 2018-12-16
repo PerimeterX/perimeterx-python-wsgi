@@ -63,7 +63,10 @@ class PerimeterX(object):
             return self.handle_verification(ctx, self.config, environ, start_response)
         except Exception as err:
             logger.error("Caught exception, passing request. Exception: %s" % err)
-            self.pass_traffic(PxContext({}, config))
+            if ctx:
+                self.report_pass_traffic(ctx)
+            else:
+                self.report_pass_traffic(PxContext({}, config))
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
@@ -72,7 +75,8 @@ class PerimeterX(object):
         headers = None
         status = None
         if score < config.blocking_score:
-            return self.pass_traffic(ctx, environ, start_response)
+            self.report_pass_traffic(ctx)
+            return self.app(environ, start_response)
         else:
             self.report_block_traffic(ctx)
             if config.additional_activity_handler:
@@ -86,10 +90,8 @@ class PerimeterX(object):
             response.status = status
             return response(environ, start_response)
 
-    def pass_traffic(self, ctx, environ, start_response):
-        if ctx:
-            px_activities_client.send_page_requested_activity(ctx, self.config)
-        return self.app(environ, start_response)
+    def report_pass_traffic(self, ctx):
+        px_activities_client.send_page_requested_activity(ctx, self.config)
 
     def report_block_traffic(self, ctx):
         px_activities_client.send_block_activity(ctx, self.config)
