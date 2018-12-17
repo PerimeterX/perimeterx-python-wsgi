@@ -382,7 +382,7 @@ class PxContext(object):
     def pxde_verified(self):
         return self._pxde_verified
 
-    @pxde.setter
+    @pxde_verified.setter
     def pxde_verified(self, pxde_verified):
         self._pxde_verified = pxde_verified
 
