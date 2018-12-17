@@ -16,17 +16,19 @@ class PerimeterX(object):
         # merging user's defined configurations with the default one
         px_config = PxConfig(config)
         logger = px_config.logger
+
         if not px_config.app_id:
-            logger.error('PX App ID is missing')
+            logger.error('Unable to initialize module, missing mandatory configuration: app_id')
             raise ValueError('PX App ID is missing')
 
         if not px_config.auth_token:
-            logger.error('PX Auth Token is missing')
+            logger.error('Unable to initialize module, missing mandatory configuration: auth_token')
             raise ValueError('PX Auth Token is missing')
 
         if not px_config.cookie_key:
-            logger.error('PX Cookie Key is missing')
+            logger.error('Unable to initialize module, missing mandatory configuration: px_cookie')
             raise ValueError('PX Cookie Key is missing')
+
         self.reverse_proxy_prefix = px_config.app_id[2:].lower()
         self._PXBlocker = px_blocker.PXBlocker()
         self._config = px_config
@@ -39,18 +41,20 @@ class PerimeterX(object):
     def _verify(self, environ, start_response):
         config = self.config
         logger = config.logger
+        logger.debug('Starting request verification')
         request = Request(environ)
         try:
             if not self._config.module_enabled:
-                logger.debug('Module is disabled, request will not be verified')
+                logger.debug('Request will not be verified, module is disabled')
                 return self.app(environ, start_response)
             ctx = PxContext(request, config)
             uri = ctx.uri
             px_proxy = PXProxy(config)
+
             if px_proxy.should_reverse_request(uri):
                 return px_proxy.handle_reverse_request(self.config, ctx, start_response, request.data, environ)
             if px_utils.is_static_file(ctx):
-                logger.debug('Filter static file request. uri: ' + uri)
+                logger.debug('Filter static file request. uri: {}'.format(uri))
                 return self.app(environ, start_response)
             if ctx.whitelist_route:
                 logger.debug('The requested uri is whitelisted, passing request')
@@ -60,9 +64,10 @@ class PerimeterX(object):
                 # Server-to-Server verification fallback
                 if not px_api.verify(ctx, self.config):
                     return self.app(environ, start_response)
+
             return self.handle_verification(ctx, self.config, environ, start_response)
         except Exception as err:
-            logger.error("Caught exception, passing request. Exception: %s" % err)
+            logger.error("Caught exception, passing request. Exception: {}".format(err))
             if ctx:
                 self.report_pass_traffic(ctx)
             else:
@@ -70,14 +75,17 @@ class PerimeterX(object):
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
+        logger = config.logger
         score = ctx.score
         data = None
         headers = None
         status = None
         if score < config.blocking_score:
+            logger.debug('Risk score is lower than blocking score')
             self.report_pass_traffic(ctx)
             return self.app(environ, start_response)
         else:
+            logger.debug('Risk score is higher or equal than blocking score')
             self.report_block_traffic(ctx)
             if config.additional_activity_handler:
                 config.additional_activity_handler(ctx, config)

@@ -83,6 +83,7 @@ class PxContext(object):
         self._decoded_original_token = ''
         self._original_token = original_token
         self._data_enrichment = data_enrichment
+        logger.debug('Request context created successfully')
 
     def get_token_object(self, config, token):
         logger = config.logger
@@ -90,7 +91,7 @@ class PxContext(object):
         if len(sliced_token) > 1:
             key = sliced_token.pop(0)
             if key == PREFIX_PX_TOKEN_V1 or key == PREFIX_PX_TOKEN_V3:
-                logger.debug('Found token prefix:' + key)
+                logger.debug('Found token prefix: {}'.format(key))
                 return key, sliced_token[0]
         return PREFIX_PX_TOKEN_V3, token
 

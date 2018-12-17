@@ -22,22 +22,25 @@ class PxCookie(object):
     def build_px_cookie(self, px_cookies, user_agent=''):
         self._logger.debug("PxCookie[build_px_cookie]")
         if not px_cookies:
+            self._logger.debug('Cookie is missing')
             return None
 
         px_cookie_keys = px_cookies.keys()
         px_cookie_keys.sort(reverse=True)
         for prefix in px_cookie_keys:
             if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
-                self._logger.debug("PxCookie[build_px_cookie] using token v1")
+                self._logger.debug('Cookie/Token V1 found, evaluating..')
                 from px_cookie_v1 import PxCookieV1
                 return PxCookieV1(self._config, px_cookies[prefix])
             if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
-                self._logger.debug("PxCookie[build_px_cookie] using token v3")
+                self._logger.debug('Cookie/Token V3 found, evaluating..')
                 from px_cookie_v3 import PxCookieV3
                 ua = ''
                 if prefix == PREFIX_PX_COOKIE_V3:
                     ua = user_agent
                 return PxCookieV3(self._config, px_cookies[prefix], ua)
+
+        self._logger.debug('Cookie is missing')
 
     def decode_cookie(self):
         self._logger.debug("PxCookie[decode_cookie]")
@@ -107,7 +110,6 @@ class PxCookie(object):
         :return: Returns decrypted value if valid and False if not
         :rtype: Bool|String
         """
-        self._logger.debug("PxCookie[decrypt_cookie]")
         try:
             parts = self._raw_cookie.split(':', 3)
             if len(parts) != 3:
@@ -123,7 +125,7 @@ class PxCookie(object):
             cipher = AES.new(key, AES.MODE_CBC, iv)
             unpad = lambda s: s[0:-ord(s[-1])]
             plaintext = unpad(cipher.decrypt(data))
-            self._logger.debug("PxCookie[decrypt_cookie] cookie decrypted")
+            self._logger.debug('cookie decrypted')
             return plaintext
         except:
             print traceback.format_exception(*sys.exc_info())
@@ -149,12 +151,11 @@ class PxCookie(object):
             calculated_digest = px_enc_utils.create_hmac(str_to_hmac, self._config)
             return self.get_hmac() == calculated_digest
         except Exception as err:
-            self._logger.debug("failed to calculate hmac: %s" % err)
+            self._logger.debug("failed to calculate hmac: {}".format(err))
             return False
 
     def deserialize(self):
         logger = self._logger
-        logger.debug("PxCookie[deserialize]")
         if self._config.encryption_enabled:
             cookie = px_enc_utils.decrypt_cookie(config=self._config, raw_cookie=self._raw_cookie)
         else:
@@ -163,7 +164,7 @@ class PxCookie(object):
         if not cookie:
             return False
 
-        logger.debug("Original token deserialized : " + cookie)
+        logger.debug('Original token deserialized: {}'.format(cookie))
         self.decoded_cookie = json.loads(cookie)
         return self.is_cookie_format_valid()
 
@@ -178,6 +179,9 @@ class PxCookie(object):
 
     def get_vid(self):
         return self.decoded_cookie['v']
+
+    def get_age(self):
+        return int(round(time() * 1000)) - self.decoded_cookie['t']
 
     def get_hmac(self):
         return self._hmac
