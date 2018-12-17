@@ -1,13 +1,14 @@
+from werkzeug.wrappers import Request, Response
+
 import px_activities_client
-import px_cookie_validator
-from px_context import PxContext
-import px_blocker
 import px_api
+import px_blocker
 import px_constants
+import px_cookie_validator
 import px_utils
 from perimeterx.px_proxy import PXProxy
 from px_config import PxConfig
-from werkzeug.wrappers import Request, Response
+from px_context import PxContext
 
 
 class PerimeterX(object):
@@ -80,10 +81,11 @@ class PerimeterX(object):
         data = None
         headers = None
         status = None
+        pass_request = False
         if score < config.blocking_score:
             logger.debug('Risk score is lower than blocking score')
             self.report_pass_traffic(ctx)
-            return self.app(environ, start_response)
+            pass_request = True
         else:
             logger.debug('Risk score is higher or equal than blocking score')
             self.report_block_traffic(ctx)
@@ -91,12 +93,17 @@ class PerimeterX(object):
                 config.additional_activity_handler(ctx, config)
             if config.module_mode == px_constants.MODULE_MODE_BLOCKING:
                 data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
-            if config.custom_request_handler:
-                data, headers, status = config.custom_request_handler(ctx, self.config, environ)
-            response = Response(data)
-            response.headers = headers
-            response.status = status
-            return response(environ, start_response)
+            response_function = generate_blocking_response(data, headers, status)
+
+        if config.custom_request_handler:
+            data, headers, status = config.custom_request_handler(ctx, self.config, environ)
+            response_function = generate_blocking_response(data, headers, status)
+            return response_function(environ, start_response)
+
+        if pass_request:
+            return self.app(environ, start_response)
+        else:
+            return response_function(environ, start_response)
 
     def report_pass_traffic(self, ctx):
         px_activities_client.send_page_requested_activity(ctx, self.config)
@@ -111,3 +118,9 @@ class PerimeterX(object):
     @property
     def px_blocker(self):
         return self._PXBlocker
+
+def generate_blocking_response(data, headers, status):
+    result = Response(data)
+    result.headers = headers
+    result.status = status
+    return result

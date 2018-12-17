@@ -1,11 +1,14 @@
 import unittest
+
 import requests_mock
-from perimeterx.px_proxy import PXProxy
-from perimeterx.px_config import PxConfig
-from perimeterx import px_constants
-from perimeterx.px_context import PxContext
-from werkzeug.wrappers import Request
 from werkzeug.test import EnvironBuilder
+from werkzeug.wrappers import Request
+
+from perimeterx import px_constants
+from perimeterx.px_config import PxConfig
+from perimeterx.px_context import PxContext
+from perimeterx.px_proxy import PXProxy
+
 
 class Test_PXProxy(unittest.TestCase):
 
@@ -25,11 +28,11 @@ class Test_PXProxy(unittest.TestCase):
         context = PxContext(request, self.config)
         px_proxy = PXProxy(self.config)
 
-        should_reverse = px_proxy.should_reverse_request(context.path)
+        should_reverse = px_proxy.should_reverse_request(context.uri)
         self.assertTrue(should_reverse)
-        should_reverse = px_proxy.should_reverse_request(context.path)
+        should_reverse = px_proxy.should_reverse_request(context.uri)
         self.assertTrue(should_reverse)
-        should_reverse = px_proxy.should_reverse_request(context.path)
+        should_reverse = px_proxy.should_reverse_request(context.uri)
         self.assertTrue(should_reverse)
 
     @requests_mock.mock()

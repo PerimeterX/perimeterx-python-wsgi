@@ -1,7 +1,9 @@
 
 import unittest
-from perimeterx.px_cookie import PxCookie
+
 from perimeterx.px_config import PxConfig
+from perimeterx.px_cookie import PxCookie
+
 
 class TestPXCookie(unittest.TestCase):
 
@@ -19,7 +21,7 @@ class TestPXCookie(unittest.TestCase):
 
         px_cookies = {'_px3':'OCIluokZHHvqrWyu8zrWSH8Vu7AefCjrd4CMx/NXsX58LzeV40EZIlPG4gsNMoAYzH88s/GoZwv+DpQa76C21A==:1000:zwT+Rht/YGDNWKkzHtJAB7IiI00u4fOePL/3xWMs1nZ93lzW1XvAMGR2hLlHBmOv8O0CpylEQOZZTK1uQMls6O28Y8aQnTo5DETLkrbhpwCVeNjOcf8GVKTckITwuHfXbEcfHbdtb68s1+jHv1+vt/w/6HZqTzanaIsvFVp8vmA='}
         cookie = self.px_cookie.build_px_cookie(px_cookies=px_cookies, user_agent='')
-        self.assertEqual(cookie.hmac, '')
+        self.assertEqual(cookie._hmac, '')
 
 
     def test_build_token(self):
@@ -30,4 +32,4 @@ class TestPXCookie(unittest.TestCase):
 
         px_cookies = {'3':'OCIluokZHHvqrWyu8zrWSH8Vu7AefCjrd4CMx/NXsX58LzeV40EZIlPG4gsNMoAYzH88s/GoZwv+DpQa76C21A==:1000:zwT+Rht/YGDNWKkzHtJAB7IiI00u4fOePL/3xWMs1nZ93lzW1XvAMGR2hLlHBmOv8O0CpylEQOZZTK1uQMls6O28Y8aQnTo5DETLkrbhpwCVeNjOcf8GVKTckITwuHfXbEcfHbdtb68s1+jHv1+vt/w/6HZqTzanaIsvFVp8vmA='}
         cookie = self.px_cookie.build_px_cookie(px_cookies=px_cookies, user_agent='')
-        self.assertEqual(cookie.hmac, '')
+        self.assertEqual(cookie._hmac, '')

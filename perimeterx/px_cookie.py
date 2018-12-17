@@ -1,14 +1,16 @@
-import json
-from px_constants import *
-from Crypto.Cipher import AES
-from time import time
 import base64
+import binascii
 import hashlib
+import json
+import struct
 import sys
 import traceback
-import binascii
-import struct
+from time import time
+
+from Crypto.Cipher import AES
+
 import px_enc_utils
+from px_constants import *
 
 
 class PxCookie(object):

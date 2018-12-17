@@ -1,6 +1,7 @@
+from requests.structures import CaseInsensitiveDict
+
 from px_constants import *
 from px_data_enrichment_cookie import PxDataEnrichmentCookie
-from requests.structures import CaseInsensitiveDict
 
 
 class PxContext(object):
@@ -8,11 +9,7 @@ class PxContext(object):
     def __init__(self, request, config):
 
         logger = config.logger
-        headers = CaseInsensitiveDict()
-
         # Default values
-        http_method = ''
-        http_version = ''
         px_cookies = {}
         request_cookie_names = []
         cookie_origin = "cookie"
@@ -32,6 +29,8 @@ class PxContext(object):
                     px_cookies[cookie_key] = cookie_value
                 elif cookie_key == PREFIX_PX_DATA_ENRICHMENT:
                     data_enrichment.from_raw_cookie(cookie_value)
+                    self._pxde = data_enrichment.payload
+                    self._pxde_verified = data_enrichment.is_valid
 
             if '_pxvid' in px_cookies.keys():
                 vid = px_cookies.get('_pxvid')
@@ -50,10 +49,15 @@ class PxContext(object):
             filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
         whitelist_route = len(
             filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
-        query_params = request.query_string
+
+        protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
+        if protocol_split[0].startswith('HTTP'):
+            self._http_protocol = protocol_split[0].lower() + '://'
+        if len(protocol_split) > 1:
+            self._http_version = protocol_split[1]
+
         self._headers = headers
-        self._http_method = http_method
-        self._http_version = http_version
+        self._http_method = request.environ.get('REQUEST_METHOD')
         self._user_agent = user_agent
         self._full_url = full_url
         self._uri = uri
@@ -64,7 +68,7 @@ class PxContext(object):
         self._ip = self.extract_ip(config, request)
         self._vid = vid
         self._uuid = ''
-        self._query_params = query_params
+        self._query_params = request.query_string
         self._sensitive_route = sensitive_route
         self._whitelist_route = whitelist_route
         self._s2s_call_reason = 'none'
@@ -82,7 +86,6 @@ class PxContext(object):
         self._original_uuid = ''
         self._decoded_original_token = ''
         self._original_token = original_token
-        self._data_enrichment = data_enrichment
         logger.debug('Request context created successfully')
 
     def get_token_object(self, config, token):
@@ -134,6 +137,14 @@ class PxContext(object):
     @http_version.setter
     def http_version(self, http_version):
         self._http_version = http_version
+
+    @property
+    def http_protocol(self):
+        return self._http_protocol
+
+    @http_protocol.setter
+    def http_protocol(self, http_protocol):
+        self._http_protocol = http_protocol
 
     @property
     def user_agent(self):
@@ -360,12 +371,20 @@ class PxContext(object):
         self._decoded_original_token = decoded_original_token
 
     @property
-    def data_enrichment(self):
-        return self._data_enrichment
+    def pxde(self):
+        return self._pxde
 
-    @data_enrichment.setter
-    def data_enrichment(self, data_enrichment):
-        self._data_enrichment = data_enrichment
+    @pxde.setter
+    def data_enrichment(self, pxde):
+        self._pxde = pxde
+
+    @property
+    def pxde_verified(self):
+        return self._pxde_verified
+
+    @pxde.setter
+    def pxde_verified(self, pxde_verified):
+        self._pxde_verified = pxde_verified
 
 
 def generate_context_headers(request_headers, sensitive_headers):

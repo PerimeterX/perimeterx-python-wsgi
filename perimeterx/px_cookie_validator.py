@@ -1,9 +1,10 @@
 import re
-import px_original_token_validator
 import traceback
-from px_cookie import PxCookie
+
+import px_original_token_validator
 from px_config import PxConfig
 from px_context import PxContext
+from px_cookie import PxCookie
 
 mobile_error_pattern = re.compile("^\d+$")
 
@@ -32,7 +33,7 @@ def verify(ctx, config):
                                                       user_agent=ctx.user_agent)
         # Mobile SDK traffic
         if px_cookie and ctx.is_mobile:
-            if re.match(mobile_error_pattern, px_cookie.raw_cookie):
+            if re.match(mobile_error_pattern, px_cookie._raw_cookie):
                 logger.debug('Mobile special token - {}'.format(px_cookie.raw_cookie))
                 ctx.s2s_call_reason = "mobile_error_" + px_cookie.raw_cookie
                 if ctx.original_token is not None:
@@ -43,8 +44,9 @@ def verify(ctx, config):
                 logger.debug('Mobile special token - no token')
 
         if not px_cookie.deserialize():
-            logger.error('Cookie decryption failed, value: {}'.format(px_cookie.raw_cookie))
-            ctx.px_orig_cookie = px_cookie.raw_cookie
+            cookie = px_cookie._hmac + ":" + px_cookie._raw_cookie
+            logger.error('Cookie decryption failed, value: {}'.format(cookie))
+            ctx.px_orig_cookie = cookie
             ctx.s2s_call_reason = 'cookie_decryption_failed'
             return False
 
@@ -68,7 +70,7 @@ def verify(ctx, config):
 
         if not px_cookie.is_secured():
             msg = 'Cookie HMAC validation failed, value: {}, user-agent: {}'
-            logger.debug(msg.format(px_cookie.decoded_cookie, px_cookie.user_agent))
+            logger.debug(msg.format(px_cookie.decoded_cookie, px_cookie._user_agent))
             ctx.s2s_call_reason = 'cookie_validation_failed'
             return False
 

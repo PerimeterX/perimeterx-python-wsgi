@@ -1,11 +1,11 @@
-import px_httpc
-import time
-import px_constants
 import json
 import re
+import time
+
 import requests
 
-from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
+import px_constants
+import px_httpc
 
 custom_params = {
     'custom_param1': '',
@@ -63,9 +63,8 @@ def verify(ctx, config):
             ctx.uuid = response.get('uuid')
             ctx.block_action = response.get('action')
             ctx.risk_rtt = risk_rtt
-            ctx.data_enrichment = PxDataEnrichmentCookie(config)
-            ctx.data_enrichment.is_valid = True
-            ctx.data_enrichment.payload = response.get('data_enrichment', {})
+            ctx.pxde = response.get('data_enrichment', {})
+            ctx.pxde_verified = True
             if ctx.score >= config.blocking_score:
                 if response.get('action') == px_constants.ACTION_CHALLENGE and \
                         response.get('action_data') is not None and \

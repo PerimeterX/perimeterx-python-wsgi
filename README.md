@@ -179,3 +179,11 @@ config = {
   ...
 }
 ```
+
+#### <a name="pxde"></a>PerimeterX Data Enrichment
+This is a cookie we make available for our costumers, that can provide extra data about the request
+```python
+context.pxde
+context.pxde_verified
+
+```

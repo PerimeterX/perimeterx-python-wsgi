@@ -1,41 +1,48 @@
-from perimeterx.px_blocker import PXBlocker
-
 import os
 import unittest
+
+from werkzeug.test import EnvironBuilder
+from werkzeug.wrappers import Request
+
+from perimeterx.px_blocker import PXBlocker
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
 
 
 class Test_PXBlocker(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.config = PxConfig({'app_id': 'PXfake_app_id'})
+        cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                       'remote-addr': '127.0.0.1',
+                       'content-length': '100'}
+
     def test_is_json_response(self):
         px_blocker = PXBlocker()
-        config = PxConfig({'app_id': 'PXfake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/fake_app_id/init.js',
-                         'HTTP_X_FORWARDED_FOR': '127.0.0.1',
-                         'ip': '127.0.0.1',
-                         'HTTP_ACCEPT': 'text/html'},
-                        config)
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
 
-        self.assertFalse(px_blocker.is_json_response(ctx))
-        ctx.headers['Accept'] = 'application/json'
-        self.assertTrue(px_blocker.is_json_response(ctx))
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, self.config)
+        self.assertFalse(px_blocker.is_json_response(context))
+        context.headers['Accept'] = 'application/json'
+        self.assertTrue(px_blocker.is_json_response(context))
 
     def test_handle_blocking(self):
         px_blocker = PXBlocker()
         vid = 'bf619be8-94be-458a-b6b1-ee81f154c282'
         px_uuid = '8712cef7-bcfa-4bb6-ae99-868025e1908a'
 
-        config = PxConfig({'app_id': 'PXfake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/fake_app_id/init.js',
-                         'HTTP_X_FORWARDED_FOR': '127.0.0.1',
-                         'ip': '127.0.0.1',
-                         'HTTP_ACCEPT': 'text/html'},
-                        config)
-        ctx.vid = vid
-        ctx.uuid = px_uuid
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
+
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, self.config)
+        context.vid = vid
+        context.uuid = px_uuid
         px_config = PxConfig({'app_id': 'PXfake_app_ip'})
-        message, _, _ = px_blocker.handle_blocking(ctx, px_config)
+        message, _, _ = px_blocker.handle_blocking(context, px_config)
         working_dir = os.path.dirname(os.path.realpath(__file__))
         with open(working_dir + '/px_blocking_messages/blocking.txt', 'r') as myfile:
             blocking_message = myfile.read()
@@ -47,15 +54,15 @@ class Test_PXBlocker(unittest.TestCase):
         vid = 'bf619be8-94be-458a-b6b1-ee81f154c282'
         px_uuid = '8712cef7-bcfa-4bb6-ae99-868025e1908a'
         config = PxConfig({'app_id': 'PXfake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/fake_app_id/init.js',
-                         'HTTP_X_FORWARDED_FOR': '127.0.0.1',
-                         'ip': '127.0.0.1',
-                         'HTTP_ACCEPT': 'text/html'},
-                        config)
-        ctx.vid = vid
-        ctx.uuid = px_uuid
-        ctx.block_action = 'r'
-        message, _, _ = px_blocker.handle_blocking(ctx, config)
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
+
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, self.config)
+        context.vid = vid
+        context.uuid = px_uuid
+        context.block_action = 'r'
+        message, _, _ = px_blocker.handle_blocking(context, config)
         blocking_message = None
         working_dir = os.path.dirname(os.path.realpath(__file__))
         with open(working_dir + '/px_blocking_messages/ratelimit.txt', 'r') as myfile:
@@ -66,18 +73,17 @@ class Test_PXBlocker(unittest.TestCase):
         px_blocker = PXBlocker()
         vid = 'bf619be8-94be-458a-b6b1-ee81f154c282'
         px_uuid = '8712cef7-bcfa-4bb6-ae99-868025e1908a'
-        config = PxConfig({'app_id': 'PXfake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/fake_app_id/init.js',
-                         'HTTP_X_FORWARDED_FOR': '127.0.0.1',
-                         'ip': '127.0.0.1',
-                         'HTTP_ACCEPT': 'text/html'},
-                        config)
-        ctx.vid = vid
-        ctx.uuid = px_uuid
-        ctx.block_action = 'j'
-        ctx.block_action_data = 'Bla'
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
 
-        message, _, _ = px_blocker.handle_blocking(ctx, config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, self.config)
+        context.vid = vid
+        context.uuid = px_uuid
+        context.block_action = 'j'
+        context.block_action_data = 'Bla'
+
+        message, _, _ = px_blocker.handle_blocking(context, self.config)
         blocking_message = 'Bla'
         self.assertEqual(message, blocking_message)
 
@@ -85,15 +91,14 @@ class Test_PXBlocker(unittest.TestCase):
         px_blocker = PXBlocker()
         vid = 'bf619be8-94be-458a-b6b1-ee81f154c282'
         px_uuid = '8712cef7-bcfa-4bb6-ae99-868025e1908a'
-        config = PxConfig({'app_id': 'PXfake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/fake_app_id/xhr',
-                         'HTTP_X_FORWARDED_FOR': '127.0.0.1',
-                         'ip': '127.0.0.1',
-                         'HTTP_ACCEPT': 'text/html'},
-                        config)
-        ctx.vid = vid
-        ctx.uuid = px_uuid
-        message = px_blocker.prepare_properties(ctx, config)
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
+
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, self.config)
+        context.vid = vid
+        context.uuid = px_uuid
+        message = px_blocker.prepare_properties(context, self.config)
         expected_message = {'blockScript': '/fake_app_id/captcha/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0',
                             'vid': 'bf619be8-94be-458a-b6b1-ee81f154c282',
                             'jsRef': '',

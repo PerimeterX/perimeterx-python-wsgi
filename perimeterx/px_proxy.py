@@ -1,9 +1,10 @@
+import base64
+
+from werkzeug.wrappers import Response
+
 import px_constants
 import px_httpc
 import px_utils
-import base64
-from werkzeug.wrappers import Response
-
 
 hoppish = {'connection', 'keep-alive', 'proxy-authenticate',
            'proxy-authorization', 'te', 'trailers', 'transfer-encoding',

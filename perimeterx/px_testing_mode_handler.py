@@ -1,4 +1,5 @@
 import json
+
 import px_constants
 
 
@@ -26,7 +27,8 @@ def testing_mode_handling(ctx, config, environ):
         'module_mode': 1 if config.module_mode is px_constants.MODULE_MODE_BLOCKING else 0,
         'score': ctx.score,
         'risk_rtt': ctx.risk_rtt,
-        'uuid': ctx.uuid
+        'uuid': ctx.uuid,
+        'pxde': ctx.pxde,
     }
 
     if ctx.original_uuid:

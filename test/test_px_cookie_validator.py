@@ -1,9 +1,12 @@
-from perimeterx import px_cookie_validator
 import unittest
+
+from werkzeug.test import EnvironBuilder
+from werkzeug.wrappers import Request
+
+from perimeterx import px_cookie_validator
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
-from werkzeug.wrappers import Request
-from werkzeug.test import EnvironBuilder
+
 
 class Test_PXCookieValidator(unittest.TestCase):
 
@@ -40,10 +43,12 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertTrue(verified)
         self.assertEqual('none', ctx.s2s_call_reason)
+        del self.headers['cookie']
 
     def test_verify_decryption_failed(self):
         config = self.config
-        self.headers['cookie'] = '_px3=774958bcc233ea1a876b92ababf47086d8a4d95165bbd6f98b55d7e61afd2a05:ow3Er5dskpt8ZZ11CRiDMAueEi3ozJTqMBnYzsSM7/8vHTDA0so6ekhruiTrXa/taZINotR5PnTo78D5zM2pWw==:1000:uQ3Tdt7D3mSO5CuHDis3GgrnkGMC+XAghbHuNOE9x4H57RAmtxkTcNQ1DaqL8rx79bHl0iPVYlOcRmRgDiBCUoizBdUCjsSIplofPBLIl8WpfHDDtpxPKzz9I2rUEbFgfhFjiTY3rPGob2PUvTsDXTfPUeHnzKqbNTO8z7H6irFnUE='
+        cookie_value = '774958bcc233ea1a876b92ababf47086d8a4d95165bbd6f98b55d7e61afd2a05:ow3Er5dskpt8ZZ11CRiDMAueEi3ozJTqMBnYzsSM7/8vHTDA0so6ekhruiTrXa/taZINotR5PnTo78D5zM2pWw==:1000:uQ3Tdt7D3mSO5CuHDis3GgrnkGMC+XAghbHuNOE9x4H57RAmtxkTcNQ1DaqL8rx79bHl0iPVYlOcRmRgDiBCUoizBdUCjsSIplofPBLIl8WpfHDDtpxPKzz9I2rUEbFgfhFjiTY3rPGob2PUvTsDXTfPUeHnzKqbNTO8z7H6irFnUE='
+        self.headers['cookie'] = '_px3=' + cookie_value
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
@@ -51,6 +56,8 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_decryption_failed', ctx.s2s_call_reason)
+        self.assertEqual(cookie_value, ctx.px_orig_cookie)
+        del self.headers['cookie']
 
     def test_verify_cookie_high_score(self):
         config = self.config
@@ -62,10 +69,12 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertTrue(verified)
         self.assertEqual('none', ctx.s2s_call_reason)
+        del self.headers['cookie']
 
     def test_verify_hmac_validation(self):
         config = self.config
-        self.headers['cookie'] = '_px3=774958bcc232343ea1a876b92ababf47086d8a4d95165bbd6f98b55d7e61afd2a05:ow3Er5dskpt8ZZ11CRiDMAueEi3ozJTqMBnYzsSM7/8vHTDA0so6ekhruiTrXa/taZINotR5PnTo78D5zM2pWw==:1000:uQ3Tdt7D3mSO5CuHDis3GgrnkGMC+XAghbHuNOE9x4H57RAmtxkTcNQ1DaqL8rx79bHl0iPVYlOcRmRgDiBCUoizBdUCjsSIplofPBLIl8WpfHDDtpxPKzz9I2rUEbFFjiTY3rPGob2PUvTsDXTfPUeHnzKqbNTO8z7H6irFnUE='
+        cookie_value = '774958bcc232343ea1a876b92ababf47086d8a4d95165bbd6f98b55d7e61afd2a05:ow3Er5dskpt8ZZ11CRiDMAueEi3ozJTqMBnYzsSM7/8vHTDA0so6ekhruiTrXa/taZINotR5PnTo78D5zM2pWw==:1000:uQ3Tdt7D3mSO5CuHDis3GgrnkGMC+XAghbHuNOE9x4H57RAmtxkTcNQ1DaqL8rx79bHl0iPVYlOcRmRgDiBCUoizBdUCjsSIplofPBLIl8WpfHDDtpxPKzz9I2rUEbFFjiTY3rPGob2PUvTsDXTfPUeHnzKqbNTO8z7H6irFnUE='
+        self.headers['cookie'] = '_px3=' + cookie_value
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
@@ -73,10 +82,13 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_validation_failed', ctx.s2s_call_reason)
+        self.assertEqual('', ctx.px_orig_cookie)
+        del self.headers['cookie']
 
     def test_verify_expired_cookie(self):
         config = self.config
-        self.headers['cookie'] = '_px3=0d67bdf4a58c524b55b9cf0f703e4f0f3cbe23a10bd2671530d3c7e0cfa509eb:HOiYSw11ICB2A+HYx+C+l5Naxcl7hMeEo67QNghCQByyHlhWZT571ZKfqV98JFWg7TvbV9QtlrQtXakPYeIEjQ==:1000:+kuXS/iJUoEqrm8Fo4K0cTebsc4YQZu+f5bRGX0lC1T+l0g1gzRUuKiCtWTar28Y0wjch1ZQvkNy523Pxr07agVi/RL0SUktmEl59qGor+m4FLewZBVdcgx/Ya9kU0riis98AAR0zdTpTtoN5wpNbmztIpOZ0YejeD0Esk3vagU='
+        cookie_value = '0d67bdf4a58c524b55b9cf0f703e4f0f3cbe23a10bd2671530d3c7e0cfa509eb:HOiYSw11ICB2A+HYx+C+l5Naxcl7hMeEo67QNghCQByyHlhWZT571ZKfqV98JFWg7TvbV9QtlrQtXakPYeIEjQ==:1000:+kuXS/iJUoEqrm8Fo4K0cTebsc4YQZu+f5bRGX0lC1T+l0g1gzRUuKiCtWTar28Y0wjch1ZQvkNy523Pxr07agVi/RL0SUktmEl59qGor+m4FLewZBVdcgx/Ya9kU0riis98AAR0zdTpTtoN5wpNbmztIpOZ0YejeD0Esk3vagU='
+        self.headers['cookie'] = '_px3=' + cookie_value
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
@@ -84,6 +96,8 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_expired', ctx.s2s_call_reason)
+        self.assertEqual('', ctx.px_orig_cookie)
+        del self.headers['cookie']
 
 
 
