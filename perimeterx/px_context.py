@@ -375,7 +375,7 @@ class PxContext(object):
         return self._pxde
 
     @pxde.setter
-    def data_enrichment(self, pxde):
+    def pxde(self, pxde):
         self._pxde = pxde
 
     @property

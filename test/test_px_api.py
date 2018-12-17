@@ -72,7 +72,7 @@ class Test_PXApi(unittest.TestCase):
             self.assertEqual('s2s_high_score', context.block_reason)
             self.assertEqual('c', context.block_action)
             self.assertTrue(api_response)
-            self.assertEqual(data_enrichment, context.data_enrichment.payload)
+            self.assertEqual(data_enrichment, context.pxde)
 
 
 
