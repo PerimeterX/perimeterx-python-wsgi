@@ -75,7 +75,7 @@ class Test_PXProxy(unittest.TestCase):
     @requests_mock.mock()
     def test_send_reverse_xhr_request(self, mock):
         content = 'xhr content'
-        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/xhr/api/v1/collector')
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/xhr/api/v1/collector', method='POST')
 
         env = builder.get_environ()
         request = Request(env)

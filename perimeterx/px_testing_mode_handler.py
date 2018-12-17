@@ -9,7 +9,6 @@ def testing_mode_handling(ctx, config, environ):
         'vid': ctx.vid,
         'ip': ctx.ip,
         'full_url': ctx.full_url,
-        'risk_score': ctx.score,
         'px_cookie_hmac': ctx.cookie_hmac,
         'block_action': ctx.block_action,
         'http_method': ctx.http_method,

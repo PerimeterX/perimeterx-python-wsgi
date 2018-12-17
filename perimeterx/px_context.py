@@ -29,8 +29,6 @@ class PxContext(object):
                     px_cookies[cookie_key] = cookie_value
                 elif cookie_key == PREFIX_PX_DATA_ENRICHMENT:
                     data_enrichment.from_raw_cookie(cookie_value)
-                    self._pxde = data_enrichment.payload
-                    self._pxde_verified = data_enrichment.is_valid
 
             if '_pxvid' in px_cookies.keys():
                 vid = px_cookies.get('_pxvid')
@@ -86,6 +84,8 @@ class PxContext(object):
         self._original_uuid = ''
         self._decoded_original_token = ''
         self._original_token = original_token
+        self._pxde = data_enrichment.payload if data_enrichment else ''
+        self._pxde_verified = data_enrichment.is_valid if data_enrichment else False
         logger.debug('Request context created successfully')
 
     def get_token_object(self, config, token):
