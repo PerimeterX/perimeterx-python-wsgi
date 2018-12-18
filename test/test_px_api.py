@@ -67,8 +67,6 @@ class Test_PXApi(unittest.TestCase):
         response = {'score': 100, 'uuid': uuid_val, 'action': 'c', 'data_enrichment': data_enrichment}
         with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
             api_response = px_api.verify(context, config)
-            # self.assertEqual(ctx.pxde, 'fake_de')
-            # self.assertEqual(ctx.pxde_verified, True)
             self.assertEqual('s2s_high_score', context.block_reason)
             self.assertEqual('c', context.block_action)
             self.assertTrue(api_response)

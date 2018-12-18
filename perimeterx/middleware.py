@@ -44,6 +44,7 @@ class PerimeterX(object):
         logger = config.logger
         logger.debug('Starting request verification')
         request = Request(environ)
+        ctx = None
         try:
             if not self._config.module_enabled:
                 logger.debug('Request will not be verified, module is disabled')
