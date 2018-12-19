@@ -101,6 +101,7 @@ class PerimeterX(object):
 
     def handle_verification(self, ctx, config, request):
         logger = config.logger
+        ctx.score = 100
         score = ctx.score
         data = None
         headers = None
