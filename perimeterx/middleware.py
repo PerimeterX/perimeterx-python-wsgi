@@ -118,8 +118,8 @@ class PerimeterX(object):
 
         if config.custom_request_handler:
             data, headers, status = config.custom_request_handler(ctx, self.config, environ)
-            response_function = generate_blocking_response(data, headers, status)
-            return response_function
+            if data and headers and status:
+                return generate_blocking_response(data, headers, status)
 
         if pass_request:
             return True

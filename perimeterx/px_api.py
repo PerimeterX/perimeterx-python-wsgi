@@ -67,7 +67,8 @@ def verify(ctx, config):
             ctx.pxde_verified = True
             if response.get('pxhd'):
                 ctx.pxhd = response.get('pxhd')
-            ctx.vid = response.get('vid', '')
+            if response.get('vid'):
+                ctx.vid = response.get('vid')
             if ctx.score >= config.blocking_score:
                 if response.get('action') == px_constants.ACTION_CHALLENGE and \
                         response.get('action_data') is not None and \
