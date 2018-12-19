@@ -4,6 +4,15 @@ import requests
 
 
 def send(full_url, body, headers, config, method):
+    """
+    Returns the appropriate response parameters according to blocking parameters
+    :param string full_url:
+    :param string body:
+    :param dict headers:
+    :param PxConfig config:
+    :param string method:
+    :return response: requests.response type
+    """
     logger = config.logger
     try:
         start = time.time()

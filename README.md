@@ -161,8 +161,21 @@ A Python function that adds a custom response handler to the request.</br>
 You must declare the function before using it in the config.</br>
 The Custom Request Handler is triggered after PerimeterX's verification.
 The custom function should handle the response (most likely it will create a new response)
+The function should be declared as such:
+
+
 **Default:** Empty
 ```python
+"""
+   Returns data(string), headers(dict) and status(a string that should include '{status_code} {status_reason}' 
+    :param PxContext ctx:
+   :param PxConfig config:
+   :param werkzeug.wrappers.Request request:
+:return (string, dict, string): response string, headers dict, and status string
+"""
+def custom_request_handler_function(ctx, config, request):
+...
+
 config = {
   ...
   custom_request_handler: custom_request_handler_function,

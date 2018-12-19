@@ -45,13 +45,13 @@ class PXProxy(object):
         elif uri.startswith(self.captcha_reverse_prefix):
             status, headers, data = self.send_reverse_captcha_request(config=config, ctx=ctx)
         px_response = Response(data)
-        px_response.headers = px_response.headers
+        px_response.headers = filter_hop_by_hop_headers(headers)
         px_response.status = status
-        return px_response(environ, start_response)
+        return px_response
 
     def send_reverse_client_request(self, config, ctx):
         if not config.first_party:
-            headers = [('Content-Type', 'application/javascript')]
+            headers = {'Content-Type': 'application/javascript'}
             return '200 OK', headers, ''
 
         client_request_uri = '/{}/main.min.js'.format(config.app_id)
@@ -65,8 +65,8 @@ class PXProxy(object):
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         delete_extra_headers(filtered_headers)
         px_response = px_httpc.send(full_url=px_constants.CLIENT_HOST + client_request_uri, body='',
-                                 headers=filtered_headers, config=config, method='GET')
-        data = px_response.content
+                                    headers=filtered_headers, config=config, method='GET')
+        data = px_response.raw.read()
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + px_response.reason
         return status, headers, data
@@ -74,8 +74,8 @@ class PXProxy(object):
     def send_reverse_xhr_request(self, config, ctx, body):
         uri = ctx.uri
         if not config.first_party or not config.first_party_xhr_enabled:
-            body, content_type = self.return_default_response(uri)
-            return '200 OK', [content_type], body
+            body, response_headers = self.return_default_response(uri)
+            return '200 OK', response_headers, body
 
         xhr_path_index = uri.find('/' + px_constants.XHR_FP_PATH)
         suffix_uri = uri[xhr_path_index + 4:]
@@ -93,12 +93,12 @@ class PXProxy(object):
         msg = 'Forwarding request from {} to client at {}{}'
         self._logger.debug(msg.format(ctx.uri.lower(), host, suffix_uri))
         px_response = px_httpc.send(full_url=host + suffix_uri, body=body,
-                                 headers=filtered_headers, config=config, method=ctx.http_method)
+                                    headers=filtered_headers, config=config, method=ctx.http_method)
 
         if px_response.status_code >= 400:
-            data, content_type = self.return_default_response(uri)
+            data, response_headers = self.return_default_response(uri)
             self._logger.debug('Error reversing the http call: {}'.format(px_response.reason))
-            return '200 OK', [content_type], data
+            return '200 OK', response_headers, data
         data = px_response.content
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + px_response.reason
@@ -107,8 +107,8 @@ class PXProxy(object):
     def send_reverse_captcha_request(self, config, ctx):
         if not config.first_party:
             status = '200 OK'
-            headers = [('Content-Type', 'application/javascript')]
-            return status, headers, ''
+            response_headers = {'Content-Type': 'application/javascript'}
+            return status, response_headers, ''
         uri = '/{}{}?{}'.format(config.app_id, ctx.uri.lower().replace(self.captcha_reverse_prefix, ''),
                                 ctx.query_params)
         host = px_constants.CAPTCHA_HOST
@@ -121,18 +121,24 @@ class PXProxy(object):
         delete_extra_headers(filtered_headers)
         self._logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, uri))
         px_response = px_httpc.send(full_url=host + uri, body='',
-                                 headers=filtered_headers, config=config, method='GET')
-        data = px_response.content
+                                    headers=filtered_headers, config=config, method='GET')
+        data = px_response.raw.read()
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + px_response.reason
         return status, headers, data
 
-
     def return_default_response(self, uri):
         if 'gif' in uri.lower():
-            content_type = tuple('Content-Type', 'image/gif')
+            headers = {'Content-Type': 'image/gif'}
             body = base64.b64decode(px_constants.EMPTY_GIF_B64)
         else:
-            content_type = tuple('Content-Type', 'application/json')
+            headers = {'Content-Type': 'application/json'}
             body = {}
-        return body, content_type
+        return body, headers
+
+def filter_hop_by_hop_headers(response_headers):
+    headers = {}
+    for key in response_headers.keys():
+        if key.lower() not in hoppish:
+            headers[key] = response_headers[key]
+    return headers

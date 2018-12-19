@@ -88,5 +88,5 @@ class Test_PXProxy(unittest.TestCase):
         mock.post(url='https://collector-pxfake_app_id.perimeterx.net/api/v1/collector', text=content,
                   request_headers=headers, status_code=200, reason='OK')
         px_proxy = PXProxy(self.config)
-        status, headers, body = px_proxy.send_reverse_xhr_request(config=self.config, ctx=context, body='')
+        status, headers, body = px_proxy.send_reverse_xhr_request(config=self.config, ctx=context, body=content)
         self.assertEqual(content, body)

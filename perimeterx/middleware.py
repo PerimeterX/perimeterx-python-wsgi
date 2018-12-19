@@ -1,3 +1,5 @@
+import time
+
 from werkzeug.wrappers import Request, Response
 
 import px_activities_client
@@ -37,9 +39,24 @@ class PerimeterX(object):
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
-        return self._verify(environ, start_response)
+        try:
+            start = time.time()
+            context, verified_response = self.verify(environ, start_response)
+            self._config.logger.debug("PerimeterX Enforcer took: {} ms".format(time.time() - start))
+            if verified_response is True:
+                return self.app(environ, start_response)
 
-    def _verify(self, environ, start_response):
+            return verified_response(environ, start_response)
+
+        except Exception as err:
+            self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
+            if context:
+                self.report_pass_traffic(context)
+            else:
+                self.report_pass_traffic(PxContext({}, self._config))
+            return self.app(environ, start_response)
+
+    def verify(self, environ, start_response):
         config = self.config
         logger = config.logger
         logger.debug('Starting request verification')
@@ -47,33 +64,37 @@ class PerimeterX(object):
         try:
             if not self._config.module_enabled:
                 logger.debug('Request will not be verified, module is disabled')
-                return self.app(environ, start_response)
+                return True
             ctx = PxContext(request, config)
-            uri = ctx.uri
-            px_proxy = PXProxy(config)
-
-            if px_proxy.should_reverse_request(uri):
-                return px_proxy.handle_reverse_request(self.config, ctx, start_response, request.data, environ)
-            if px_utils.is_static_file(ctx):
-                logger.debug('Filter static file request. uri: {}'.format(uri))
-                return self.app(environ, start_response)
-            if ctx.whitelist_route:
-                logger.debug('The requested uri is whitelisted, passing request')
-                return self.app(environ, start_response)
-            # PX Cookie verification
-            if not px_cookie_validator.verify(ctx, config):
-                # Server-to-Server verification fallback
-                if not px_api.verify(ctx, self.config):
-                    return self.app(environ, start_response)
-
-            return self.handle_verification(ctx, self.config, environ, start_response)
+            return ctx, self.verify_request(ctx, request, environ, start_response)
         except Exception as err:
             logger.error("Caught exception, passing request. Exception: {}".format(err))
             if ctx:
                 self.report_pass_traffic(ctx)
             else:
                 self.report_pass_traffic(PxContext({}, config))
-            return self.app(environ, start_response)
+            return True
+
+    def verify_request(self, ctx, request, environ, start_response):
+        logger = self._config.logger
+        uri = ctx.uri
+        px_proxy = PXProxy(self.config)
+        if px_proxy.should_reverse_request(uri):
+            return px_proxy.handle_reverse_request(self.config, ctx, start_response, request.data, environ)
+        if px_utils.is_static_file(ctx):
+            logger.debug('Filter static file request. uri: {}'.format(uri))
+            return True
+        if ctx.whitelist_route:
+            logger.debug('The requested uri is whitelisted, passing request')
+            return True
+        # PX Cookie verification
+        if not px_cookie_validator.verify(ctx, self.config):
+            # Server-to-Server verification fallback
+            if not px_api.verify(ctx, self.config):
+                return True
+        return self.handle_verification(ctx, self.config, environ, start_response)
+
+
 
     def handle_verification(self, ctx, config, environ, start_response):
         logger = config.logger
@@ -98,12 +119,12 @@ class PerimeterX(object):
         if config.custom_request_handler:
             data, headers, status = config.custom_request_handler(ctx, self.config, environ)
             response_function = generate_blocking_response(data, headers, status)
-            return response_function(environ, start_response)
+            return response_function
 
         if pass_request:
-            return self.app(environ, start_response)
+            return True
         else:
-            return response_function(environ, start_response)
+            return response_function
 
     def report_pass_traffic(self, ctx):
         px_activities_client.send_page_requested_activity(ctx, self.config)
@@ -118,6 +139,7 @@ class PerimeterX(object):
     @property
     def px_blocker(self):
         return self._PXBlocker
+
 
 def generate_blocking_response(data, headers, status):
     result = Response(data)

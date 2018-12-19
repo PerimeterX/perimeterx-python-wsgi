@@ -65,6 +65,9 @@ def verify(ctx, config):
             ctx.risk_rtt = risk_rtt
             ctx.pxde = response.get('data_enrichment', {})
             ctx.pxde_verified = True
+            if response.get('pxhd'):
+                ctx.pxhd = response.get('pxhd')
+            ctx.vid = response.get('vid', '')
             if ctx.score >= config.blocking_score:
                 if response.get('action') == px_constants.ACTION_CHALLENGE and \
                         response.get('action_data') is not None and \
@@ -115,12 +118,16 @@ def prepare_risk_body(ctx, config):
     }
     if ctx.vid:
         body['vid'] = ctx.vid
+        body['vid_source'] = ctx.vid_source
     if ctx.uuid:
         body['uuid'] = ctx.uuid
     if ctx.cookie_hmac:
         body['additional']['px_cookie_hmac'] = ctx.cookie_hmac
     if ctx.cookie_names:
         body['additional']['request_cookie_names'] = ctx.cookie_names
+    if ctx.pxhd:
+        body['pxhd'] = ctx.pxhd
+
 
     body = add_original_token_data(ctx, body)
 
