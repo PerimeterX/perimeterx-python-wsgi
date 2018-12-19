@@ -35,13 +35,16 @@ class PerimeterX(object):
         self.reverse_proxy_prefix = px_config.app_id[2:].lower()
         self._PXBlocker = px_blocker.PXBlocker()
         self._config = px_config
+        self._module_enabled = self._config.module_enabled
         px_activities_client.init_activities_configuration(px_config)
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
         try:
             start = time.time()
-            context, verified_response = self.verify(environ, start_response)
+            context = None
+            request = Request(environ)
+            context, verified_response = self.verify(request)
             self._config.logger.debug("PerimeterX Enforcer took: {} ms".format(time.time() - start))
             if verified_response is True:
                 return self.app(environ, start_response)
@@ -56,18 +59,17 @@ class PerimeterX(object):
                 self.report_pass_traffic(PxContext({}, self._config))
             return self.app(environ, start_response)
 
-    def verify(self, environ, start_response):
+    def verify(self, request):
         config = self.config
         logger = config.logger
         logger.debug('Starting request verification')
-        request = Request(environ)
         ctx = None
         try:
-            if not self._config.module_enabled:
+            if not self._module_enabled:
                 logger.debug('Request will not be verified, module is disabled')
-                return True
+                return ctx, True
             ctx = PxContext(request, config)
-            return ctx, self.verify_request(ctx, request, environ, start_response)
+            return ctx, self.verify_request(ctx, request)
         except Exception as err:
             logger.error("Caught exception, passing request. Exception: {}".format(err))
             if ctx:
@@ -76,12 +78,12 @@ class PerimeterX(object):
                 self.report_pass_traffic(PxContext({}, config))
             return True
 
-    def verify_request(self, ctx, request, environ, start_response):
+    def verify_request(self, ctx, request):
         logger = self._config.logger
         uri = ctx.uri
         px_proxy = PXProxy(self.config)
         if px_proxy.should_reverse_request(uri):
-            return px_proxy.handle_reverse_request(self.config, ctx, start_response, request.data, environ)
+            return px_proxy.handle_reverse_request(self.config, ctx, request.data)
         if px_utils.is_static_file(ctx):
             logger.debug('Filter static file request. uri: {}'.format(uri))
             return True
@@ -93,11 +95,11 @@ class PerimeterX(object):
             # Server-to-Server verification fallback
             if not px_api.verify(ctx, self.config):
                 return True
-        return self.handle_verification(ctx, self.config, environ, start_response)
+        return self.handle_verification(ctx, self.config, request)
 
 
 
-    def handle_verification(self, ctx, config, environ, start_response):
+    def handle_verification(self, ctx, config, request):
         logger = config.logger
         score = ctx.score
         data = None
@@ -118,7 +120,7 @@ class PerimeterX(object):
             response_function = generate_blocking_response(data, headers, status)
 
         if config.custom_request_handler:
-            data, headers, status = config.custom_request_handler(ctx, self.config, environ)
+            data, headers, status = config.custom_request_handler(ctx, self.config, request)
             if data and headers and status:
                 return generate_blocking_response(data, headers, status)
 
@@ -140,6 +142,19 @@ class PerimeterX(object):
     @property
     def px_blocker(self):
         return self._PXBlocker
+
+    def disable_module(self):
+        if not self._module_enabled:
+            self._config.logger.debug("Trying to disable the module, module already disabled")
+        else:
+            self._module_enabled = False
+
+    def enable_module(self):
+        if self._module_enabled:
+            self._config.logger.debug("Trying to enable the module, module already enabled")
+        else:
+            self._module_enabled = True
+
 
 
 def generate_blocking_response(data, headers, status):

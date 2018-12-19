@@ -35,7 +35,7 @@ class PXProxy(object):
             return True
         return False
 
-    def handle_reverse_request(self, config, ctx, start_response, body, environ):
+    def handle_reverse_request(self, config, ctx, body):
         uri = ctx.uri.lower()
 
         if uri.startswith(self.client_reverse_prefix):
