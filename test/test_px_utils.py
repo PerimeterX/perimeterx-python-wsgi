@@ -3,6 +3,8 @@ import unittest
 from perimeterx import px_constants
 from perimeterx.px_context import PxContext
 from perimeterx.px_config import PxConfig
+from werkzeug.wrappers import Request
+from werkzeug.test import EnvironBuilder
 
 class Test_PXUtils(unittest.TestCase):
 
@@ -22,7 +24,19 @@ class Test_PXUtils(unittest.TestCase):
 
     def test_is_static_file(self):
         config = PxConfig({'app_id' : 'fake_app_id'})
-        ctx = PxContext({'PATH_INFO': '/sample.css'}, config)
-        self.assertTrue(px_utils.is_static_file(ctx))
-        ctx = PxContext({'PATH_INFO': '/sample.html'}, config)
-        self.assertFalse(px_utils.is_static_file(ctx))
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100',
+                   'cookie': '_px3=bd078865fa9627f626d6f7d6828ab595028d2c0974065ab6f6c5a9f80c4593cd:OCIluokZHHvqrWyu8zrWSH8Vu7AefCjrd4CMx/NXsX58LzeV40EZIlPG4gsNMoAYzH88s/GoZwv+DpQa76C21A==:1000:zwT+Rht/YGDNWKkzHtJAB7IiI00u4fOePL/3xWMs1nZ93lzW1XvAMGR2hLlHBmOv8O0CpylEQOZZTK1uQMls6O28Y8aQnTo5DETLkrbhpwCVeNjOcf8GVKTckITwuHfXbEcfHbdtb68s1+jHv1+vt/w/6HZqTzanaIsvFVp8vmA='}
+        builder = EnvironBuilder(headers=headers, path='/sample.css')
+
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        self.assertTrue(px_utils.is_static_file(context))
+        builder = EnvironBuilder(headers=headers, path='/sample.html')
+
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        self.assertFalse(px_utils.is_static_file(context))

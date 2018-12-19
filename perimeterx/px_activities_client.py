@@ -52,7 +52,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 
         data = {
             'type': activity_type,
-            'headers': ctx.headers,
+            'headers': dict(ctx.headers),
             'timestamp': int(round(time.time() * 1000)),
             'socket_ip': ctx.ip,
             'px_app_id': config.app_id,

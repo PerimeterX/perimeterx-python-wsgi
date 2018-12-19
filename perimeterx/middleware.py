@@ -1,13 +1,14 @@
+from werkzeug.wrappers import Request, Response
+
 import px_activities_client
-import px_cookie_validator
-import px_testing_mode_handler
-from px_context import PxContext
-import px_blocker
 import px_api
+import px_blocker
 import px_constants
+import px_cookie_validator
 import px_utils
 from perimeterx.px_proxy import PXProxy
 from px_config import PxConfig
+from px_context import PxContext
 
 
 class PerimeterX(object):
@@ -21,7 +22,6 @@ class PerimeterX(object):
             logger.error('Unable to initialize module, missing mandatory configuration: app_id')
             raise ValueError('PX App ID is missing')
 
-        # if APP_ID is not set, use the deafult perimeterx server - else, use the appid specific sapi.
         if not px_config.auth_token:
             logger.error('Unable to initialize module, missing mandatory configuration: auth_token')
             raise ValueError('PX Auth Token is missing')
@@ -43,28 +43,24 @@ class PerimeterX(object):
         config = self.config
         logger = config.logger
         logger.debug('Starting request verification')
+        request = Request(environ)
+        ctx = None
         try:
-            ctx = PxContext(environ, config)
+            if not self._config.module_enabled:
+                logger.debug('Request will not be verified, module is disabled')
+                return self.app(environ, start_response)
+            ctx = PxContext(request, config)
             uri = ctx.uri
             px_proxy = PXProxy(config)
 
             if px_proxy.should_reverse_request(uri):
-                body = environ['wsgi.input'].read(int(environ.get('CONTENT_LENGTH'))) if environ.get(
-                    'CONTENT_LENGTH') else ''
-                return px_proxy.handle_reverse_request(self.config, ctx, start_response, body)
-
+                return px_proxy.handle_reverse_request(self.config, ctx, start_response, request.data, environ)
             if px_utils.is_static_file(ctx):
                 logger.debug('Filter static file request. uri: {}'.format(uri))
                 return self.app(environ, start_response)
-
-            if not self._config._module_enabled:
-                logger.debug('Request will not be verified, module is disabled')
-                return self.app(environ, start_response)
-
             if ctx.whitelist_route:
                 logger.debug('The requested uri is whitelisted, passing request')
                 return self.app(environ, start_response)
-
             # PX Cookie verification
             if not px_cookie_validator.verify(ctx, config):
                 # Server-to-Server verification fallback
@@ -74,42 +70,41 @@ class PerimeterX(object):
             return self.handle_verification(ctx, self.config, environ, start_response)
         except Exception as err:
             logger.error("Caught exception, passing request. Exception: {}".format(err))
-            self.report_pass_traffic(PxContext({}, config))
+            if ctx:
+                self.report_pass_traffic(ctx)
+            else:
+                self.report_pass_traffic(PxContext({}, config))
             return self.app(environ, start_response)
 
     def handle_verification(self, ctx, config, environ, start_response):
         logger = config.logger
         score = ctx.score
-        result = None
+        data = None
         headers = None
         status = None
-        pass_request = True
-
+        pass_request = False
         if score < config.blocking_score:
             logger.debug('Risk score is lower than blocking score')
             self.report_pass_traffic(ctx)
+            pass_request = True
         else:
             logger.debug('Risk score is higher or equal than blocking score')
-            pass_request = False
             self.report_block_traffic(ctx)
-
-        if config.additional_activity_handler:
-            config.additional_activity_handler(ctx, config)
-
-        if config.module_mode == px_constants.MODULE_MODE_BLOCKING and result is None and not pass_request:
-            result, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
+            if config.additional_activity_handler:
+                config.additional_activity_handler(ctx, config)
+            if config.module_mode == px_constants.MODULE_MODE_BLOCKING:
+                data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
+            response_function = generate_blocking_response(data, headers, status)
 
         if config.custom_request_handler:
-            custom_body, custom_headers, custom_status = config.custom_request_handler(ctx, self.config, environ)
-            if custom_body is not None:
-                start_response(custom_status, custom_headers)
-                return custom_body
+            data, headers, status = config.custom_request_handler(ctx, self.config, environ)
+            response_function = generate_blocking_response(data, headers, status)
+            return response_function(environ, start_response)
 
-        if headers is not None:
-            start_response(status, headers)
-            return result
-        else:
+        if pass_request:
             return self.app(environ, start_response)
+        else:
+            return response_function(environ, start_response)
 
     def report_pass_traffic(self, ctx):
         px_activities_client.send_page_requested_activity(ctx, self.config)
@@ -124,3 +119,9 @@ class PerimeterX(object):
     @property
     def px_blocker(self):
         return self._PXBlocker
+
+def generate_blocking_response(data, headers, status):
+    result = Response(data)
+    result.headers = headers
+    result.status = status
+    return result

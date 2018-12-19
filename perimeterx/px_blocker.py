@@ -1,8 +1,10 @@
-import pystache
-import px_template
-import px_constants
-import json
 import base64
+import json
+
+import pystache
+
+import px_constants
+import px_template
 from px_config import PxConfig
 from px_context import PxContext
 

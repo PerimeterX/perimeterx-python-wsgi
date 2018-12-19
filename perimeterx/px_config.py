@@ -1,6 +1,7 @@
 import px_constants
-from px_logger import Logger
 import px_testing_mode_handler
+from px_logger import Logger
+
 
 class PxConfig(object):
     def __init__(self, config_dict):
@@ -18,7 +19,7 @@ class PxConfig(object):
         self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
             app_id.lower())
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
-        self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
+        self._sensitive_headers = map(lambda header: header.lower(), config_dict.get('sensitive_headers', ['cookie', 'cookies']))
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 500)
         self._custom_logo = custom_logo

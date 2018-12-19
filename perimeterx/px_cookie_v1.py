@@ -1,5 +1,4 @@
 from px_cookie import PxCookie
-from px_constants import *
 
 
 class PxCookieV1(PxCookie):
@@ -7,7 +6,7 @@ class PxCookieV1(PxCookie):
     def __init__(self, config, raw_cookie):
         self._config = config
         self._logger = config.logger
-        self.raw_cookie = raw_cookie
+        self._raw_cookie = raw_cookie
 
     def get_score(self):
         return self.decoded_cookie['s']['b']

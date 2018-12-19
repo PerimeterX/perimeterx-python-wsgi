@@ -1,62 +1,62 @@
-import json
-from px_constants import *
-from Crypto.Cipher import AES
-from time import time
 import base64
-import hmac
+import binascii
 import hashlib
+import json
+import struct
 import sys
 import traceback
-import binascii
-import struct
+from time import time
+
+from Crypto.Cipher import AES
+
+import px_enc_utils
+from px_constants import *
 
 
 class PxCookie(object):
+
     def __init__(self, config):
         self._config = config
         self._logger = config.logger
-        self.user_agent = ''
-        self.decoded_cookie = {}
-        self.raw_cookie = ''
-        self.hmac = ''
+        self._raw_cookie = ''
+        self._hmac = ''
 
     def build_px_cookie(self, px_cookies, user_agent=''):
-        self.user_agent = user_agent
-
-        # Check that its not empty
+        self._logger.debug("PxCookie[build_px_cookie]")
         if not px_cookies:
             self._logger.debug('Cookie is missing')
             return None
 
         px_cookie_keys = px_cookies.keys()
         px_cookie_keys.sort(reverse=True)
-        prefix = px_cookie_keys[0]
-
-        if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
-            self._logger.debug('Cookie/Token V1 found, evaluating..')
-            from px_cookie_v1 import PxCookieV1
-            return PxCookieV1(self._config, px_cookies[prefix])
-
-        if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
-            self._logger.debug('Cookie/Token V3 found, evaluating..')
-            from px_cookie_v3 import PxCookieV3
-            ua = ''
-            if prefix == PREFIX_PX_COOKIE_V3:
-                ua = user_agent
-            return PxCookieV3(self._config, px_cookies[prefix], ua)
+        for prefix in px_cookie_keys:
+            if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
+                self._logger.debug('Cookie/Token V1 found, evaluating..')
+                from px_cookie_v1 import PxCookieV1
+                return PxCookieV1(self._config, px_cookies[prefix])
+            if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
+                self._logger.debug('Cookie/Token V3 found, evaluating..')
+                from px_cookie_v3 import PxCookieV3
+                ua = ''
+                if prefix == PREFIX_PX_COOKIE_V3:
+                    ua = user_agent
+                return PxCookieV3(self._config, px_cookies[prefix], ua)
 
         self._logger.debug('Cookie is missing')
 
     def decode_cookie(self):
-        return base64.b64decode(self.raw_cookie)
+        self._logger.debug("PxCookie[decode_cookie]")
+        return px_enc_utils.decode_cookie(self._config, self._raw_cookie)
 
-    def pbkdf2_hmac(self, hash_name, password, salt, iterations, dklen=None):
-        """Password based key derivation function 2 (PKCS #5 v2.0)
+        '''
+        Password based key derivation function 2 (PKCS #5 v2.0)
 
         This Python implementations based on the hmac module about as fast
         as OpenSSL's PKCS5_PBKDF2_HMAC for short passwords and much faster
         for long passwords.
-        """
+        '''
+
+    def pbkdf2_hmac(self, hash_name, password, salt, iterations, dklen=None):
         if not isinstance(hash_name, str):
             raise TypeError(hash_name)
 
@@ -113,7 +113,7 @@ class PxCookie(object):
         :rtype: Bool|String
         """
         try:
-            parts = self.raw_cookie.split(':', 3)
+            parts = self._raw_cookie.split(':', 3)
             if len(parts) != 3:
                 return False
             salt = base64.b64decode(parts[0])
@@ -150,7 +150,7 @@ class PxCookie(object):
         :rtype: Bool
         """
         try:
-            calculated_digest = hmac.new(self._config.cookie_key, str_to_hmac, hashlib.sha256).hexdigest()
+            calculated_digest = px_enc_utils.create_hmac(str_to_hmac, self._config)
             return self.get_hmac() == calculated_digest
         except Exception as err:
             self._logger.debug("failed to calculate hmac: {}".format(err))
@@ -159,9 +159,9 @@ class PxCookie(object):
     def deserialize(self):
         logger = self._logger
         if self._config.encryption_enabled:
-            cookie = self.decrypt_cookie()
+            cookie = px_enc_utils.decrypt_cookie(config=self._config, raw_cookie=self._raw_cookie)
         else:
-            cookie = self.decode_cookie()
+            cookie = px_enc_utils.decode_cookie(config=self._config, raw_cookie=self._raw_cookie)
 
         if not cookie:
             return False
@@ -184,6 +184,6 @@ class PxCookie(object):
 
     def get_age(self):
         return int(round(time() * 1000)) - self.decoded_cookie['t']
-      
+
     def get_hmac(self):
-        return self.hmac
+        return self._hmac
