@@ -1,5 +1,12 @@
 # Change Log
 
+## [v2.1.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-20)
+- Added data enrichment
+- Fixed mobile catpcha release
+- Added an option to programmatically enable and disable the module
+- Fixed performance issues
+- Major refactoring
+
 ## [v2.0.2](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-05)
 - Fixed copying resources to package on pypi.
 

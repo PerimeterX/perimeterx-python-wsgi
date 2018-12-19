@@ -24,6 +24,8 @@ Table of Contents
     * [First-Party Enabled](#first_party_enabled)
     * [Custom Request Handler](#custom_request_handler)
     * [Additional Activity Handler](#additional_activity_handler)
+    * [PerimeterX Data Enrichment](#pxde)
+    * [Dynamic Module Disabling](#dynamic_module_disabling)
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
@@ -198,5 +200,18 @@ This is a cookie we make available for our costumers, that can provide extra dat
 ```python
 context.pxde
 context.pxde_verified
+
+```
+#### <a name="dynamic_module_disabling"></a>Dynamic Module Disabling
+These are methods that allow the developer to enable or disable the module programmatically
+```python
+from perimeterx.middleware import PerimeterX
+
+app = get_wsgi_application()
+config = {...}
+perimeterX = PerimeterX(app, config)
+...
+perimeterX.disable_module()
+perimeterX.enable_module() 
 
 ```
