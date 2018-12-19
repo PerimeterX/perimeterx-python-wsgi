@@ -4,6 +4,7 @@
 - Added data enrichment
 - Fixed mobile catpcha release
 - Added an option to programmatically enable and disable the module
+- Async custom params
 - Fixed performance issues
 - Major refactoring
 
