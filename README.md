@@ -23,6 +23,7 @@ Table of Contents
     * [IP Headers](#ip_headers)
     * [First-Party Enabled](#first_party_enabled)
     * [Custom Request Handler](#custom_request_handler)
+    * [Enrich Custom Parameters](#enrich_custom_parameters)
     * [Additional Activity Handler](#additional_activity_handler)
     * [PerimeterX Data Enrichment](#pxde)
     * [Dynamic Module Disabling](#dynamic_module_disabling)
@@ -215,3 +216,22 @@ perimeterX.disable_module()
 perimeterX.enable_module() 
 
 ```
+#### <a name="enrich_custom_parameters"></a>Enrich Custom Parameters
+A function defined method that receives a dictionary of custom params(10 max) and returns it after
+processing.
+enrich_custom_parameters example method:
+```python
+def enrich_custom_parameters(params):
+    params['custom_param1'] = '1'
+    params['custom_param2'] = '5'
+    params['custom'] = '6'
+    return params
+    
+config = {
+...
+        'enrich_custom_parameters': enrich_custom_parameters
+...
+}
+```
+In this example, the enforcer shall accept the first two parameters, but will ignore the third one.
+Please remain consistent with the custom_param# format
