@@ -7,6 +7,7 @@ import traceback
 
 import px_constants
 import px_httpc
+import px_utils
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -64,6 +65,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
         }
         if (activity_type == 'page_requested' or activity_type == 'block') and ctx.pxhd:
             data['pxhd'] = ctx.pxhd
+            px_utils.prepare_custom_params(config, _details)
 
         ACTIVITIES_BUFFER.append(data)
     except:

@@ -1,10 +1,13 @@
-from perimeterx import px_utils
 import unittest
-from perimeterx import px_constants
-from perimeterx.px_context import PxContext
-from perimeterx.px_config import PxConfig
-from werkzeug.wrappers import Request
+
 from werkzeug.test import EnvironBuilder
+from werkzeug.wrappers import Request
+
+from perimeterx import px_constants
+from perimeterx import px_utils
+from perimeterx.px_config import PxConfig
+from perimeterx.px_context import PxContext
+
 
 class Test_PXUtils(unittest.TestCase):
 
@@ -40,3 +43,18 @@ class Test_PXUtils(unittest.TestCase):
         request = Request(env)
         context = PxContext(request, config)
         self.assertFalse(px_utils.is_static_file(context))
+
+    def enrich_custom_parameters(self, params):
+        params['custom_param1'] = '1'
+        params['custom_param2'] = '5'
+        params['custom'] = '6'
+        return params
+
+    def test_prepare_risk_body(self):
+        config = PxConfig({'app_id': 'app_id', 'enrich_custom_parameters': self.enrich_custom_parameters})
+        additional = {}
+
+        px_utils.prepare_custom_params(config, additional)
+        self.assertEqual(additional.get('custom_param1'), '1')
+        self.assertEqual(additional.get('custom_param2'), '5')
+        self.assertFalse(additional.get('custom'))

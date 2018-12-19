@@ -1,11 +1,11 @@
 import json
-import re
 import time
 
 import requests
 
 import px_constants
 import px_httpc
+import px_utils
 
 custom_params = {
     'custom_param1': '',
@@ -132,11 +132,7 @@ def prepare_risk_body(ctx, config):
 
     body = add_original_token_data(ctx, body)
 
-    if config.enrich_custom_parameters:
-        risk_custom_params = config.enrich_custom_parameters(custom_params)
-        for param in risk_custom_params:
-            if re.match('^custom_param\d$', param) and risk_custom_params[param]:
-                body['additional'][param] = risk_custom_params[param]
+    px_utils.prepare_custom_params(config, body['additional'])
 
     if ctx.s2s_call_reason == 'cookie_decryption_failed':
         logger.debug('attaching orig_cookie to request')
