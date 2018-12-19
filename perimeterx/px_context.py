@@ -20,7 +20,7 @@ class PxContext(object):
         headers = generate_context_headers(request_headers, config.sensitive_headers)
         original_token = ''
         mobile_header = headers.get(MOBILE_SDK_HEADER)
-        if not mobile_header:
+        if mobile_header is None:
             cookies = request.cookies
             for cookie_key in cookies:
                 cookie_value = cookies[cookie_key]
