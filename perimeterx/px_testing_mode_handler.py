@@ -28,6 +28,7 @@ def testing_mode_handling(ctx, config, request):
         'risk_rtt': ctx.risk_rtt,
         'uuid': ctx.uuid,
         'pxde': ctx.pxde,
+        'pxde_verified': ctx.pxde_verified,
     }
 
     if ctx.original_uuid:
