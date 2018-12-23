@@ -3,5 +3,3 @@ requests==2.20.1
 Werkzeug==0.14.1
 pystache==0.5.4
 pycryptodome==3.7.2
-
-
