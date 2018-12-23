@@ -30,8 +30,6 @@ class PxContext(object):
                     px_cookies[cookie_key] = cookie_value
                 elif cookie_key == PREFIX_PX_DATA_ENRICHMENT:
                     data_enrichment.from_raw_cookie(cookie_value)
-                elif cookie_key == PREFIX_PXHD:
-                    pxhd = cookie_value
                 elif cookie_key == PREFIX_PXVID:
                     vid = cookie_value
                     vid_source = 'vid_cookie'
@@ -68,7 +66,6 @@ class PxContext(object):
         self._risk_rtt = 0
         self._ip = self.extract_ip(config, request)
         self._vid = vid
-        self._pxhd = pxhd
         self._vid_source = vid_source
         self._uuid = ''
         self._query_params = request.query_string
@@ -390,14 +387,6 @@ class PxContext(object):
     @pxde_verified.setter
     def pxde_verified(self, pxde_verified):
         self._pxde_verified = pxde_verified
-
-    @property
-    def pxhd(self):
-        return self._pxhd
-
-    @pxhd.setter
-    def pxhd(self, pxhd):
-        self._pxhd = pxhd
 
     @property
     def vid_source(self):
