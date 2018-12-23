@@ -63,7 +63,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'vid': ctx.vid,
             'uuid': ctx.uuid
         }
-        if (activity_type == 'page_requested' or activity_type == 'block') and ctx.pxhd:
+        if activity_type == 'page_requested' or activity_type == 'block':
             px_utils.prepare_custom_params(config, _details)
 
         ACTIVITIES_BUFFER.append(data)

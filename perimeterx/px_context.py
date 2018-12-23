@@ -13,7 +13,6 @@ class PxContext(object):
         request_cookie_names = []
         cookie_origin = "cookie"
         vid = ''
-        pxhd = ''
         vid_source = ''
         data_enrichment = PxDataEnrichmentCookie(config)
         request_headers = request.headers

@@ -3,7 +3,6 @@ PREFIX_PX_COOKIE_V3 = '_px3'
 PREFIX_PX_TOKEN_V1 = '1'
 PREFIX_PX_TOKEN_V3 = '3'
 PREFIX_PX_DATA_ENRICHMENT = '_pxde'
-PREFIX_PXHD = '_pxhd'
 PREFIX_PXVID = '_pxvid'
 MOBILE_SDK_HEADER = "x-px-authorization"
 MOBILE_SDK_ORIGINAL_HEADER = "x-px-original-token"
