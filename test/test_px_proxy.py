@@ -7,7 +7,7 @@ from werkzeug.wrappers import Request
 from perimeterx import px_constants
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
-from perimeterx.px_proxy import PXProxy
+from perimeterx.px_proxy import PxProxy
 
 
 class Test_PXProxy(unittest.TestCase):
@@ -26,7 +26,7 @@ class Test_PXProxy(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, self.config)
-        px_proxy = PXProxy(self.config)
+        px_proxy = PxProxy(self.config)
 
         should_reverse = px_proxy.should_reverse_request(context.uri)
         self.assertTrue(should_reverse)
@@ -49,7 +49,7 @@ class Test_PXProxy(unittest.TestCase):
                    px_constants.FIRST_PARTY_FORWARDED_FOR: '127.0.0.1'}
         mock.get(url='https://client.perimeterx.net/PXfake_app_id/main.min.js', text=content, request_headers=headers,
                  status_code=200, reason='OK')
-        px_proxy = PXProxy(self.config)
+        px_proxy = PxProxy(self.config)
         status, headers, body = px_proxy.send_reverse_client_request(config=self.config, ctx=context)
         self.assertEqual(content, body)
 
@@ -68,7 +68,7 @@ class Test_PXProxy(unittest.TestCase):
         mock.get(
             url='https://captcha.px-cdn.net/PXfake_app_id/captcha.js?a=c&amp;u=cfe74220-f484-11e8-9b14-d7280325a290&amp;v=0701bb80-f482-11e8-8a31-a37cf9620569&amp;m=0',
             text=content, request_headers=headers, status_code=200, reason='OK')
-        px_proxy = PXProxy(self.config)
+        px_proxy = PxProxy(self.config)
         status, headers, body = px_proxy.send_reverse_captcha_request(config=self.config, ctx=context)
         self.assertEqual(content, body)
 
@@ -87,6 +87,6 @@ class Test_PXProxy(unittest.TestCase):
                    px_constants.FIRST_PARTY_FORWARDED_FOR: '127.0.0.1'}
         mock.post(url='https://collector-pxfake_app_id.perimeterx.net/api/v1/collector', text=content,
                   request_headers=headers, status_code=200, reason='OK')
-        px_proxy = PXProxy(self.config)
+        px_proxy = PxProxy(self.config)
         status, headers, body = px_proxy.send_reverse_xhr_request(config=self.config, ctx=context, body=content)
         self.assertEqual(content, body)

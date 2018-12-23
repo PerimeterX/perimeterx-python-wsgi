@@ -19,7 +19,7 @@ def delete_extra_headers(filtered_headers):
         del filtered_headers['content-type']
 
 
-class PXProxy(object):
+class PxProxy(object):
     def __init__(self, config):
         self._logger = config.logger
 

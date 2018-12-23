@@ -123,7 +123,6 @@ def prepare_risk_body(ctx, config):
     if ctx.cookie_names:
         body['additional']['request_cookie_names'] = ctx.cookie_names
 
-
     body = add_original_token_data(ctx, body)
 
     px_utils.prepare_custom_params(config, body['additional'])
