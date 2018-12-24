@@ -31,7 +31,7 @@ def is_static_file(ctx):
     return False
 
 
-custom_param_pattern = re.compile('^custom_param\d$')
+custom_param_pattern = re.compile('(^(custom_param\d|custom_param10)$)')
 
 
 def prepare_custom_params(config, dict_to_add):

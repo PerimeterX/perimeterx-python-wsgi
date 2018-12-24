@@ -46,8 +46,9 @@ class Test_PXUtils(unittest.TestCase):
 
     def enrich_custom_parameters(self, params):
         params['custom_param1'] = '1'
-        params['custom_param2'] = '5'
+        params['custom_param2'] = '2'
         params['custom'] = '6'
+        params['custom_param10'] = '10'
         return params
 
     def test_prepare_risk_body(self):
@@ -56,5 +57,7 @@ class Test_PXUtils(unittest.TestCase):
 
         px_utils.prepare_custom_params(config, additional)
         self.assertEqual(additional.get('custom_param1'), '1')
-        self.assertEqual(additional.get('custom_param2'), '5')
+        self.assertEqual(additional.get('custom_param2'), '2')
+        self.assertEqual(additional.get('custom_param10'), '10')
+        self.assertFalse(additional.get('custom_param11'))
         self.assertFalse(additional.get('custom'))
