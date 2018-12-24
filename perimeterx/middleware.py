@@ -40,7 +40,7 @@ class PerimeterX(object):
             context = None
             request = Request(environ)
             context, verified_response = self.verify(request)
-            self._config.logger.debug("PerimeterX Enforcer took: {} ms".format(time.time() - start) * 1000)
+            self._config.logger.debug("PerimeterX Enforcer took: {} seconds".format((time.time() - start) * 1000))
             if verified_response is True:
                 return self.app(environ, start_response)
 
