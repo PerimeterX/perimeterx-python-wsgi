@@ -24,9 +24,9 @@ def send(full_url, body, headers, config, method):
         if response.status_code >= 400:
             logger.debug('PerimeterX server call failed')
             return False
-
-        request_time = time.time() - start
-        logger.debug('PerimeterX server call took {} seconds'.format(request_time))
+        finish = time.time()
+        request_time = finish - start
+        logger.debug('PerimeterX server call took {} ms'.format(request_time * 1000))
         return response
     except requests.exceptions.RequestException as err:
         logger.debug('Received RequestException. Error: {}'.format(err))
