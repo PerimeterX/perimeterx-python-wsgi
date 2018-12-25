@@ -1,5 +1,11 @@
 # Change Log
 
+## [v2.2.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-25)
+- Added async custom params
+- Added dynamic module enabling/disabling
+- Small performance boost
+- Major refactoring 
+
 ## [v2.1.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-20)
 - Added data enrichment
 - Fixed mobile catpcha release
