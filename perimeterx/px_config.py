@@ -1,4 +1,5 @@
 import px_constants
+import px_testing_mode_handler
 from px_logger import Logger
 
 
@@ -8,6 +9,7 @@ class PxConfig(object):
         debug_mode = config_dict.get('debug_mode', False)
         module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
         custom_logo = config_dict.get('custom_logo', None)
+        testing_mode = config_dict.get('testing_mode', False)
         self._px_app_id = app_id
         self._blocking_score = config_dict.get('blocking_score', 100)
         self._debug_mode = debug_mode
@@ -17,11 +19,11 @@ class PxConfig(object):
         self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
             app_id.lower())
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
-        self._sensitive_headers = config_dict.get('sensitive_headers', ['cookie', 'cookies'])
+        self._sensitive_headers = map(lambda header: header.lower(), config_dict.get('sensitive_headers', ['cookie', 'cookies']))
         self._send_page_activities = config_dict.get('send_page_activities', True)
-        self._api_timeout_ms = config_dict.get('api_timeout', 500)
+        self._api_timeout_ms = config_dict.get('api_timeout', 1000)
         self._custom_logo = custom_logo
-        self._css_ref = config_dict.get('_custom_logo', '')
+        self._css_ref = config_dict.get('css_ref', '')
         self._js_ref = config_dict.get('js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
         self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
@@ -38,11 +40,14 @@ class PxConfig(object):
         self._block_html = 'BLOCK'
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
+        self._testing_mode = testing_mode
 
         self._auth_token = config_dict.get('auth_token', None)
         self._cookie_key = config_dict.get('cookie_key', None)
         self.__instantiate_user_defined_handlers(config_dict)
         self._logger = Logger(debug_mode, app_id)
+        if testing_mode:
+            self._custom_request_handler = px_testing_mode_handler.testing_mode_handling
 
     @property
     def module_mode(self):
@@ -171,6 +176,10 @@ class PxConfig(object):
     @property
     def enrich_custom_parameters(self):
         return self._enrich_custom_parameters
+
+    @property
+    def testing_mode(self):
+        return self._testing_mode
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)

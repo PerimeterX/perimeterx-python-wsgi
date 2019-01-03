@@ -1,10 +1,13 @@
-import time
-import px_httpc
-import threading
-import traceback, sys
-import px_constants
-import socket
 import json
+import socket
+import sys
+import threading
+import time
+import traceback
+
+import px_constants
+import px_httpc
+import px_utils
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -39,7 +42,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
         if activity_type == 'page_requested' and not config.send_page_activities:
             print 'Page activities disabled in config - skipping.'
             return
-
         _details = {
             'http_method': ctx.http_method,
             'http_version': ctx.http_version,
@@ -52,7 +54,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 
         data = {
             'type': activity_type,
-            'headers': ctx.headers,
+            'headers': dict(ctx.headers),
             'timestamp': int(round(time.time() * 1000)),
             'socket_ip': ctx.ip,
             'px_app_id': config.app_id,
@@ -61,6 +63,9 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'vid': ctx.vid,
             'uuid': ctx.uuid
         }
+        if activity_type == 'page_requested' or activity_type == 'block':
+            px_utils.prepare_custom_params(config, _details)
+
         ACTIVITIES_BUFFER.append(data)
     except:
         print traceback.format_exception(*sys.exc_info())

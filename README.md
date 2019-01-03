@@ -4,12 +4,12 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v2.0.2](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v2.2.1](https://pypi.org/project/perimeterx-python-wsgi/)
 Table of Contents
 -----------------
 - [Installation](#installation)
-- [Required Configuration](#required_config)
 - [Upgrading](#upgrading)
+- [Required Configuration](#required_config)
 - [Advanced Blocking Response](#advanced_blocking_response)
 - [Optional Configuration](#configuration)
     * [Module Enabled](#module_enabled)
@@ -24,6 +24,7 @@ Table of Contents
     * [First-Party Enabled](#first_party_enabled)
     * [Custom Request Handler](#custom_request_handler)
     * [Additional Activity Handler](#additional_activity_handler)
+    * [Dynamic Module Disabling](#dynamic_module_disabling)
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
@@ -110,7 +111,7 @@ config = {
 An array of route prefixes that trigger a server call to PerimeterX servers every time the page is viewed, regardless of viewing history.
 **Default:** Empty
 ```python
-const config = {
+config = {
   ...
   sensitive_routes: ['/login', '/user/checkout']
   ...
@@ -150,7 +151,7 @@ config = {
 Enable/disable First-Party mode.
 **Default:** True
 ```python
-const pxConfig = {
+config = {
   ...
   first_party_enabled: False
   ...
@@ -179,3 +180,25 @@ config = {
   ...
 }
 ```
+
+#### <a name="pxde"></a>PerimeterX Data Enrichment
+This is a cookie we make available for our costumers, that can provide extra data about the request
+```python
+context.pxde
+context.pxde_verified
+
+```
+
+#### <a name="dynamic_module_disabling"></a>Dynamic Module Disabling
+These are methods that allow the developer to enable or disable the module programmatically
+```python
+from perimeterx.middleware import PerimeterX
+
+app = get_wsgi_application()
+config = {...}
+perimeterX = PerimeterX(app, config)
+...
+perimeterX.disable_module()
+perimeterX.enable_module() 
+```
+

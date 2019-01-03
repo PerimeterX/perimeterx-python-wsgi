@@ -1,8 +1,11 @@
-import px_httpc
-import time
-import px_constants
 import json
-import re
+import time
+
+import requests
+
+import px_constants
+import px_httpc
+import px_utils
 
 custom_params = {
     'custom_param1': '',
@@ -19,57 +22,80 @@ custom_params = {
 
 
 def send_risk_request(ctx, config):
+    """
+    :param PxContext ctx:
+    :param PxConfig config:
+    :return dict:
+    """
+    start = time.time()
     body = prepare_risk_body(ctx, config)
     default_headers = {
         'Authorization': 'Bearer ' + config.auth_token,
         'Content-Type': 'application/json'
     }
-    response = px_httpc.send(full_url=config.server_host + px_constants.API_RISK, body=json.dumps(body), config=config,
-                             headers=default_headers, method='POST')
-    return json.loads(response.content)
+    try:
+        response = px_httpc.send(full_url=config.server_host + px_constants.API_RISK, body=json.dumps(body),
+                                 config=config,
+                                 headers=default_headers, method='POST')
+        return json.loads(response.content)
+    except requests.exceptions.Timeout:
+        risk_rtt = time.time() - start
+        config.logger('Risk API timed out, round_trip_time: {}'.format(risk_rtt))
 
 
 def verify(ctx, config):
+    """
+    :param PxContext ctx:
+    :param pxConfig config:
+    :return bool: is request verified
+    """
+
     logger = config.logger
-    logger.debug("PXVerify")
+    logger.debug('Evaluating Risk API request, call reason: {}'.format(ctx.s2s_call_reason))
     try:
         start = time.time()
         response = send_risk_request(ctx, config)
         risk_rtt = time.time() - start
-        logger.debug('Risk call took ' + str(risk_rtt) + 'ms')
+        logger.debug('Risk call took {} ms'.format(risk_rtt))
 
         if response:
             ctx.score = response.get('score')
             ctx.uuid = response.get('uuid')
             ctx.block_action = response.get('action')
             ctx.risk_rtt = risk_rtt
+            ctx.pxde = response.get('data_enrichment', {})
+            ctx.pxde_verified = True
             if ctx.score >= config.blocking_score:
-                if response.get('action') == px_constants.ACTION_CHALLENGE and response.get('action_data') is not None and response.get(
-                        'action_data').get('body') is not None:
-                    logger.debug("PXVerify received javascript challenge action")
+                if response.get('action') == px_constants.ACTION_CHALLENGE and \
+                        response.get('action_data') is not None and \
+                        response.get('action_data').get('body') is not None:
+
+                    logger.debug("received javascript challenge action")
                     ctx.block_action_data = response.get('action_data').get('body')
                     ctx.block_reason = 'challenge'
+
                 elif response.get('action') is px_constants.ACTION_RATELIMIT:
-                    logger.debug("PXVerify received javascript ratelimit action")
+                    logger.debug("received javascript ratelimit action")
                     ctx.block_reason = 'exceeded_rate_limit'
+
                 else:
-                    logger.debug("PXVerify block score threshold reached, will initiate blocking")
+                    logger.debug("block score threshold reached, will initiate blocking")
                     ctx.block_reason = 's2s_high_score'
             else:
                 ctx.pass_reason = 's2s'
 
-            logger.debug("PxAPI[verify] S2S completed")
+            msg = 'Risk API response returned successfully, risk score: {}, round_trip_time: {} ms'
+            logger.debug(msg.format(ctx.score, risk_rtt))
             return True
         else:
             return False
-    except:
-        logger.error('couldnt complete server to server verification')
+    except Exception as err:
+        logger.error('Risk API request failed. Error: {}'.format(err))
         return False
 
 
 def prepare_risk_body(ctx, config):
     logger = config.logger
-    logger.debug("PxAPI[send_risk_request]")
     body = {
         'request': {
             'ip': ctx.ip,
@@ -89,6 +115,7 @@ def prepare_risk_body(ctx, config):
     }
     if ctx.vid:
         body['vid'] = ctx.vid
+        body['vid_source'] = ctx.vid_source
     if ctx.uuid:
         body['uuid'] = ctx.uuid
     if ctx.cookie_hmac:
@@ -96,14 +123,9 @@ def prepare_risk_body(ctx, config):
     if ctx.cookie_names:
         body['additional']['request_cookie_names'] = ctx.cookie_names
 
-
     body = add_original_token_data(ctx, body)
 
-    if config.enrich_custom_parameters:
-        risk_custom_params = config.enrich_custom_parameters(custom_params)
-        for param in risk_custom_params:
-            if re.match('^custom_param\d$', param) and risk_custom_params[param]:
-                body['additional'][param] = risk_custom_params[param]
+    px_utils.prepare_custom_params(config, body['additional'])
 
     if ctx.s2s_call_reason == 'cookie_decryption_failed':
         logger.debug('attaching orig_cookie to request')
@@ -113,7 +135,6 @@ def prepare_risk_body(ctx, config):
         logger.debug('attaching px_cookie to request')
         body['additional']['px_cookie'] = ctx.decoded_cookie
 
-    logger.debug("PxAPI[send_risk_request] request body: " + str(body))
     return body
 
 

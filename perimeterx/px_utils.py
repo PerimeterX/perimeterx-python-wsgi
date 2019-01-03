@@ -1,3 +1,5 @@
+import re
+
 import px_constants
 
 
@@ -27,3 +29,27 @@ def is_static_file(ctx):
         if uri.endswith(ext):
             return True
     return False
+
+
+custom_param_pattern = re.compile('(^(custom_param\d|custom_param10)$)')
+
+
+def prepare_custom_params(config, dict_to_add):
+    custom_params = {
+        'custom_param1': '',
+        'custom_param2': '',
+        'custom_param3': '',
+        'custom_param4': '',
+        'custom_param5': '',
+        'custom_param6': '',
+        'custom_param7': '',
+        'custom_param8': '',
+        'custom_param9': '',
+        'custom_param10': ''
+    }
+    if config.enrich_custom_parameters:
+        risk_custom_params = config.enrich_custom_parameters(custom_params)
+        if risk_custom_params:
+            for param in risk_custom_params:
+                if re.match(custom_param_pattern, param) and risk_custom_params[param] is not '' :
+                    dict_to_add[param] = risk_custom_params[param]
