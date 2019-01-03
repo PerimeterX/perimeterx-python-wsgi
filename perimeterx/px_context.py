@@ -7,19 +7,19 @@ from px_data_enrichment_cookie import PxDataEnrichmentCookie
 class PxContext(object):
 
     def __init__(self, request, config):
-
         logger = config.logger
         # Default values
         px_cookies = {}
         request_cookie_names = []
         cookie_origin = "cookie"
         vid = ''
+        vid_source = ''
         data_enrichment = PxDataEnrichmentCookie(config)
         request_headers = request.headers
         headers = generate_context_headers(request_headers, config.sensitive_headers)
         original_token = ''
         mobile_header = headers.get(MOBILE_SDK_HEADER)
-        if not mobile_header:
+        if mobile_header is None:
             cookies = request.cookies
             for cookie_key in cookies:
                 cookie_value = cookies[cookie_key]
@@ -29,9 +29,9 @@ class PxContext(object):
                     px_cookies[cookie_key] = cookie_value
                 elif cookie_key == PREFIX_PX_DATA_ENRICHMENT:
                     data_enrichment.from_raw_cookie(cookie_value)
-
-            if '_pxvid' in px_cookies.keys():
-                vid = px_cookies.get('_pxvid')
+                elif cookie_key == PREFIX_PXVID:
+                    vid = cookie_value
+                    vid_source = 'vid_cookie'
         else:
             cookie_origin = "header"
             original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
@@ -65,6 +65,7 @@ class PxContext(object):
         self._risk_rtt = 0
         self._ip = self.extract_ip(config, request)
         self._vid = vid
+        self._vid_source = vid_source
         self._uuid = ''
         self._query_params = request.query_string
         self._sensitive_route = sensitive_route
@@ -385,6 +386,14 @@ class PxContext(object):
     @pxde_verified.setter
     def pxde_verified(self, pxde_verified):
         self._pxde_verified = pxde_verified
+
+    @property
+    def vid_source(self):
+        return self._pxde_verified
+
+    @vid_source.setter
+    def vid_source(self, vid_source):
+        self._vid_source = vid_source
 
 
 def generate_context_headers(request_headers, sensitive_headers):

@@ -4,6 +4,15 @@ import requests
 
 
 def send(full_url, body, headers, config, method):
+    """
+    Returns the appropriate response parameters according to blocking parameters
+    :param string full_url:
+    :param string body:
+    :param dict headers:
+    :param PxConfig config:
+    :param string method:
+    :return response: requests.response type
+    """
     logger = config.logger
     try:
         start = time.time()
@@ -15,9 +24,9 @@ def send(full_url, body, headers, config, method):
         if response.status_code >= 400:
             logger.debug('PerimeterX server call failed')
             return False
-
-        request_time = time.time() - start
-        logger.debug('PerimeterX server call took {} ms'.format(request_time))
+        finish = time.time()
+        request_time = finish - start
+        logger.debug('PerimeterX server call took {} ms'.format(request_time * 1000))
         return response
     except requests.exceptions.RequestException as err:
         logger.debug('Received RequestException. Error: {}'.format(err))

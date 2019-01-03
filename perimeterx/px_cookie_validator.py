@@ -52,7 +52,9 @@ def verify(ctx, config):
 
         ctx.score = px_cookie.get_score()
         ctx.uuid = px_cookie.get_uuid()
-        ctx.vid = px_cookie.get_vid()
+        if px_cookie.get_vid():
+            ctx.vid = px_cookie.get_vid()
+            ctx.vid_source = 'risk_cookie'
         ctx.decoded_cookie = px_cookie.decoded_cookie
         ctx.cookie_hmac = px_cookie.get_hmac()
         ctx.block_action = px_cookie.get_action()

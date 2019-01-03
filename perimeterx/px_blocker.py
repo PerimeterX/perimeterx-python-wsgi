@@ -32,7 +32,7 @@ class PXBlocker(object):
             content_type = 'application/json'
         else:
             content_type = 'text/html'
-        headers = [('Content-Type', content_type)]
+        headers = {'Content-Type': content_type}
 
         if action is px_constants.ACTION_CHALLENGE:
             logger.debug('Challenge page is served')
