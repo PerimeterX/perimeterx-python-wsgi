@@ -1,6 +1,6 @@
 # Change Log
 
-## [v2.2.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-12-25)
+## [v2.2.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-01-03)
 - Added async custom params
 - Added dynamic module enabling/disabling
 - Small performance boost
