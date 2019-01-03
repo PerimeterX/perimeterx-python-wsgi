@@ -4,12 +4,12 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v2.2.0](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v2.0.2](https://pypi.org/project/perimeterx-python-wsgi/)
 Table of Contents
 -----------------
 - [Installation](#installation)
-- [Required Configuration](#required_config)
 - [Upgrading](#upgrading)
+- [Required Configuration](#required_config)
 - [Advanced Blocking Response](#advanced_blocking_response)
 - [Optional Configuration](#configuration)
     * [Module Enabled](#module_enabled)
@@ -23,10 +23,7 @@ Table of Contents
     * [IP Headers](#ip_headers)
     * [First-Party Enabled](#first_party_enabled)
     * [Custom Request Handler](#custom_request_handler)
-    * [Enrich Custom Parameters](#enrich_custom_parameters)
     * [Additional Activity Handler](#additional_activity_handler)
-    * [PerimeterX Data Enrichment](#pxde)
-    * [Dynamic Module Disabling](#dynamic_module_disabling)
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
@@ -164,21 +161,8 @@ A Python function that adds a custom response handler to the request.</br>
 You must declare the function before using it in the config.</br>
 The Custom Request Handler is triggered after PerimeterX's verification.
 The custom function should handle the response (most likely it will create a new response)
-The function should be declared as such:
-
-
 **Default:** Empty
 ```python
-"""
-   Returns data(string), headers(dict) and status(a string that should include '{status_code} {status_reason}' 
-    :param PxContext ctx:
-   :param PxConfig config:
-   :param werkzeug.wrappers.Request request:
-:return (string, dict, string): response string, headers dict, and status string
-"""
-def custom_request_handler_function(ctx, config, request):
-...
-
 config = {
   ...
   custom_request_handler: custom_request_handler_function,
@@ -203,35 +187,3 @@ context.pxde
 context.pxde_verified
 
 ```
-#### <a name="dynamic_module_disabling"></a>Dynamic Module Disabling
-These are methods that allow the developer to enable or disable the module programmatically
-```python
-from perimeterx.middleware import PerimeterX
-
-app = get_wsgi_application()
-config = {...}
-perimeterX = PerimeterX(app, config)
-...
-perimeterX.disable_module()
-perimeterX.enable_module() 
-
-```
-#### <a name="enrich_custom_parameters"></a>Enrich Custom Parameters
-A function defined method that receives a dictionary of custom params(10 max) and returns it after
-processing.
-enrich_custom_parameters example method:
-```python
-def enrich_custom_parameters(params):
-    params['custom_param1'] = '1'
-    params['custom_param2'] = '5'
-    params['custom'] = '6'
-    return params
-    
-config = {
-...
-        'enrich_custom_parameters': enrich_custom_parameters
-...
-}
-```
-In this example, the enforcer shall accept the first two parameters, but will ignore the third one.
-Please remain consistent with the custom_param# format
