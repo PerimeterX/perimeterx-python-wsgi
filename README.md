@@ -8,8 +8,8 @@
 Table of Contents
 -----------------
 - [Installation](#installation)
-- [Required Configuration](#required_config)
 - [Upgrading](#upgrading)
+- [Required Configuration](#required_config)
 - [Advanced Blocking Response](#advanced_blocking_response)
 - [Optional Configuration](#configuration)
     * [Module Enabled](#module_enabled)
