@@ -1,6 +1,9 @@
 # Change Log
+## [v2.3.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-01-09)
+- Added disabling of the request validation by property
+- Minor bug fix
 
-## [v2.2.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2018-01-03)
+## [v2.2.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-01-03)
 - Added async custom params
 - Added dynamic module enabling/disabling
 - Small performance boost
