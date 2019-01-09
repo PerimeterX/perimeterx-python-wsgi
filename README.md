@@ -195,7 +195,7 @@ This is a property that allows the developer to disable the module for a single 
 
 
 ...
-environ['px_disable_request'] = False #The request shall be be passed to the enforcer.
+environ['px_disable_request'] = False #The request shall be passed to the enforcer.
 or
 environ['px_disable_request'] = True #The enforcer shall be disabled for that request.
 
