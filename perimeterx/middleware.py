@@ -29,7 +29,6 @@ class PerimeterX(object):
 
         self.reverse_proxy_prefix = px_config.app_id[2:].lower()
         self._config = px_config
-        self._module_enabled = self._config.module_enabled
         self._request_verifier = PxRequestVerifier(px_config)
         px_activities_client.init_activities_configuration(px_config)
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
@@ -38,6 +37,10 @@ class PerimeterX(object):
         try:
             start = time.time()
             context = None
+
+            if environ.get('px_disable_request'):
+                return self.app(environ, start_response)
+
             request = Request(environ)
             context, verified_response = self.verify(request)
             self._config.logger.debug("PerimeterX Enforcer took: {} ms".format((time.time() - start) * 1000))
@@ -60,7 +63,7 @@ class PerimeterX(object):
         logger.debug('Starting request verification')
         ctx = None
         try:
-            if not self._module_enabled:
+            if not config._module_enabled:
                 logger.debug('Request will not be verified, module is disabled')
                 return ctx, True
             ctx = PxContext(request, config)
@@ -84,16 +87,6 @@ class PerimeterX(object):
     def config(self):
         return self._config
 
-    def disable_module(self):
-        if not self._module_enabled:
-            self._config.logger.debug("Trying to disable the module, module already disabled")
-        else:
-            self._module_enabled = False
 
-    def enable_module(self):
-        if self._module_enabled:
-            self._config.logger.debug("Trying to enable the module, module already enabled")
-        else:
-            self._module_enabled = True
 
 

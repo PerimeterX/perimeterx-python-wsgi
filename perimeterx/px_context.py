@@ -15,7 +15,10 @@ class PxContext(object):
         vid = ''
         vid_source = ''
         data_enrichment = PxDataEnrichmentCookie(config)
-        request_headers = request.headers
+        if not hasattr(request, 'headers'):
+            request_headers = {}
+        else:
+            request_headers = request.headers
         headers = generate_context_headers(request_headers, config.sensitive_headers)
         original_token = ''
         mobile_header = headers.get(MOBILE_SDK_HEADER)
