@@ -4,7 +4,7 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v2.2.1](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v2.3.0](https://pypi.org/project/perimeterx-python-wsgi/)
 Table of Contents
 -----------------
 - [Installation](#installation)
@@ -24,7 +24,7 @@ Table of Contents
     * [First-Party Enabled](#first_party_enabled)
     * [Custom Request Handler](#custom_request_handler)
     * [Additional Activity Handler](#additional_activity_handler)
-    * [Dynamic Module Disabling](#dynamic_module_disabling)
+    * [Px Disable Request](#px_disable_request)
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
@@ -189,16 +189,15 @@ context.pxde_verified
 
 ```
 
-#### <a name="dynamic_module_disabling"></a>Dynamic Module Disabling
-These are methods that allow the developer to enable or disable the module programmatically
+#### <a name="px_disable_request"></a>Px Disable Request
+This is a property that allows the developer to disable the module for a single request. Its value should be True for disabling, and False for enabling
 ```python
-from perimeterx.middleware import PerimeterX
 
-app = get_wsgi_application()
-config = {...}
-perimeterX = PerimeterX(app, config)
+
 ...
-perimeterX.disable_module()
-perimeterX.enable_module() 
+environ['px_disable_request'] = False #The request shall be passed to the enforcer.
+or
+environ['px_disable_request'] = True #The enforcer shall be disabled for that request.
+
 ```
 

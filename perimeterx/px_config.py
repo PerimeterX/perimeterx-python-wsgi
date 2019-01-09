@@ -41,7 +41,6 @@ class PxConfig(object):
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
         self._testing_mode = testing_mode
-
         self._auth_token = config_dict.get('auth_token', None)
         self._cookie_key = config_dict.get('cookie_key', None)
         self.__instantiate_user_defined_handlers(config_dict)
