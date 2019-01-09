@@ -24,7 +24,7 @@ Table of Contents
     * [First-Party Enabled](#first_party_enabled)
     * [Custom Request Handler](#custom_request_handler)
     * [Additional Activity Handler](#additional_activity_handler)
-    * [Custom Disabling Parameter](#Dynamic Module Disabling)
+    * [Px Disable Request](#px_disable_request)
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
