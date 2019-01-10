@@ -92,7 +92,7 @@ class PxProxy(object):
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         msg = 'Forwarding request from {} to client at {}{}'
         self._logger.debug(msg.format(ctx.uri.lower(), host, suffix_uri))
-        px_response = px_httpc.send(full_url=host + suffix_uri, body=body,
+        px_response = px_httpc.send(full_url=host + suffix_uri + "?" + ctx.query_params, body=body,
                                     headers=filtered_headers, config=config, method=ctx.http_method)
 
         if px_response.status_code >= 400:
