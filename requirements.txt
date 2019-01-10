@@ -1,5 +1,5 @@
 setuptools==40.6.2
-requests==2.20.1
+requests>=2.18.4,<=2.20.1
 Werkzeug==0.14.1
-pystache==0.5.4
+pystache>=0.5.1,<=0.5.4
 pycryptodome==3.7.2
