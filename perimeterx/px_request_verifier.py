@@ -20,7 +20,7 @@ class PxRequestVerifier(object):
         uri = ctx.uri
         px_proxy = PxProxy(self.config)
         if px_proxy.should_reverse_request(uri):
-            return px_proxy.handle_reverse_request(self.config, ctx, request.data)
+            return px_proxy.handle_reverse_request(self.config, ctx, request.get_data())
         if px_utils.is_static_file(ctx):
             self.logger.debug('Filter static file request. uri: {}'.format(uri))
             return True
