@@ -1,4 +1,7 @@
 # Change Log
+## [v2.3.2](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-01-13)
+- Changed requirements setting
+
 ## [v2.3.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-01-10)
 - Changed requirements setting
 
