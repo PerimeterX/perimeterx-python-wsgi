@@ -31,7 +31,8 @@ def send_activities():
     while True:
         if len(ACTIVITIES_BUFFER) > 0:
             chunk = ACTIVITIES_BUFFER[:10]
-            ACTIVITIES_BUFFER = ACTIVITIES_BUFFER[10:]
+            for _ in range(len(chunk)):
+                ACTIVITIES_BUFFER.pop(0)
             px_httpc.send(full_url=full_url, body=json.dumps(chunk), headers=default_headers, config=CONFIG,
                           method='POST')
         time.sleep(1)
