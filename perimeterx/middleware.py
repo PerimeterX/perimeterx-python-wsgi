@@ -54,7 +54,7 @@ class PerimeterX(object):
             if context:
                 self.report_pass_traffic(context)
             else:
-                self.report_pass_traffic(PxContext({}, self._config))
+                self.report_pass_traffic(PxContext(Request({}), self._config))
             return self.app(environ, start_response)
 
     def verify(self, request):
