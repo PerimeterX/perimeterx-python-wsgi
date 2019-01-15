@@ -7,6 +7,8 @@ from px_config import PxConfig
 from px_context import PxContext
 from px_request_verifier import PxRequestVerifier
 
+import traceback
+
 
 class PerimeterX(object):
     def __init__(self, app, config=None):
@@ -34,14 +36,13 @@ class PerimeterX(object):
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
+        context = None
+        request = Request(environ)
         try:
             start = time.time()
-            context = None
-
             if environ.get('px_disable_request'):
                 return self.app(environ, start_response)
 
-            request = Request(environ)
             context, verified_response = self.verify(request)
             self._config.logger.debug("PerimeterX Enforcer took: {} ms".format((time.time() - start) * 1000))
             if verified_response is True:
@@ -50,11 +51,11 @@ class PerimeterX(object):
             return verified_response(environ, start_response)
 
         except Exception as err:
+            traceback.print_exc()
             self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
-            if context:
-                self.report_pass_traffic(context)
-            else:
-                self.report_pass_traffic(PxContext({}, self._config))
+            if not context:
+                context = PxContext(request, self._config)
+            self.report_pass_traffic(context)
             return self.app(environ, start_response)
 
     def verify(self, request):
@@ -69,13 +70,12 @@ class PerimeterX(object):
             ctx = PxContext(request, config)
             return ctx, self._request_verifier.verify_request(ctx, request)
         except Exception as err:
+            traceback.print_exc()
             logger.error("Caught exception, passing request. Exception: {}".format(err))
-            if ctx:
-                self.report_pass_traffic(ctx)
-            else:
-                self.report_pass_traffic(PxContext({}, config))
-            return True
-
+            if not ctx:
+                ctx = PxContext(request, config)
+            self.report_pass_traffic(ctx)
+            return ctx, True
 
     def report_pass_traffic(self, ctx):
         px_activities_client.send_page_requested_activity(ctx, self.config)
@@ -86,7 +86,3 @@ class PerimeterX(object):
     @property
     def config(self):
         return self._config
-
-
-
-

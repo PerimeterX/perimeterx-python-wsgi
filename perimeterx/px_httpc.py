@@ -1,6 +1,10 @@
 import time
 
 import requests
+from requests_toolbelt.adapters import appengine as requests_toolbelt_appengine
+
+# Monkey patch for using requests in app engine
+requests_toolbelt_appengine.monkeypatch()
 
 
 def send(full_url, body, headers, config, method):

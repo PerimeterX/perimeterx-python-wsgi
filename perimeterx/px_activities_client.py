@@ -1,7 +1,7 @@
 import json
 import socket
 import sys
-import threading
+from google.appengine.api import background_thread
 import time
 import traceback
 
@@ -16,9 +16,10 @@ CONFIG = {}
 def init_activities_configuration(config):
     global CONFIG
     CONFIG = config
-    t1 = threading.Thread(target=send_activities)
-    t1.daemon = True
-    t1.start()
+    # TODO: background_thread should be used, and cannot be more than a few seconds
+    # t1 = background_thread.BackgroundThread(target=send_activities)
+    # t1.daemon = True
+    # t1.start()
 
 
 def send_activities():

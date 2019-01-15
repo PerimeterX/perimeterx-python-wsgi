@@ -68,7 +68,7 @@ class PxProxy(object):
                                     headers=filtered_headers, config=config, method='GET')
         data = px_response.raw.read()
         headers = px_response.headers
-        status = str(px_response.status_code) + ' ' + px_response.reason
+        status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
 
     def send_reverse_xhr_request(self, config, ctx, body):
@@ -101,7 +101,7 @@ class PxProxy(object):
             return '200 OK', response_headers, data
         data = px_response.content
         headers = px_response.headers
-        status = str(px_response.status_code) + ' ' + px_response.reason
+        status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
 
     def send_reverse_captcha_request(self, config, ctx):
@@ -124,7 +124,7 @@ class PxProxy(object):
                                     headers=filtered_headers, config=config, method='GET')
         data = px_response.raw.read()
         headers = px_response.headers
-        status = str(px_response.status_code) + ' ' + px_response.reason
+        status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
 
     def return_default_response(self, uri):
@@ -135,6 +135,7 @@ class PxProxy(object):
             headers = {'Content-Type': 'application/json'}
             body = {}
         return body, headers
+
 
 def filter_hop_by_hop_headers(response_headers):
     headers = {}
