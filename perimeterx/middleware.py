@@ -94,7 +94,7 @@ def create_custom_pxhd_callback(context, start_response):
         if context.pxhd:
             pxhd_cookie = SimpleCookie()
             pxhd_cookie['_pxhd'] = ""
-            pxhd_cookie['_pxhd']['expires'] = 12 * 30 * 24 * 60 * 60
+            pxhd_cookie['_pxhd']['expires'] = 365 * 24 * 60 * 60
             headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}".format(context.pxhd, pxhd_cookie['_pxhd']['expires'])))
         return start_response(status, headers, exc_info)
     return custom_start_response
