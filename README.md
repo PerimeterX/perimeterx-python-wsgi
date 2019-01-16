@@ -25,12 +25,18 @@ Table of Contents
     * [Custom Request Handler](#custom_request_handler)
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
+
 ## <a name="installation"></a> Installation
 PerimeterX Python middleware is installed via PIP:
 `$ pip install perimeterx-python-wsgi`
 
 ## <a name="upgrading"></a> Upgrading
-Contact [PerimeterX Support](mailto: support@perimeterx.com) for details.
+To upgrade to the latest PerimeterX Enforcer version, run:
+
+`pip install perimeterx-python-wsgi`
+
+For more information, contact [PerimeterX Support](support@perimeterx.com).
+
 ## <a name="required_config"></a> Required Configurations
 To use PerimeterX middleware on a specific route follow this example:
 
