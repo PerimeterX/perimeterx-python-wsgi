@@ -99,6 +99,19 @@ class Test_PXCookieValidator(unittest.TestCase):
         self.assertEqual('', ctx.px_cookie_raw)
         del self.headers['cookie']
 
+    def test_cookie_decryption_failed_px_cookie_raw(self):
+        config = self.config
+        false_cookie = '_px3=774958bcc233ea1a876b92ababf47086d8a4d95165bbd6f98b55d7e61afd2a05:ow3Er5dskpt8ZZ11CRiDMAueEi3ozJTqMBnYzsSM7/8vHTDA0so6ekhruiTrXa/taZINotR5PnTo78D5zM2pWw==:1000:uQ3Tdt7D3mSO5CuHDis3GgrnkGMC+XAghbHuNOE9x4H57RAmtxkTcNQ1DaqL8rx79bHl0iPVYlOcRmRgDiBCUoizBdUCjsSIplofPBLIl8WpfHDDtpxPKzz9I2rUEbFgfhFjiTY3rPGob2PUvTsDXTfPUeHnzKqbNTO8z7H6irFnUE='
+        self.headers['cookie'] = false_cookie
+        builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
+        env = builder.get_environ()
+        request = Request(env)
+        ctx = PxContext(request, config)
+        verified = px_cookie_validator.verify(ctx, config)
+        self.assertEqual(ctx.px_cookie_raw, false_cookie)
+        del self.headers['cookie']
+
+
 
 
 

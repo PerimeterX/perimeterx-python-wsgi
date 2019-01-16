@@ -128,7 +128,7 @@ def prepare_risk_body(ctx, config):
     if ctx.cookie_names:
         body['additional']['request_cookie_names'] = ctx.cookie_names
     if ctx.pxhd:
-        body['pxhd']
+        body['pxhd'] = ctx.pxhd
 
     body = add_original_token_data(ctx, body)
 
