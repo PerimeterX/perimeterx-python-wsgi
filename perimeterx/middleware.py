@@ -1,4 +1,5 @@
 import time
+from Cookie import SimpleCookie
 
 from werkzeug.wrappers import Request
 
@@ -43,11 +44,12 @@ class PerimeterX(object):
 
             request = Request(environ)
             context, verified_response = self.verify(request)
+            pxhd_callback = create_custom_pxhd_callback(context, start_response)
             self._config.logger.debug("PerimeterX Enforcer took: {} ms".format((time.time() - start) * 1000))
             if verified_response is True:
-                return self.app(environ, start_response)
+                return self.app(environ, pxhd_callback)
 
-            return verified_response(environ, start_response)
+            return verified_response(environ, pxhd_callback)
 
         except Exception as err:
             self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
@@ -87,6 +89,14 @@ class PerimeterX(object):
     def config(self):
         return self._config
 
-
+def create_custom_pxhd_callback(context, start_response):
+    def custom_start_response(status, headers, exc_info=None):
+        if context.pxhd:
+            pxhd_cookie = SimpleCookie()
+            pxhd_cookie['_pxhd'] = ""
+            pxhd_cookie['_pxhd']['expires'] = 365 * 24 * 60 * 60
+            headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}".format(context.pxhd, pxhd_cookie['_pxhd']['expires'])))
+        return start_response(status, headers, exc_info)
+    return custom_start_response
 
 
