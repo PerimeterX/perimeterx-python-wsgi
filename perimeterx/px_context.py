@@ -14,6 +14,7 @@ class PxContext(object):
         cookie_origin = "cookie"
         vid = ''
         vid_source = ''
+        pxhd = ''
         data_enrichment = PxDataEnrichmentCookie(config)
         if not hasattr(request, 'headers'):
             request_headers = {}
@@ -32,9 +33,11 @@ class PxContext(object):
                     px_cookies[cookie_key] = cookie_value
                 elif cookie_key == PREFIX_PX_DATA_ENRICHMENT:
                     data_enrichment.from_raw_cookie(cookie_value)
-                elif cookie_key == PREFIX_PXVID:
+                elif cookie_key == PREFIX_PXVID or cookie_key == "_" + PREFIX_PXVID :
                     vid = cookie_value
                     vid_source = 'vid_cookie'
+                elif cookie_key == PREFIX_PXHD:
+                    pxhd = cookie_value
         else:
             cookie_origin = "header"
             original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
@@ -68,6 +71,7 @@ class PxContext(object):
         self._risk_rtt = 0
         self._ip = self.extract_ip(config, request)
         self._vid = vid
+        self._pxhd = pxhd
         self._vid_source = vid_source
         self._uuid = ''
         self._query_params = request.query_string
@@ -397,6 +401,14 @@ class PxContext(object):
     @vid_source.setter
     def vid_source(self, vid_source):
         self._vid_source = vid_source
+
+    @property
+    def pxhd(self):
+        return self._pxhd
+
+    @pxhd.setter
+    def pxhd(self, pxhd):
+        self._pxhd = pxhd
 
 
 def generate_context_headers(request_headers, sensitive_headers):
