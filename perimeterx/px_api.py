@@ -128,7 +128,7 @@ def prepare_risk_body(ctx, config):
     if ctx.cookie_names:
         body['additional']['request_cookie_names'] = ctx.cookie_names
     if ctx.pxhd:
-        body['pxhd']
+        body['pxhd'] = ctx.pxhd
 
     body = add_original_token_data(ctx, body)
 
@@ -136,7 +136,7 @@ def prepare_risk_body(ctx, config):
 
     if ctx.s2s_call_reason == 'cookie_decryption_failed':
         logger.debug('attaching orig_cookie to request')
-        body['additional']['px_orig_cookie'] = ctx.px_orig_cookie
+        body['additional']['px_cookie_raw'] = ctx.px_cookie_raw
 
     if ctx.s2s_call_reason in ['cookie_expired', 'cookie_validation_failed']:
         logger.debug('attaching px_cookie to request')
