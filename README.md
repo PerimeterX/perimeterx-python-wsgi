@@ -33,7 +33,7 @@ PerimeterX Python middleware is installed via PIP:
 ## <a name="upgrading"></a> Upgrading
 To upgrade to the latest PerimeterX Enforcer version, run:
 
-`pip install perimeterx-python-wsgi`
+`pip install -U perimeterx-python-wsgi`
 
 For more information, contact [PerimeterX Support](support@perimeterx.com).
 
