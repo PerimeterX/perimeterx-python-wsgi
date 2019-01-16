@@ -56,7 +56,7 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_decryption_failed', ctx.s2s_call_reason)
-        self.assertEqual(cookie_value, ctx.px_orig_cookie)
+        self.assertEqual('_px3=' + cookie_value, ctx.px_cookie_raw)
         del self.headers['cookie']
 
     def test_verify_cookie_high_score(self):
@@ -82,7 +82,7 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_validation_failed', ctx.s2s_call_reason)
-        self.assertEqual('', ctx.px_orig_cookie)
+        self.assertEqual('', ctx.px_cookie_raw)
         del self.headers['cookie']
 
     def test_verify_expired_cookie(self):
@@ -96,7 +96,7 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_expired', ctx.s2s_call_reason)
-        self.assertEqual('', ctx.px_orig_cookie)
+        self.assertEqual('', ctx.px_cookie_raw)
         del self.headers['cookie']
 
 

@@ -87,7 +87,7 @@ class PxContext(object):
         self._block_action_data = ''
         self._pass_reason = ''
         self._cookie_hmac = ''
-        self._px_orig_cookie = ''
+        self._px_cookie_raw = ''
         self._original_token_error = ''
         self._original_uuid = ''
         self._decoded_original_token = ''
@@ -347,12 +347,12 @@ class PxContext(object):
         self._cookie_hmac = cookie_hmac
 
     @property
-    def px_orig_cookie(self):
-        return self._px_orig_cookie
+    def px_cookie_raw(self):
+        return self._px_cookie_raw
 
-    @px_orig_cookie.setter
-    def px_orig_cookie(self, px_orig_cookie):
-        self._px_orig_cookie = px_orig_cookie
+    @px_cookie_raw.setter
+    def px_cookie_raw(self, px_cookie_raw):
+        self._px_cookie_raw = px_cookie_raw
 
     @property
     def original_token_error(self):

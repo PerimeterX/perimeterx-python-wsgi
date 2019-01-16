@@ -29,7 +29,7 @@ def verify(ctx, config):
             return False
 
         px_cookie_builder = PxCookie(config)
-        px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.px_cookies,
+        cookie_version, px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.px_cookies,
                                                       user_agent=ctx.user_agent)
         # Mobile SDK traffic
         if px_cookie and ctx.is_mobile:
@@ -46,7 +46,7 @@ def verify(ctx, config):
         if not px_cookie.deserialize():
             cookie = px_cookie._hmac + ":" + px_cookie._raw_cookie
             logger.error('Cookie decryption failed, value: {}'.format(cookie))
-            ctx.px_orig_cookie = cookie
+            ctx.px_cookie_raw = cookie_version + "=" + cookie
             ctx.s2s_call_reason = 'cookie_decryption_failed'
             return False
 
@@ -86,6 +86,6 @@ def verify(ctx, config):
     except Exception, err:
         traceback.print_exc()
         logger.debug('Unexpected exception while evaluating Risk cookie. Error: {}'.format(err))
-        ctx.px_orig_cookie = px_cookie._raw_cookie
+        ctx.px_cookie_raw = px_cookie._raw_cookie
         ctx.s2s_call_reason = 'cookie_decryption_failed'
         return False
