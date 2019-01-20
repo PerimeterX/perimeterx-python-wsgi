@@ -72,6 +72,7 @@ class PxContext(object):
         self._ip = self.extract_ip(config, request)
         self._vid = vid
         self._pxhd = pxhd
+        self._response_pxhd = ''
         self._enforcer_vid_source = enforcer_vid_source
         self._uuid = ''
         self._query_params = request.query_string
@@ -409,6 +410,14 @@ class PxContext(object):
     @pxhd.setter
     def pxhd(self, pxhd):
         self._pxhd = pxhd
+
+    @property
+    def response_pxhd(self):
+        return self._response_pxhd
+
+    @response_pxhd.setter
+    def response_pxhd(self, response_pxhd):
+        self._response_pxhd = response_pxhd
 
 
 def generate_context_headers(request_headers, sensitive_headers):

@@ -68,8 +68,8 @@ def verify(ctx, config):
             ctx.pxde = response.get('data_enrichment', {})
             ctx.pxde_verified = True
             response_pxhd = response.get('pxhd', '')
-            if not ctx.pxhd or ctx.pxhd != response_pxhd:
-                ctx.pxhd = response_pxhd
+            #Do not set cookie if there's already a valid pxhd
+            ctx.response_pxhd = response_pxhd
             if ctx.score >= config.blocking_score:
                 if response.get('action') == px_constants.ACTION_CHALLENGE and \
                         response.get('action_data') is not None and \

@@ -1,9 +1,9 @@
 import time
-from Cookie import SimpleCookie
 
 from werkzeug.wrappers import Request
 
 import px_activities_client
+import px_utils
 from px_config import PxConfig
 from px_context import PxContext
 from px_request_verifier import PxRequestVerifier
@@ -91,11 +91,9 @@ class PerimeterX(object):
 
 def create_custom_pxhd_callback(context, start_response):
     def custom_start_response(status, headers, exc_info=None):
-        if context.pxhd:
-            pxhd_cookie = SimpleCookie()
-            pxhd_cookie['_pxhd'] = ""
-            pxhd_cookie['_pxhd']['expires'] = 365 * 24 * 60 * 60
-            headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}".format(context.pxhd, pxhd_cookie['_pxhd']['expires'])))
+        if not context.pxhd or (context.response_pxhd and context.pxhd != context.response_pxhd):
+            expiry = px_utils.getExpiryDate()
+            headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}; ".format(context.response_pxhd, expiry )))
         return start_response(status, headers, exc_info)
     return custom_start_response
 
