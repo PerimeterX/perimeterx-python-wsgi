@@ -66,6 +66,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
         }
         if activity_type == 'page_requested' or activity_type == 'block':
             px_utils.prepare_custom_params(config, _details)
+            data['pxhd'] = ctx.pxhd
 
         ACTIVITIES_BUFFER.append(data)
     except:
