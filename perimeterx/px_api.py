@@ -120,7 +120,7 @@ def prepare_risk_body(ctx, config):
     }
     if ctx.vid:
         body['vid'] = ctx.vid
-        body['enforcer_vid_source'] = ctx.enforcer_vid_source
+        body['additional']['enforcer_vid_source'] = ctx.enforcer_vid_source
     if ctx.uuid:
         body['uuid'] = ctx.uuid
     if ctx.cookie_hmac:
