@@ -1,4 +1,5 @@
 import re
+from time import gmtime, time
 
 import px_constants
 
@@ -51,5 +52,19 @@ def prepare_custom_params(config, dict_to_add):
         risk_custom_params = config.enrich_custom_parameters(custom_params)
         if risk_custom_params:
             for param in risk_custom_params:
-                if re.match(custom_param_pattern, param) and risk_custom_params[param] is not '' :
+                if re.match(custom_param_pattern, param) and risk_custom_params[param] is not '':
                     dict_to_add[param] = risk_custom_params[param]
+
+
+weekdayname = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+monthname = [None,
+             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+
+def getExpiryDate(future=31536000):
+    now = time()
+    year, month, day, hh, mm, ss, wd, y, z = gmtime(now + future)
+    return "%s, %02d %3s %4d %02d:%02d:%02d GMT" % \
+           (weekdayname[wd], day, monthname[month], year, hh, mm, ss)
