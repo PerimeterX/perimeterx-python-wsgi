@@ -93,7 +93,13 @@ def send_block_activity(ctx, config):
 def send_page_requested_activity(ctx, config):
     details = {}
     if ctx.decoded_cookie:
-        details = {"px_cookie": ctx.decoded_cookie}
+        details = {
+            'px_cookie': ctx.decoded_cookie,
+            'client_uuid': ctx.uuid,
+            'risk_rtt': ctx.risk_rtt,
+            'cookie_origin': ctx.cookie_origin,
+            'pass_reason': ctx.pass_reason
+        }
     send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, config, details)
 
 
