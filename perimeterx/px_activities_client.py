@@ -76,7 +76,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.score,
-        'client_uuid': ctx.uuid,
+        'block_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
         'http_method': ctx.http_method,
         'http_version': ctx.http_version,

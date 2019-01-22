@@ -1,4 +1,5 @@
 import re
+from time import gmtime, time
 
 import px_constants
 
@@ -63,7 +64,6 @@ monthname = [None,
 
 
 def getExpiryDate(future=31536000):
-    from time import gmtime, time
     now = time()
     year, month, day, hh, mm, ss, wd, y, z = gmtime(now + future)
     return "%s, %02d %3s %4d %02d:%02d:%02d GMT" % \
