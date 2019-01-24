@@ -1,7 +1,13 @@
 import time
 
 import requests
+import os
 
+#pylint: disable=import-error
+if os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
+    import requests_toolbelt.adapters.appengine
+    requests_toolbelt.adapters.appengine.monkeypatch()
+#pylint: enable=import-error
 
 def send(full_url, body, headers, config, method):
     """

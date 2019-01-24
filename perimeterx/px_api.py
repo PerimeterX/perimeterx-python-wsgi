@@ -1,7 +1,13 @@
 import json
 import time
-
+import os
 import requests
+
+#pylint: disable=import-error
+if os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
+    import requests_toolbelt.adapters.appengine
+    requests_toolbelt.adapters.appengine.monkeypatch()
+#pylint: enable=import-error
 
 import px_constants
 import px_httpc

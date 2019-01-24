@@ -19,10 +19,10 @@ class Test_PXUtils(unittest.TestCase):
 
     def test_handle_proxy_headers(self):
         headers_sample = {'ddd': 'not_proxy_url', px_constants.FIRST_PARTY_FORWARDED_FOR: 'proxy_url'}
-        headers_sample = px_utils.handle_proxy_headers(headers_sample, '127.0.0.1')
+        headers_sample = px_utils.handle_proxy_headers(headers_sample, '127.0.0.1', False)
         self.assertEqual(headers_sample[px_constants.FIRST_PARTY_FORWARDED_FOR], '127.0.0.1')
         headers_sample = {'ddd': 'not_proxy_url'}
-        headers_sample = px_utils.handle_proxy_headers(headers_sample, '127.0.0.1')
+        headers_sample = px_utils.handle_proxy_headers(headers_sample, '127.0.0.1', False)
         self.assertEqual(headers_sample[px_constants.FIRST_PARTY_FORWARDED_FOR], '127.0.0.1')
 
     def test_is_static_file(self):

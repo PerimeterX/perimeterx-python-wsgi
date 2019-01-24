@@ -159,7 +159,7 @@ Enable/disable First-Party mode.
 ```python
 config = {
   ...
-  first_party_enabled: False
+  first_party: False
   ...
 }
 ```

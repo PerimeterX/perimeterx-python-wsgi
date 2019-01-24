@@ -35,6 +35,7 @@ class PerimeterX(object):
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
+        px_activities_client.send_activities_in_thread()
         try:
             start = time.time()
             context = None

@@ -10,12 +10,16 @@ def merge_two_dicts(x, y):
     return z
 
 
-def handle_proxy_headers(filtered_headers, ip):
+def handle_proxy_headers(filtered_headers, ip, is_gae):
+    if 'x-px-gae' in filtered_headers.keys():
+        del filtered_headers['x-px-gae']
     for item in filtered_headers.keys():
         if item.upper() == px_constants.FIRST_PARTY_FORWARDED_FOR:
             filtered_headers[item] = ip
         else:
             filtered_headers[px_constants.FIRST_PARTY_FORWARDED_FOR] = ip
+    if is_gae:
+        filtered_headers["x-px-gae"] = "true"
     return filtered_headers
 
 
