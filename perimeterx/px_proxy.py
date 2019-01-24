@@ -89,7 +89,7 @@ class PxProxy(object):
                    px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip}
 
         if ctx.vid is not None:
-            headers['Cookies'] = 'pxvid=' + ctx.vid
+            headers['cookie'] = 'pxvid=' + ctx.vid
 
         filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip, self.is_gae)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
