@@ -67,6 +67,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
         }
         if activity_type == 'page_requested' or activity_type == 'block':
             px_utils.prepare_custom_params(config, _details)
+            data['pxhd'] = ctx.pxhd
 
         ACTIVITIES_BUFFER.append(data)
     except:
@@ -77,7 +78,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.score,
-        'client_uuid': ctx.uuid,
+        'block_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
         'http_method': ctx.http_method,
         'http_version': ctx.http_version,
