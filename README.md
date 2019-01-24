@@ -50,7 +50,7 @@ mkdir lib
 2. Using PIP, intall the PerimeterX Python middleware with the `-t` flag to have it installed to the folder previouesly created:
 
 ```python
-`pip install -t lib/ perimeterx-python-wsgi-gae`
+pip install -t lib/ perimeterx-python-wsgi-gae
 ```
 
 3. Create a file named `appengine_config.py` in the same folder as your `app.yaml` file with the following content:
