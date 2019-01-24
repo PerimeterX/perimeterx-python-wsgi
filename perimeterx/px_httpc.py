@@ -1,7 +1,11 @@
 import time
 
 import requests
+import os
 
+if os.environ['SERVER_SOFTWARE'].startswith('Google'):
+    import requests_toolbelt.adapters.appengine
+    requests_toolbelt.adapters.appengine.monkeypatch()
 
 def send(full_url, body, headers, config, method):
     """

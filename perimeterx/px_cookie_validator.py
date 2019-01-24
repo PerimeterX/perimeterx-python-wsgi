@@ -29,8 +29,8 @@ def verify(ctx, config):
             return False
 
         px_cookie_builder = PxCookie(config)
-        px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.px_cookies,
-                                                      user_agent=ctx.user_agent)
+        px_cookie = px_cookie_builder.build_px_cookie(px_cookies=ctx.px_cookies, user_agent=ctx.user_agent)
+
         # Mobile SDK traffic
         if px_cookie and ctx.is_mobile:
             if re.match(mobile_error_pattern, px_cookie._raw_cookie):
