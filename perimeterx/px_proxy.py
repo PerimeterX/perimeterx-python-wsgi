@@ -67,7 +67,10 @@ class PxProxy(object):
         delete_extra_headers(filtered_headers)
         px_response = px_httpc.send(full_url=px_constants.CLIENT_HOST + client_request_uri, body='',
                                     headers=filtered_headers, config=config, method='GET')
-        data = px_response.raw.read(decode_content=True)
+        if self.is_gae:
+            data = px_response.raw.read(decode_content=True)
+        else:
+            data = px_response.raw.read()
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
@@ -122,7 +125,10 @@ class PxProxy(object):
         self._logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, uri))
         px_response = px_httpc.send(full_url=host + uri, body='',
                                     headers=filtered_headers, config=config, method='GET')
-        data = px_response.raw.read(decode_content=True)
+        if self.is_gae:
+            data = px_response.raw.read(decode_content=True)
+        else:
+            data = px_response.raw.read()
         headers = px_response.headers
         status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data

@@ -10,7 +10,7 @@ def merge_two_dicts(x, y):
 
 
 def handle_proxy_headers(filtered_headers, ip, is_gae):
-    if not is_gae or 'x-px-gae' in filtered_headers.keys():
+    if 'x-px-gae' in filtered_headers.keys():
         del filtered_headers['x-px-gae']
     for item in filtered_headers.keys():
         if item.upper() == px_constants.FIRST_PARTY_FORWARDED_FOR:
@@ -19,7 +19,6 @@ def handle_proxy_headers(filtered_headers, ip, is_gae):
             filtered_headers[px_constants.FIRST_PARTY_FORWARDED_FOR] = ip
     if is_gae:
         filtered_headers["x-px-gae"] = "true"
-    print("filtered_headers[px_constants.FIRST_PARTY_FORWARDED_FOR]: " + filtered_headers[px_constants.FIRST_PARTY_FORWARDED_FOR])
     return filtered_headers
 
 
