@@ -3,7 +3,7 @@ import time
 import os
 import requests
 
-if os.environ['SERVER_SOFTWARE'].startswith('Google'):
+if os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
     import requests_toolbelt.adapters.appengine
     requests_toolbelt.adapters.appengine.monkeypatch()
 

@@ -23,7 +23,7 @@ def delete_extra_headers(filtered_headers):
 class PxProxy(object):
     def __init__(self, config):
         self._logger = config.logger
-        self.is_gae = os.environ['SERVER_SOFTWARE'].startswith('Google')
+        self.is_gae = os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
         reverse_app_id = config.app_id[2:]
         self.client_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.CLIENT_FP_PATH).lower()
         self.xhr_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.XHR_FP_PATH).lower()
