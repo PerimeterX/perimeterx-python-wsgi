@@ -5,6 +5,7 @@ from werkzeug.wrappers import Response
 import px_constants
 import px_httpc
 import px_utils
+import os
 
 hoppish = {'connection', 'keep-alive', 'proxy-authenticate',
            'proxy-authorization', 'te', 'trailers', 'transfer-encoding',
@@ -22,7 +23,7 @@ def delete_extra_headers(filtered_headers):
 class PxProxy(object):
     def __init__(self, config):
         self._logger = config.logger
-
+        self.is_gae = os.environ.get('SERVER_SOFTWARE','').startswith('Google')
         reverse_app_id = config.app_id[2:]
         self.client_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.CLIENT_FP_PATH).lower()
         self.xhr_reverse_prefix = '/{}/{}'.format(reverse_app_id, px_constants.XHR_FP_PATH).lower()
@@ -61,14 +62,17 @@ class PxProxy(object):
         headers = {'host': px_constants.CLIENT_HOST,
                    px_constants.FIRST_PARTY_HEADER: '1',
                    px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip}
-        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip)
+        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip, self.is_gae)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         delete_extra_headers(filtered_headers)
         px_response = px_httpc.send(full_url=px_constants.CLIENT_HOST + client_request_uri, body='',
                                     headers=filtered_headers, config=config, method='GET')
-        data = px_response.raw.read()
+        if self.is_gae:
+            data = px_response.raw.read(decode_content=True)
+        else:
+            data = px_response.raw.read()
         headers = px_response.headers
-        status = str(px_response.status_code) + ' ' + px_response.reason
+        status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
 
     def send_reverse_xhr_request(self, config, ctx, body):
@@ -79,16 +83,15 @@ class PxProxy(object):
 
         xhr_path_index = uri.find('/' + px_constants.XHR_FP_PATH)
         suffix_uri = uri[xhr_path_index + 4:]
-
         host = config.collector_host
         headers = {'host': host,
                    px_constants.FIRST_PARTY_HEADER: '1',
                    px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip}
 
         if ctx.vid is not None:
-            headers['Cookies'] = '_pxvid=' + ctx.vid
+            headers['cookie'] = 'pxvid=' + ctx.vid
 
-        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip)
+        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip, self.is_gae)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         msg = 'Forwarding request from {} to client at {}{}'
         self._logger.debug(msg.format(ctx.uri.lower(), host, suffix_uri))
@@ -101,7 +104,7 @@ class PxProxy(object):
             return '200 OK', response_headers, data
         data = px_response.content
         headers = px_response.headers
-        status = str(px_response.status_code) + ' ' + px_response.reason
+        status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
 
     def send_reverse_captcha_request(self, config, ctx):
@@ -116,15 +119,18 @@ class PxProxy(object):
         headers = {'host': px_constants.CAPTCHA_HOST,
                    px_constants.FIRST_PARTY_HEADER: '1',
                    px_constants.ENFORCER_TRUE_IP_HEADER: ctx.ip}
-        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip)
+        filtered_headers = px_utils.handle_proxy_headers(ctx.headers, ctx.ip, self.is_gae)
         filtered_headers = px_utils.merge_two_dicts(filtered_headers, headers)
         delete_extra_headers(filtered_headers)
         self._logger.debug('Forwarding request from {} to client at {}{}'.format(ctx.uri.lower(), host, uri))
         px_response = px_httpc.send(full_url=host + uri, body='',
                                     headers=filtered_headers, config=config, method='GET')
-        data = px_response.raw.read()
+        if self.is_gae:
+            data = px_response.raw.read(decode_content=True)
+        else:
+            data = px_response.raw.read()
         headers = px_response.headers
-        status = str(px_response.status_code) + ' ' + px_response.reason
+        status = str(px_response.status_code) + ' ' + str(px_response.reason)
         return status, headers, data
 
     def return_default_response(self, uri):

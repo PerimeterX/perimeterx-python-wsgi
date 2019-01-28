@@ -13,7 +13,8 @@ class PxContext(object):
         request_cookie_names = []
         cookie_origin = "cookie"
         vid = ''
-        vid_source = ''
+        enforcer_vid_source = ''
+        pxhd = ''
         data_enrichment = PxDataEnrichmentCookie(config)
         if not hasattr(request, 'headers'):
             request_headers = {}
@@ -32,9 +33,11 @@ class PxContext(object):
                     px_cookies[cookie_key] = cookie_value
                 elif cookie_key == PREFIX_PX_DATA_ENRICHMENT:
                     data_enrichment.from_raw_cookie(cookie_value)
-                elif cookie_key == PREFIX_PXVID:
+                elif cookie_key == PREFIX_PXVID or cookie_key == "_" + PREFIX_PXVID :
                     vid = cookie_value
-                    vid_source = 'vid_cookie'
+                    enforcer_vid_source = 'vid_cookie'
+                elif cookie_key == PREFIX_PXHD:
+                    pxhd = cookie_value
         else:
             cookie_origin = "header"
             original_token = headers.get(MOBILE_SDK_ORIGINAL_HEADER)
@@ -68,7 +71,9 @@ class PxContext(object):
         self._risk_rtt = 0
         self._ip = self.extract_ip(config, request)
         self._vid = vid
-        self._vid_source = vid_source
+        self._pxhd = pxhd
+        self._response_pxhd = ''
+        self._enforcer_vid_source = enforcer_vid_source
         self._uuid = ''
         self._query_params = request.query_string
         self._sensitive_route = sensitive_route
@@ -83,7 +88,7 @@ class PxContext(object):
         self._block_action_data = ''
         self._pass_reason = ''
         self._cookie_hmac = ''
-        self._px_orig_cookie = ''
+        self._px_cookie_raw = ''
         self._original_token_error = ''
         self._original_uuid = ''
         self._decoded_original_token = ''
@@ -343,12 +348,12 @@ class PxContext(object):
         self._cookie_hmac = cookie_hmac
 
     @property
-    def px_orig_cookie(self):
-        return self._px_orig_cookie
+    def px_cookie_raw(self):
+        return self._px_cookie_raw
 
-    @px_orig_cookie.setter
-    def px_orig_cookie(self, px_orig_cookie):
-        self._px_orig_cookie = px_orig_cookie
+    @px_cookie_raw.setter
+    def px_cookie_raw(self, px_cookie_raw):
+        self._px_cookie_raw = px_cookie_raw
 
     @property
     def original_token_error(self):
@@ -391,12 +396,28 @@ class PxContext(object):
         self._pxde_verified = pxde_verified
 
     @property
-    def vid_source(self):
-        return self._pxde_verified
+    def enforcer_vid_source(self):
+        return self._enforcer_vid_source
 
-    @vid_source.setter
-    def vid_source(self, vid_source):
-        self._vid_source = vid_source
+    @enforcer_vid_source.setter
+    def enforcer_vid_source(self, enforcer_vid_source):
+        self._enforcer_vid_source = enforcer_vid_source
+
+    @property
+    def pxhd(self):
+        return self._pxhd
+
+    @pxhd.setter
+    def pxhd(self, pxhd):
+        self._pxhd = pxhd
+
+    @property
+    def response_pxhd(self):
+        return self._response_pxhd
+
+    @response_pxhd.setter
+    def response_pxhd(self, response_pxhd):
+        self._response_pxhd = response_pxhd
 
 
 def generate_context_headers(request_headers, sensitive_headers):

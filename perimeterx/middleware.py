@@ -3,6 +3,7 @@ import time
 from werkzeug.wrappers import Request
 
 import px_activities_client
+import px_utils
 from px_config import PxConfig
 from px_context import PxContext
 from px_request_verifier import PxRequestVerifier
@@ -34,6 +35,7 @@ class PerimeterX(object):
         px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
+        px_activities_client.send_activities_in_thread()
         try:
             start = time.time()
             context = None
@@ -43,18 +45,19 @@ class PerimeterX(object):
 
             request = Request(environ)
             context, verified_response = self.verify(request)
+            pxhd_callback = create_custom_pxhd_callback(context, start_response)
             self._config.logger.debug("PerimeterX Enforcer took: {} ms".format((time.time() - start) * 1000))
             if verified_response is True:
-                return self.app(environ, start_response)
+                return self.app(environ, pxhd_callback)
 
-            return verified_response(environ, start_response)
+            return verified_response(environ, pxhd_callback)
 
         except Exception as err:
             self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
             if context:
                 self.report_pass_traffic(context)
             else:
-                self.report_pass_traffic(PxContext({}, self._config))
+                self.report_pass_traffic(PxContext(Request({}), self._config))
             return self.app(environ, start_response)
 
     def verify(self, request):
@@ -87,6 +90,12 @@ class PerimeterX(object):
     def config(self):
         return self._config
 
-
+def create_custom_pxhd_callback(context, start_response):
+    def custom_start_response(status, headers, exc_info=None):
+        if not context.pxhd or (context.response_pxhd and context.pxhd != context.response_pxhd):
+            expiry = px_utils.getExpiryDate()
+            headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}; ".format(context.response_pxhd, expiry )))
+        return start_response(status, headers, exc_info)
+    return custom_start_response
 
 

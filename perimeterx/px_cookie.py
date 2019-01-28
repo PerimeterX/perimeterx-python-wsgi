@@ -33,14 +33,14 @@ class PxCookie(object):
             if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
                 self._logger.debug('Cookie/Token V1 found, evaluating..')
                 from px_cookie_v1 import PxCookieV1
-                return PxCookieV1(self._config, px_cookies[prefix])
+                return prefix, PxCookieV1(self._config, px_cookies[prefix])
             if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
                 self._logger.debug('Cookie/Token V3 found, evaluating..')
                 from px_cookie_v3 import PxCookieV3
                 ua = ''
                 if prefix == PREFIX_PX_COOKIE_V3:
                     ua = user_agent
-                return PxCookieV3(self._config, px_cookies[prefix], ua)
+                return prefix, PxCookieV3(self._config, px_cookies[prefix], ua)
 
         self._logger.debug('Cookie is missing')
 

@@ -16,26 +16,28 @@ CONFIG = {}
 def init_activities_configuration(config):
     global CONFIG
     CONFIG = config
-    t1 = threading.Thread(target=send_activities)
-    t1.daemon = True
-    t1.start()
 
-
-def send_activities():
+def _send_activities_chunk():
     global ACTIVITIES_BUFFER
     default_headers = {
         'Authorization': 'Bearer ' + CONFIG.auth_token,
         'Content-Type': 'application/json'
     }
     full_url = CONFIG.server_host + px_constants.API_ACTIVITIES
-    while True:
-        if len(ACTIVITIES_BUFFER) > 0:
-            chunk = ACTIVITIES_BUFFER[:10]
-            ACTIVITIES_BUFFER = ACTIVITIES_BUFFER[10:]
-            px_httpc.send(full_url=full_url, body=json.dumps(chunk), headers=default_headers, config=CONFIG,
-                          method='POST')
-        time.sleep(1)
+    chunk = ACTIVITIES_BUFFER[:10]
+    for _ in range(len(chunk)):
+        ACTIVITIES_BUFFER.pop(0)
+    px_httpc.send(full_url=full_url, body=json.dumps(chunk), headers=default_headers, config=CONFIG, method='POST')
 
+
+def send_activities_in_thread():
+    if len(ACTIVITIES_BUFFER) >= 10:
+        CONFIG.logger.debug('Posting {} Activities'.format(len(ACTIVITIES_BUFFER)))
+        t1 = threading.Thread(target=_send_activities_chunk)
+        t1.daemon = True
+        t1.start()
+    else:
+        CONFIG.logger.debug('NOT Posting {} Activities: '.format(len(ACTIVITIES_BUFFER)))
 
 def send_to_perimeterx(activity_type, ctx, config, detail):
     try:
@@ -65,6 +67,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
         }
         if activity_type == 'page_requested' or activity_type == 'block':
             px_utils.prepare_custom_params(config, _details)
+            data['pxhd'] = ctx.pxhd
 
         ACTIVITIES_BUFFER.append(data)
     except:
@@ -75,7 +78,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.score,
-        'client_uuid': ctx.uuid,
+        'block_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
         'http_method': ctx.http_method,
         'http_version': ctx.http_version,
