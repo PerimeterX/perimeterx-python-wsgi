@@ -13,6 +13,9 @@ class PxDataEnrichmentCookie(PxCookie):
         self._decoded_cookie = ''
 
     def from_raw_cookie(self, raw_cookie):
+        if not raw_cookie:
+            return
+
         spliced_cookie = raw_cookie.split(':')
         if len(spliced_cookie) != 2:
             return
