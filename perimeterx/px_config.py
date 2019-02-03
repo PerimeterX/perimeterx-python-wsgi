@@ -19,7 +19,8 @@ class PxConfig(object):
         self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
             app_id.lower())
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
-        self._sensitive_headers = map(lambda header: header.lower(), config_dict.get('sensitive_headers', ['cookie', 'cookies']))
+        self._sensitive_headers = map(lambda header: header.lower(),
+                                      config_dict.get('sensitive_headers', ['cookie', 'cookies']))
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 1000)
         self._custom_logo = custom_logo
@@ -35,8 +36,17 @@ class PxConfig(object):
         self._ip_headers = config_dict.get('ip_headers', [])
         self._proxy_url = config_dict.get('proxy_url', None)
         self._max_buffer_len = config_dict.get('max_buffer_len', 30)
-        self._sensitive_routes = config_dict.get('sensitive_routes', [])
-        self._whitelist_routes = config_dict.get('whitelist_routes', [])
+
+        sensitive_routes = config_dict.get('sensitive_routes', [])
+        if not isinstance(sensitive_routes, list):
+            raise TypeError('sensitive_routes must be a list')
+        self._sensitive_routes = sensitive_routes
+
+        whitelist_routes = config_dict.get('whitelist_routes', [])
+        if not isinstance(whitelist_routes, list):
+            raise TypeError('whitelist_routes must be a list')
+
+        self._whitelist_routes = whitelist_routes
         self._block_html = 'BLOCK'
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
