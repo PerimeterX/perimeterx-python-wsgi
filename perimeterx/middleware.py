@@ -76,7 +76,7 @@ class PerimeterX(object):
             if ctx:
                 self.report_pass_traffic(ctx)
             else:
-                self.report_pass_traffic(PxContext({}, config))
+                self.report_pass_traffic(PxContext(Request({}), config))
             return True
 
 
