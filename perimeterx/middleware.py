@@ -36,9 +36,9 @@ class PerimeterX(object):
 
     def __call__(self, environ, start_response):
         px_activities_client.send_activities_in_thread()
+        context = None
         try:
             start = time.time()
-            context = None
 
             if environ.get('px_disable_request'):
                 return self.app(environ, start_response)
@@ -77,8 +77,7 @@ class PerimeterX(object):
                 self.report_pass_traffic(ctx)
             else:
                 self.report_pass_traffic(PxContext(Request({}), config))
-            return True
-
+            return ctx, True
 
     def report_pass_traffic(self, ctx):
         px_activities_client.send_page_requested_activity(ctx, self.config)
@@ -90,12 +89,12 @@ class PerimeterX(object):
     def config(self):
         return self._config
 
+
 def create_custom_pxhd_callback(context, start_response):
     def custom_start_response(status, headers, exc_info=None):
         if not context.pxhd or (context.response_pxhd and context.pxhd != context.response_pxhd):
             expiry = px_utils.getExpiryDate()
-            headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}; ".format(context.response_pxhd, expiry )))
+            headers.append(('Set-Cookie', "_pxhd={}; path=/; expires={}; ".format(context.response_pxhd, expiry)))
         return start_response(status, headers, exc_info)
+
     return custom_start_response
-
-
