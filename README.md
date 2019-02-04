@@ -4,9 +4,9 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v3.0.0](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v3.0.1](https://pypi.org/project/perimeterx-python-wsgi/)
 
-> Latest GAE stable version: [v3.0.0](https://pypi.org/project/perimeterx-python-wsgi-gae/)
+> Latest GAE stable version: [v3.0.1](https://pypi.org/project/perimeterx-python-wsgi-gae/)
 
 Table of Contents
 -----------------

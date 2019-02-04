@@ -1,4 +1,14 @@
 # Change Log
+
+## [v3.0.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-02-04)
+- Monitor mode bug fix
+- Better error handling
+
+## [v3.0.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-01-28)
+- Added GAE support
+- Added PXHD support
+- Updated VID source handling
+
 ## [v2.3.2](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-01-13)
 - Changed requirements setting
 
