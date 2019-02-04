@@ -53,7 +53,9 @@ class PxRequestVerifier(object):
                 config.additional_activity_handler(ctx, config)
             if config.module_mode == px_constants.MODULE_MODE_BLOCKING:
                 data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
-            response_function = generate_blocking_response(data, headers, status)
+                response_function = generate_blocking_response(data, headers, status)
+            else:
+                pass_request = True
 
         if config.custom_request_handler:
             data, headers, status = config.custom_request_handler(ctx, self.config, request)
@@ -78,6 +80,8 @@ class PxRequestVerifier(object):
 
 def generate_blocking_response(data, headers, status):
     result = Response(data)
-    result.headers = headers
-    result.status = status
+    if headers is not None:
+        result.headers = headers
+    if status is not None:
+        result.status = status
     return result
