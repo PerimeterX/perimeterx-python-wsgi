@@ -79,7 +79,6 @@ def send_block_activity(ctx, config):
         'block_score': ctx.score,
         'block_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
-        'http_method': ctx.http_method,
         'http_version': ctx.http_version,
         'px_cookie': ctx.decoded_cookie,
         'risk_rtt': ctx.risk_rtt,
@@ -93,13 +92,12 @@ def send_block_activity(ctx, config):
 def send_page_requested_activity(ctx, config):
     details = {
         'client_uuid': ctx.uuid,
-        'http_method': ctx.http_method,
         'pass_reason': ctx.pass_reason,
         'risk_rtt': ctx.risk_rtt
     }
 
     if ctx.decoded_cookie:
-        details = {"px_cookie": ctx.decoded_cookie}
+        details['px_cookie'] = ctx.decoded_cookie
     send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, config, details)
 
 
