@@ -41,15 +41,14 @@ def send_risk_request(ctx, config):
     }
     try:
         response = px_httpc.send(full_url=config.server_host + px_constants.API_RISK, body=json.dumps(body),
-                                 config=config,
-                                 headers=default_headers, method='POST')
+                                 config=config, headers=default_headers, method='POST', raise_timeout = True)
         if response:
             return json.loads(response.content)
         return False
     except requests.exceptions.Timeout:
+        ctx.pass_reason = 's2s_timeout'
         risk_rtt = time.time() - start
-        config.logger('Risk API timed out, round_trip_time: {}'.format(risk_rtt))
-
+        config.logger.debug('Risk API timed out, round_trip_time: {}'.format(risk_rtt))
 
 def verify(ctx, config):
     """

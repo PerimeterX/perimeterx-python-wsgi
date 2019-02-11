@@ -86,7 +86,7 @@ class PxContext(object):
         self._decoded_cookie = ''
         self._block_action = ''
         self._block_action_data = ''
-        self._pass_reason = ''
+        self._pass_reason = 'cookie'
         self._cookie_hmac = ''
         self._px_cookie_raw = ''
         self._original_token_error = ''

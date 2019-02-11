@@ -29,7 +29,6 @@ def _send_activities_chunk():
         ACTIVITIES_BUFFER.pop(0)
     px_httpc.send(full_url=full_url, body=json.dumps(chunk), headers=default_headers, config=CONFIG, method='POST')
 
-
 def send_activities_in_thread():
     if len(ACTIVITIES_BUFFER) >= 10:
         CONFIG.logger.debug('Posting {} Activities'.format(len(ACTIVITIES_BUFFER)))
@@ -92,7 +91,13 @@ def send_block_activity(ctx, config):
 
 
 def send_page_requested_activity(ctx, config):
-    details = {}
+    details = {
+        'client_uuid': ctx.uuid,
+        'http_method': ctx.http_method,
+        'pass_reason': ctx.pass_reason,
+        'risk_rtt': ctx.risk_rtt
+    }
+
     if ctx.decoded_cookie:
         details = {"px_cookie": ctx.decoded_cookie}
     send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, config, details)
