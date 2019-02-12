@@ -6,5 +6,6 @@ manage.py
 myapp/
 untitled1/
 perimeterx_python_wsgi.egg-info/
+perimeterx_python_wsgi_gae.egg-info/
 dist
 dev/
