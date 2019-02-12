@@ -9,7 +9,7 @@ if os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
     requests_toolbelt.adapters.appengine.monkeypatch()
 #pylint: enable=import-error
 
-def send(full_url, body, headers, config, method, raise_timeout = False):
+def send(full_url, body, headers, config, method, raise_error = False):
     """
     Returns the appropriate response parameters according to blocking parameters
     :param string full_url:
@@ -36,5 +36,5 @@ def send(full_url, body, headers, config, method, raise_timeout = False):
         return response
     except requests.exceptions.RequestException as err:
         logger.debug('PerimeterX Received Request Exception. Error: {}'.format(err))
-        if requests.exceptions.Timeout and raise_timeout:
+        if raise_error:
             raise err
