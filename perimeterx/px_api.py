@@ -49,6 +49,7 @@ def send_risk_request(ctx, config):
     except requests.exceptions.Timeout:
         risk_rtt = time.time() - start
         config.logger('Risk API timed out, round_trip_time: {}'.format(risk_rtt))
+        return False
 
 
 def verify(ctx, config):
