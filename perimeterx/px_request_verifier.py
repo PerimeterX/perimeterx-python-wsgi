@@ -31,6 +31,7 @@ class PxRequestVerifier(object):
         if not px_cookie_validator.verify(ctx, self.config):
             # Server-to-Server verification fallback
             if not px_api.verify(ctx, self.config):
+                self.report_pass_traffic(ctx)
                 return True
         return self.handle_verification(ctx, request)
 

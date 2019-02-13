@@ -14,7 +14,10 @@ class TestPxRequestVerifier(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.config = PxConfig({'app_id': 'PXfake_app_id', 'module_mode': px_constants.MODULE_MODE_BLOCKING})
+        cls.config = PxConfig({'app_id': 'PXfake_app_id',
+                               'auth_token': '',
+                               'module_mode': px_constants.MODULE_MODE_BLOCKING
+                               })
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
                        'remote-addr': '127.0.0.1',
                        'content_length': '100'}

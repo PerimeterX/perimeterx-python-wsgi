@@ -1,7 +1,7 @@
 import px_constants
 import px_testing_mode_handler
 from px_logger import Logger
-
+import os
 
 class PxConfig(object):
     def __init__(self, config_dict):
@@ -14,6 +14,7 @@ class PxConfig(object):
         self._blocking_score = config_dict.get('blocking_score', 100)
         self._debug_mode = debug_mode
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
+        self._module_version = px_constants.MODULE_VERSION.format(' GAE') if os.environ.get('SERVER_SOFTWARE','').startswith('Google') else px_constants.MODULE_VERSION.format('')
         self._module_mode = module_mode
         self._server_host = 'sapi.perimeterx.net' if app_id is None else px_constants.SERVER_URL.format(app_id.lower())
         self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
