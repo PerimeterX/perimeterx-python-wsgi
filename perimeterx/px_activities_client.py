@@ -84,7 +84,6 @@ def send_block_activity(ctx, config):
         'risk_rtt': ctx.risk_rtt,
         'cookie_origin': ctx.cookie_origin,
         'block_action': ctx.block_action,
-        'module_version': px_constants.MODULE_VERSION,
         'simulated_block': config.module_mode is px_constants.MODULE_MODE_MONITORING,
     })
 
