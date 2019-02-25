@@ -19,7 +19,7 @@ def verify(ctx, config):
     logger = config.logger
     try:
         if not ctx.px_cookies.keys():
-            logger.debug('No risk cookie on the request')
+            logger.debug('Cookie is missing')
             ctx.s2s_call_reason = 'no_cookie'
             return False
 
@@ -46,7 +46,7 @@ def verify(ctx, config):
 
         if not px_cookie.deserialize():
             cookie = px_cookie._hmac + ":" + px_cookie._raw_cookie
-            logger.error('Cookie decryption failed, value: {}'.format(cookie))
+            logger.debug('Cookie decryption failed, value: {}'.format(cookie))
             ctx.px_cookie_raw = cookie_version + "=" + cookie
             ctx.s2s_call_reason = 'cookie_decryption_failed'
             return False
@@ -67,7 +67,7 @@ def verify(ctx, config):
 
         if px_cookie.is_cookie_expired():
             ctx.s2s_call_reason = 'cookie_expired'
-            msg = 'Cookie TTL expired, value: {}, age: {}'
+            msg = 'Cookie TTL is expired, value: {}, age: {}'
             logger.debug(msg.format(px_cookie.decoded_cookie, px_cookie.get_age()))
             return False
 
@@ -86,7 +86,7 @@ def verify(ctx, config):
         return True
     except Exception, err:
         traceback.print_exc()
-        logger.debug('Unexpected exception while evaluating Risk cookie. Error: {}'.format(err))
+        logger.error('Unexpected exception while evaluating Risk cookie. Error: {}'.format(err))
         ctx.px_cookie_raw = px_cookie._raw_cookie
         ctx.s2s_call_reason = 'cookie_decryption_failed'
         return False
