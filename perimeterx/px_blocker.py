@@ -35,18 +35,18 @@ class PXBlocker(object):
         headers = {'Content-Type': content_type}
 
         if action is px_constants.ACTION_CHALLENGE:
-            logger.debug('Challenge page is served')
+            logger.debug('Enforcing action: Challenge page is served')
             blocking_props = ctx.block_action_data
             blocking_response = blocking_props
 
         elif action is px_constants.ACTION_RATELIMIT:
-            logger.debug('Rate limit page is served')
+            logger.debug('Enforcing action: Rate limit page is served')
             blocking_props = None
             blocking_response = self.ratelimit_rendered_page
             status = '429 Too Many Requests'
 
         else:  # block
-            logger.debug('Block page is served')
+            logger.debug('Enforcing action: Block page is served')
             blocking_props = self.prepare_properties(ctx, config)
             blocking_response = self.mustache_renderer.render(px_template.get_template(px_constants.BLOCK_TEMPLATE),
                                                               blocking_props)
@@ -63,6 +63,7 @@ class PXBlocker(object):
             return page_response, headers, status
 
         if is_json_response:
+            logger.debug('Serving advanced blocking response')
             blocking_response = json.dumps(blocking_props)
 
         blocking_response = str(blocking_response)
