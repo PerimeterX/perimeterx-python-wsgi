@@ -50,9 +50,10 @@ class PxRequestVerifier(object):
         else:
             logger.debug('Risk score is higher or equal than blocking score')
             self.report_block_traffic(ctx)
+            should_bypass_monitor = config.bypass_monitor_header and ctx.headers.get(config.bypass_monitor_header) == '1';
             if config.additional_activity_handler:
                 config.additional_activity_handler(ctx, config)
-            if config.module_mode == px_constants.MODULE_MODE_BLOCKING:
+            if config.module_mode == px_constants.MODULE_MODE_BLOCKING or should_bypass_monitor:
                 data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
                 response_function = generate_blocking_response(data, headers, status)
             else:
