@@ -37,6 +37,7 @@ class PxConfig(object):
         self._ip_headers = config_dict.get('ip_headers', [])
         self._proxy_url = config_dict.get('proxy_url', None)
         self._max_buffer_len = config_dict.get('max_buffer_len', 30)
+        self._bypass_monitor_header = config_dict.get('bypass_monitor_header','')
 
         sensitive_routes = config_dict.get('sensitive_routes', [])
         if not isinstance(sensitive_routes, list):
@@ -190,6 +191,10 @@ class PxConfig(object):
     @property
     def testing_mode(self):
         return self._testing_mode
+
+    @property
+    def bypass_monitor_header(self):
+        return self._bypass_monitor_header
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)

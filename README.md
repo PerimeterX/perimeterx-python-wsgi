@@ -4,9 +4,9 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v3.0.2](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v3.1.0](https://pypi.org/project/perimeterx-python-wsgi/)
 
-> Latest GAE stable version: [v3.0.2](https://pypi.org/project/perimeterx-python-wsgi-gae/)
+> Latest GAE stable version: [v3.1.0](https://pypi.org/project/perimeterx-python-wsgi-gae/)
 
 Table of Contents
 -----------------
@@ -28,6 +28,7 @@ Table of Contents
     * [Custom Request Handler](#custom_request_handler)
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
+    * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
 
 ## <a name="installation"></a> Installation
 
@@ -254,3 +255,21 @@ environ['px_disable_request'] = True #The enforcer shall be disabled for that re
 
 ```
 
+#### <a name=“bypassMonitorHeader”></a> Test Block Flow on Monitoring Mode
+
+Allows you to test an enforcer’s blocking flow while you are still in Monitor Mode.
+
+When the header name is set(eg. `x-px-block`) and the value is set to `1`, when there is a block response (for example from using a User-Agent header with the value of `PhantomJS/1.0`) the Monitor Mode is bypassed and full block mode is applied. If one of the conditions is missing you will stay in Monitor Mode. This is done per request.
+To stay in Monitor Mode, set the header value to `0`.
+
+The Header Name is configurable using the `bypass_monitor_header` property.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  bypass_monitor_header: 'x-px-block',
+  ...
+}
+```

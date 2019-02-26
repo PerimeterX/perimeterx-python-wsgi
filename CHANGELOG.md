@@ -1,5 +1,9 @@
 # Change Log
 
+## [v3.1.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-02-26)
+- Refactor of px_logger to use native python logger
+- Added support for bypass monitor mode header
+
 ## [v3.0.2](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-02-13)
 - page requested pass_reason alignment
 - better error handling for http errors

@@ -17,7 +17,7 @@ def verify(ctx, config):
         cookie_version, px_cookie = px_cookie_builder.build_px_cookie({version: no_version_token}, '')
 
         if not px_cookie.deserialize():
-            logger.error('Original token decryption failed, value: {}'.format(px_cookie.raw_cookie))
+            logger.debug('Original token decryption failed, value: {}'.format(px_cookie.raw_cookie))
             ctx.original_token_error = 'decryption_failed'
             return False
 
