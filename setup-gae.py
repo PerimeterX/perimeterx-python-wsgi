@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-version = 'v3.0.2'
+version = 'v3.1.0'
 setup(name='perimeterx-python-wsgi-gae',
       version=version,
       license='MIT',
