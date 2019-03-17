@@ -53,6 +53,8 @@ class PxContext(object):
             filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
         whitelist_route = len(
             filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
+        enforced_route = len(
+            filter(lambda enforced_route_item: uri.startswith(enforced_route_item), config.enforced_specific_routes)) > 0
 
         protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
         if protocol_split[0].startswith('HTTP'):
@@ -78,6 +80,7 @@ class PxContext(object):
         self._query_params = request.query_string
         self._sensitive_route = sensitive_route
         self._whitelist_route = whitelist_route
+        self._enforced_route = enforced_route
         self._s2s_call_reason = 'none'
         self._cookie_origin = cookie_origin
         self._is_mobile = cookie_origin == "header"
@@ -122,6 +125,14 @@ class PxContext(object):
         if config.get_user_ip:
             ip = config.get_user_ip
         return ip
+
+    @property
+    def enforced_route(self):
+        return self._enforced_route
+
+    @enforced_route.setter
+    def enforced_route(self, enforced_route):
+        self._enforced_route = enforced_route
 
     @property
     def headers(self):

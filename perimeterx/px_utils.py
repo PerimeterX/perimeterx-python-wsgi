@@ -28,7 +28,7 @@ def is_static_file(ctx):
     static_extensions = ['.css', '.bmp', '.tif', '.ttf', '.docx', '.woff2', '.js', '.pict', '.tiff', '.eot',
                          '.xlsx', '.jpg', '.csv', '.eps', '.woff', '.xls', '.jpeg', '.doc', '.ejs', '.otf', '.pptx',
                          '.gif', '.pdf', '.swf', '.svg', '.ps', '.ico', '.pls', '.midi', '.svgz', '.class', '.png',
-                         '.ppt', '.mid', 'webp', '.jar']
+                         '.ppt', '.mid', 'webp', '.jar', '.json']
 
     for ext in static_extensions:
         if uri.endswith(ext):

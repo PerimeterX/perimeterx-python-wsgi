@@ -27,6 +27,9 @@ class PxRequestVerifier(object):
         if ctx.whitelist_route:
             self.logger.debug('The requested uri is whitelisted, passing request')
             return True
+        if len(self.config.enforced_specific_routes) > 0 and not ctx.enforced_route:
+            self.logger.debug('The request uri {} is not listed in specific routes to enforce, passing request.'.format(uri))
+            return True
         # PX Cookie verification
         if not px_cookie_validator.verify(ctx, self.config):
             # Server-to-Server verification fallback

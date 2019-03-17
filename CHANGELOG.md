@@ -1,5 +1,9 @@
 # Change Log
 
+## [v3.2.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-03-17)
+- Added support for enforced_specific_routes
+- Added .json to the list of whitelisted extensions
+
 ## [v3.1.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-02-26)
 - Refactor of px_logger to use native python logger
 - Added support for bypass monitor mode header

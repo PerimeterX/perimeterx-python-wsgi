@@ -4,9 +4,9 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v3.1.0](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v3.2.0](https://pypi.org/project/perimeterx-python-wsgi/)
 
-> Latest GAE stable version: [v3.1.0](https://pypi.org/project/perimeterx-python-wsgi-gae/)
+> Latest GAE stable version: [v3.2.0](https://pypi.org/project/perimeterx-python-wsgi-gae/)
 
 Table of Contents
 -----------------
@@ -29,6 +29,7 @@ Table of Contents
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
     * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
+    * [Enforce Specific Routes](#enforce_specific_routes)
 
 ## <a name="installation"></a> Installation
 
@@ -255,7 +256,7 @@ environ['px_disable_request'] = True #The enforcer shall be disabled for that re
 
 ```
 
-#### <a name=“bypassMonitorHeader”></a> Test Block Flow on Monitoring Mode
+#### <a name="bypass_monitor_header"></a> Test Block Flow on Monitoring Mode
 
 Allows you to test an enforcer’s blocking flow while you are still in Monitor Mode.
 
@@ -272,4 +273,17 @@ config = {
   bypass_monitor_header: 'x-px-block',
   ...
 }
+```
+
+#### <a name="enforce_specific_routes"></a> Enforced Specific Routes
+An array of route prefixes that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
+When this property is set, any route which is not added - will be whitelisted.
+
+**Default:** Empty
+ ```python
+config = {
+  ...
+  enforced_specific_routes: ['/profile']
+  ...
+};
 ```
