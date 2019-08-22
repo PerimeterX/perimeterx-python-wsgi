@@ -1,5 +1,8 @@
 # Change Log
 
+## [v3.2.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-08-22)
+- Upgrade dependency for security issue.
+
 ## [v3.2.0](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-03-17)
 - Added support for enforced_specific_routes
 - Added .json to the list of whitelisted extensions
