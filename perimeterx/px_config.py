@@ -10,6 +10,7 @@ class PxConfig(object):
         module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
         custom_logo = config_dict.get('custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
+        max_buffer_len = config_dict.get('max_buffer_len', 30)
         self._px_app_id = app_id
         self._blocking_score = config_dict.get('blocking_score', 100)
         self._debug_mode = debug_mode
@@ -36,7 +37,7 @@ class PxConfig(object):
         self._first_party_xhr_enabled = config_dict.get('first_party_xhr_enabled', True)
         self._ip_headers = config_dict.get('ip_headers', [])
         self._proxy_url = config_dict.get('proxy_url', None)
-        self._max_buffer_len = config_dict.get('max_buffer_len', 30)
+        self._max_buffer_len = max_buffer_len if max_buffer_len > 0 else 1
         self._bypass_monitor_header = config_dict.get('bypass_monitor_header','')
 
         sensitive_routes = config_dict.get('sensitive_routes', [])
