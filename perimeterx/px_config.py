@@ -10,6 +10,7 @@ class PxConfig(object):
         module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
         custom_logo = config_dict.get('custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
+        px_backend_host = config_dict.get('px_backend_url', None)
         max_buffer_len = config_dict.get('max_buffer_len', 30)
         self._px_app_id = app_id
         self._blocking_score = config_dict.get('blocking_score', 100)
@@ -17,9 +18,8 @@ class PxConfig(object):
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
         self._module_version = px_constants.MODULE_VERSION.format(' GAE') if os.environ.get('SERVER_SOFTWARE','').startswith('Google') else px_constants.MODULE_VERSION.format('')
         self._module_mode = module_mode
-        self._server_host = 'sapi.perimeterx.net' if app_id is None else px_constants.SERVER_URL.format(app_id.lower())
-        self._collector_host = 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(
-            app_id.lower())
+        self._server_host = px_backend_host if px_backend_host else 'sapi.perimeterx.net' if app_id is None else px_constants.SERVER_URL.format(app_id.lower())
+        self._collector_host = px_backend_host if px_backend_host else 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(app_id.lower())
         self._encryption_enabled = config_dict.get('encryption_enabled', True)
         self._sensitive_headers = map(lambda header: header.lower(),
                                       config_dict.get('sensitive_headers', ['cookie', 'cookies']))
