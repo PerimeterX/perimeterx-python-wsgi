@@ -1,0 +1,27 @@
+{
+    "version": "3.2.1",
+    "supported_features": [
+        "additional_activity_handler",
+        "advanced_blocking_response",
+        "block_activity",
+        "cookie_v3",
+        "css_ref",
+        "custom_logo",
+        "custom_request_handler",
+        "debug_mode",
+        "enforce_route",
+        "first_party",
+        "ip_headers",
+        "js_ref",
+        "module_enable_disable",
+        "monitor_mode",
+        "monitored_routes",
+        "page_requested",
+        "pxde",
+        "pxvid",
+        "risk_api",
+        "sensitive_headers",
+        "sensitive_routes",
+        "whitelist_routes"
+    ]
+}
