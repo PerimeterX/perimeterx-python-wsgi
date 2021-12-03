@@ -3,3 +3,4 @@ requests>=2.18.4,<=2.20.1
 Werkzeug==0.15.5
 pystache>=0.5.1,<=0.5.4
 pycryptodome>=3.7.2, <4.0.0
+urllib3>=1.26.5 # not directly required, pinned by Snyk to avoid a vulnerability
