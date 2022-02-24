@@ -116,7 +116,7 @@ def parse_action(action):
     if 'b' == action:
         return 'block'
     elif 'j' == action:
-        return 'challege'
+        return 'challenge'
     elif 'r' == action:
         return 'ratelimit'
     else:
