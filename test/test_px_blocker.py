@@ -109,8 +109,8 @@ class Test_PXBlocker(unittest.TestCase):
                             'logoVisibility': 'hidden',
                             'jsClientSrc': '/fake_app_id/init.js',
                             'firstPartyEnabled': 'true',
-                            'refId': '8712cef7-bcfa-4bb6-ae99-868025e1908a',
-                            'cssRef': ''}
+                            'cssRef': '',
+                            'altBlockScript': '//captcha.px-cloud.net/PXfake_app_id/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0'}
         self.assertDictEqual(message, expected_message)
         expected_message['blockScript'] = '/fake_app/captcha/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0'
         self.assertNotEqual(message, expected_message)
