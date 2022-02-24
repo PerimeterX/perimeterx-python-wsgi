@@ -11,7 +11,6 @@
         "bypass_monitor_header",
         "cookie_v3",
         "css_ref",
-        "custom_logo",
         "custom_request_handler",
         "custom_parameters",
         "custom_proxy",
