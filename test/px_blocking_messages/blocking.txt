@@ -12,6 +12,7 @@
         window._pxVid = 'bf619be8-94be-458a-b6b1-ee81f154c282';
         window._pxUuid = '8712cef7-bcfa-4bb6-ae99-868025e1908a';
         window._pxAppId = 'PXfake_app_id';
+        window._pxCustomLogo = '';
         window._pxHostUrl = '/fake_app_id/xhr';
         window._pxJsClientSrc = '/fake_app_id/init.js';
         window._pxFirstPartyEnabled = true;
