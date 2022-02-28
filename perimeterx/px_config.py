@@ -8,6 +8,7 @@ class PxConfig(object):
         app_id = config_dict.get('app_id')
         debug_mode = config_dict.get('debug_mode', False)
         module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
+        custom_logo = config_dict.get('custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
         px_backend_host = config_dict.get('px_backend_url', None)
         max_buffer_len = config_dict.get('max_buffer_len', 30)
@@ -24,6 +25,7 @@ class PxConfig(object):
                                       config_dict.get('sensitive_headers', ['cookie', 'cookies']))
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 1000)
+        self._custom_logo = custom_logo
         self._css_ref = config_dict.get('css_ref', '')
         self._js_ref = config_dict.get('js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
@@ -54,6 +56,7 @@ class PxConfig(object):
         self._enforced_specific_routes = enforced_routes
 
         self._block_html = 'BLOCK'
+        self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
         self._testing_mode = testing_mode
         self._auth_token = config_dict.get('auth_token', None)
@@ -128,6 +131,10 @@ class PxConfig(object):
         return self._send_page_activities
 
     @property
+    def custom_logo(self):
+        return self._custom_logo
+
+    @property
     def css_ref(self):
         return self._css_ref
 
@@ -162,6 +169,10 @@ class PxConfig(object):
     @property
     def block_html(self):
         return self._block_html
+
+    @property
+    def logo_visibility(self):
+        return self._logo_visibility
 
     @property
     def additional_activity_handler(self):
