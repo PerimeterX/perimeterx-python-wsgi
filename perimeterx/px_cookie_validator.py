@@ -84,7 +84,7 @@ def verify(ctx, config):
 
         logger.debug('Cookie evaluation ended successfully, risk score: {}'.format(ctx.score))
         return True
-    except Exception, err:
+    except Exception as err:
         traceback.print_exc()
         logger.error('Unexpected exception while evaluating Risk cookie. Error: {}'.format(err))
         ctx.px_cookie_raw = px_cookie._raw_cookie

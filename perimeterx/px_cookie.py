@@ -8,6 +8,7 @@ import traceback
 from time import time
 
 from Crypto.Cipher import AES
+from urllib3.connectionpool import xrange
 
 import px_enc_utils
 from px_constants import *
@@ -130,7 +131,7 @@ class PxCookie(object):
             self._logger.debug('cookie decrypted')
             return plaintext
         except:
-            print traceback.format_exception(*sys.exc_info())
+            print (traceback.format_exception(*sys.exc_info()))
             return None
 
     def is_cookie_expired(self):
