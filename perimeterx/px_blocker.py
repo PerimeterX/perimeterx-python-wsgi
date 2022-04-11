@@ -92,7 +92,7 @@ class PXBlocker(object):
             'appId': app_id,
             'vid': vid,
             'uuid': uuid,
-            'customLogo': custom_logo,
+            'customLogo': custom_logo if custom_logo else '',
             'cssRef': config.css_ref,
             'jsRef': config.js_ref,
             'hostUrl': host_url,

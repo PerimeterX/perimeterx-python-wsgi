@@ -41,7 +41,7 @@ class Test_PXBlocker(unittest.TestCase):
         context = PxContext(request, self.config)
         context.vid = vid
         context.uuid = px_uuid
-        px_config = PxConfig({'app_id': 'PXfake_app_ip'})
+        px_config = PxConfig({'app_id': 'PXfake_app_id'})
         message, _, _ = px_blocker.handle_blocking(context, px_config)
         working_dir = os.path.dirname(os.path.realpath(__file__))
         with open(working_dir + '/px_blocking_messages/blocking.txt', 'r') as myfile:
@@ -100,16 +100,15 @@ class Test_PXBlocker(unittest.TestCase):
         context.uuid = px_uuid
         message = px_blocker.prepare_properties(context, self.config)
         expected_message = {'blockScript': '/fake_app_id/captcha/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0',
+                            'altBlockScript': '//captcha.px-cloud.net/PXfake_app_id/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0',
                             'vid': 'bf619be8-94be-458a-b6b1-ee81f154c282',
                             'jsRef': '',
                             'hostUrl': '/fake_app_id/xhr',
-                            'customLogo': None,
+                            'customLogo': '',
                             'appId': 'PXfake_app_id',
                             'uuid': '8712cef7-bcfa-4bb6-ae99-868025e1908a',
-                            'logoVisibility': 'hidden',
                             'jsClientSrc': '/fake_app_id/init.js',
                             'firstPartyEnabled': 'true',
-                            'refId': '8712cef7-bcfa-4bb6-ae99-868025e1908a',
                             'cssRef': ''}
         self.assertDictEqual(message, expected_message)
         expected_message['blockScript'] = '/fake_app/captcha/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0'
