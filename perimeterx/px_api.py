@@ -115,9 +115,7 @@ def prepare_risk_body(ctx, config):
         'request': {
             'ip': ctx.ip,
             'headers': format_headers(ctx.headers),
-            'uri': ctx.uri,
             'url': ctx.full_url,
-            'firstParty': 'true' if config.first_party else 'false'
         },
         'additional': {
             's2s_call_reason': ctx.s2s_call_reason,
