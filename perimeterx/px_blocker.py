@@ -100,7 +100,6 @@ class PXBlocker(object):
             'firstPartyEnabled': 'true' if config.first_party else 'false',
             'blockScript': captcha_src,
             'altBlockScript': alt_captcha_src
-
         }
 
     def is_json_response(self, ctx):
