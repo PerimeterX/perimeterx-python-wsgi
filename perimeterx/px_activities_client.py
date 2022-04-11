@@ -41,7 +41,7 @@ def send_activities_in_thread():
 def send_to_perimeterx(activity_type, ctx, config, detail):
     try:
         if activity_type == 'page_requested' and not config.send_page_activities:
-            print ('Page activities disabled in config - skipping.')
+            print 'Page activities disabled in config - skipping.'
             return
         _details = {
             'http_method': ctx.http_method,
@@ -70,7 +70,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 
         ACTIVITIES_BUFFER.append(data)
     except:
-        print (traceback.format_exception(*sys.exc_info()))
+        print traceback.format_exception(*sys.exc_info())
         return
 
 
