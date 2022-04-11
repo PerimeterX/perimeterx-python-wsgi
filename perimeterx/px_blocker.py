@@ -76,6 +76,7 @@ class PXBlocker(object):
         custom_logo = config.custom_logo
         is_mobile_num = 1 if ctx.is_mobile else 0
         captcha_uri = 'captcha.js?a={}&u={}&v={}&m={}'.format(ctx.block_action, uuid, vid, is_mobile_num)
+        alt_captcha_src = '//{}/{}/{}'.format(px_constants.ALT_CAPTCHA_HOST, app_id, captcha_uri)
 
         if config.first_party and not ctx.is_mobile:
             prefix = app_id[2:]
@@ -88,18 +89,18 @@ class PXBlocker(object):
             host_url = px_constants.COLLECTOR_URL.format(app_id.lower())
 
         return {
-            'refId': uuid,
             'appId': app_id,
             'vid': vid,
             'uuid': uuid,
             'customLogo': custom_logo,
             'cssRef': config.css_ref,
             'jsRef': config.js_ref,
-            'logoVisibility': 'visible' if custom_logo is not None else 'hidden',
             'hostUrl': host_url,
             'jsClientSrc': js_client_src,
             'firstPartyEnabled': 'true' if config.first_party else 'false',
-            'blockScript': captcha_src
+            'blockScript': captcha_src,
+            'altBlockScript': alt_captcha_src
+
         }
 
     def is_json_response(self, ctx):
@@ -118,7 +119,7 @@ def parse_action(action):
     if 'b' == action:
         return 'block'
     elif 'j' == action:
-        return 'challege'
+        return 'challenge'
     elif 'r' == action:
         return 'ratelimit'
     else:
