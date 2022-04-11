@@ -5,6 +5,7 @@
 - Configurable max buffer length
 - Configurable px_backend_url
 - Sending activities at the end of request cycle rather than beginning of the next one
+- Removed problematic fields in Risk API request
 
 ## [v3.2.1](https://github.com/PerimeterX/perimeterx-python-wsgi) (2019-08-22)
 - Upgrade dependency for security issue.
