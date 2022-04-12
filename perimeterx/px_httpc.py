@@ -23,12 +23,12 @@ def send(full_url, body, headers, config, method, raise_error = False):
     try:
         start = time.time()
         if method == 'GET':
-            response = requests.get(url='https://' + full_url, headers=headers, timeout=config.api_timeout, stream=True)
+            response = requests.get(url=normalize_url(full_url), headers=headers, timeout=config.api_timeout, stream=True)
         else:
-            response = requests.post(url='https://' + full_url, headers=headers, data=body, timeout=config.api_timeout)
+            response = requests.post(url=normalize_url(full_url), headers=headers, data=body, timeout=config.api_timeout)
 
         if response.status_code >= 400:
-            logger.debug('PerimeterX server call failed')
+            logger.debug('PerimeterX server call failed with status ' + str(response.status_code))
             return False
         finish = time.time()
         request_time = finish - start
@@ -38,3 +38,10 @@ def send(full_url, body, headers, config, method, raise_error = False):
         logger.debug('PerimeterX Received Request Exception. Error: {}'.format(err))
         if raise_error:
             raise err
+
+
+def normalize_url(url):
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    else:
+        return "https://" + url

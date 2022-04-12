@@ -4,9 +4,9 @@
 
 [PerimeterX](http://www.perimeterx.com) Python Middleware
 =============================================================
-> Latest stable version: [v3.2.1](https://pypi.org/project/perimeterx-python-wsgi/)
+> Latest stable version: [v3.3.0](https://pypi.org/project/perimeterx-python-wsgi/)
 
-> Latest GAE stable version: [v3.2.1](https://pypi.org/project/perimeterx-python-wsgi-gae/)
+> Latest GAE stable version: [v3.3.0](https://pypi.org/project/perimeterx-python-wsgi-gae/)
 
 Table of Contents
 -----------------
@@ -100,8 +100,8 @@ px_config = {
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
 ```
-- The PerimeterX **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token** can be found in the Portal, in [Applications](https://console.perimeterx.com/#/app/applicationsmgmt).
-- PerimeterX **Risk Cookie** / **Cookie Key** can be found in the portal, in [Policies](https://console.perimeterx.com/#/app/policiesmgmt).
+- The PerimeterX **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token** can be found in the Portal, in [Applications](https://console.perimeterx.com/botDefender/admin?page=applicationsmgmt).
+- PerimeterX **Risk Cookie** / **Cookie Key** can be found in the portal, in [Policies](https://console.perimeterx.com/botDefender/admin?page=policiesmgmt).
 The Policy from where the **Risk Cookie** / **Cookie Key** is taken must correspond with the Application from where the **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token**.
 For details on how to create a custom Captcha page, refer to the [documentation](https://console.perimeterx.com/docs/server_integration_new.html#custom-captcha-section)
 ## <a name="configuration"></a>Optional Configuration

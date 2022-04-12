@@ -10,7 +10,6 @@ from px_proxy import PxProxy
 
 
 class PxRequestVerifier(object):
-
     def __init__(self, config):
         self.config = config
         self.logger = config.logger
