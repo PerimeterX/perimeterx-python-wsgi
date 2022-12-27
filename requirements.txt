@@ -1,4 +1,4 @@
-setuptools==40.6.2
+setuptools==65.5.1
 requests>=2.18.4,<=2.20.1
 Werkzeug==0.15.5
 pystache>=0.5.1,<=0.5.4
