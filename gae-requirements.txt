@@ -1,3 +1,4 @@
 requests>=2.18.4,<=2.20.1
 pystache>=0.5.1,<=0.5.4
 requests-toolbelt
+urllib3>=1.26.18 # not directly required, pinned by Snyk to avoid a vulnerability
